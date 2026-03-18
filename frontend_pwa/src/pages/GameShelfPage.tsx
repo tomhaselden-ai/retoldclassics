@@ -305,6 +305,7 @@ export function GameShelfPage() {
   const { readerId } = useParams();
   const { token } = useAuth();
   const audioContextRef = useRef<AudioContext | null>(null);
+  const liveSessionRef = useRef<HTMLElement | null>(null);
 
   const [catalog, setCatalog] = useState<V1GameCatalogResponse | null>(null);
   const [library, setLibrary] = useState<ReaderLibraryResponse | null>(null);
@@ -604,9 +605,12 @@ export function GameShelfPage() {
       return;
     }
 
+    if (activeSession) {
+      clearActiveSession("Previous practice session closed without saving.");
+    }
+
     setStartingSession(true);
     setError(null);
-    setNotice(null);
     setSelectedGameType(gameType);
     const selectedGame = LIVE_GAME_OPTIONS.find((option) => option.gameType === gameType) ?? LIVE_GAME_OPTIONS[0];
 
@@ -631,6 +635,9 @@ export function GameShelfPage() {
       resetRoundState();
       setNotice(`${selectedGame.label} is ready to play.`);
       await loadShelf(token, Number(readerId));
+      window.requestAnimationFrame(() => {
+        liveSessionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to start this practice session.");
     } finally {
@@ -1123,7 +1130,7 @@ export function GameShelfPage() {
                 type="button"
                 className="primary-button"
                 onClick={() => void handleStartSession(option.gameType)}
-                disabled={startingSession || !!activeSession}
+                disabled={startingSession}
               >
                 {startingSession && selectedGameType === option.gameType ? "Preparing..." : `Play ${option.label}`}
               </button>
@@ -1167,7 +1174,12 @@ export function GameShelfPage() {
       </section>
 
       {activeSession ? (
-        <section className="panel inset-panel">
+        <section
+          ref={(element) => {
+            liveSessionRef.current = element;
+          }}
+          className="panel inset-panel"
+        >
           <div className="reader-stage-header">
             <div>
               <p className="eyebrow">Live session</p>
