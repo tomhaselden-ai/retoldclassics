@@ -131,8 +131,8 @@ export function ClassicStoryDetailPage() {
             <div className="status-card">
               <h3>Guest story access</h3>
               <p>
-                This preview is open to guests. Starting immersive reading uses one of your remaining classic
-                reads. You currently have {guestLimits.classics_reads_remaining} reads left.
+                This preview is open to guests. Reading this story in immersive mode uses one of your remaining guest
+                story openings. You currently have {guestLimits.classics_reads_remaining} left.
               </p>
             </div>
           ) : null}
@@ -141,7 +141,7 @@ export function ClassicStoryDetailPage() {
             {story.reading_level ? <span>{story.reading_level}</span> : null}
           </div>
           <Link to={`/classics/${story.story_id}/read`} className="primary-button">
-            Start immersive reading
+            Read
           </Link>
         </div>
         {story.cover.image_url ? (

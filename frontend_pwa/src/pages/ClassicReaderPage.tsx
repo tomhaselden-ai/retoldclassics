@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { ErrorState } from "../components/ErrorState";
 import { ImmersiveReader } from "../components/ImmersiveReader";
@@ -14,13 +14,82 @@ import {
 import { useAuth } from "../services/auth";
 import { ensureGuestSession } from "../services/guest";
 
+function parsePlaylistStoryIds(value: string | null) {
+  if (!value) {
+    return [];
+  }
+
+  const uniqueIds: number[] = [];
+  const seen = new Set<number>();
+
+  for (const part of value.split(",")) {
+    const storyId = Number(part.trim());
+    if (!Number.isInteger(storyId) || storyId <= 0 || seen.has(storyId)) {
+      continue;
+    }
+    seen.add(storyId);
+    uniqueIds.push(storyId);
+    if (uniqueIds.length >= 3) {
+      break;
+    }
+  }
+
+  return uniqueIds;
+}
+
+function buildPlaylistReadPath(storyId: number, playlistStoryIds: number[], playlistIndex: number) {
+  if (playlistStoryIds.length <= 1) {
+    return `/classics/${storyId}/read`;
+  }
+
+  const params = new URLSearchParams({
+    playlist: playlistStoryIds.join(","),
+    playlistIndex: String(playlistIndex),
+  });
+
+  return `/classics/${storyId}/read?${params.toString()}`;
+}
+
 export function ClassicReaderPage() {
   const { account } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
   const { storyId } = useParams();
   const [story, setStory] = useState<ClassicReadResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [guestLimits, setGuestLimits] = useState<GuestLimitsResponse | null>(null);
+
+  const numericStoryId = useMemo(() => {
+    const parsedStoryId = Number(storyId);
+    return Number.isInteger(parsedStoryId) && parsedStoryId > 0 ? parsedStoryId : null;
+  }, [storyId]);
+
+  const playlist = useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    const storyIds = parsePlaylistStoryIds(params.get("playlist"));
+    if (!numericStoryId) {
+      return { storyIds: [], currentIndex: 0 };
+    }
+
+    if (storyIds.length === 0) {
+      return { storyIds: [numericStoryId], currentIndex: 0 };
+    }
+
+    const currentIndex = storyIds.indexOf(numericStoryId);
+    if (currentIndex >= 0) {
+      return { storyIds, currentIndex };
+    }
+
+    return { storyIds: [numericStoryId, ...storyIds].slice(0, 3), currentIndex: 0 };
+  }, [location.search, numericStoryId]);
+
+  const nextStoryId =
+    playlist.currentIndex < playlist.storyIds.length - 1 ? playlist.storyIds[playlist.currentIndex + 1] : null;
+  const nextStoryPath =
+    nextStoryId !== null
+      ? buildPlaylistReadPath(nextStoryId, playlist.storyIds, playlist.currentIndex + 1)
+      : null;
 
   useEffect(() => {
     if (!storyId) {
@@ -77,6 +146,13 @@ export function ClassicReaderPage() {
       cancelled = true;
     };
   }, [account, storyId]);
+
+  function handlePlaylistAdvance() {
+    if (!nextStoryPath) {
+      return;
+    }
+    navigate(nextStoryPath);
+  }
 
   if (loading) {
     return <LoadingState label="Building the immersive reading view..." />;
@@ -152,7 +228,29 @@ export function ClassicReaderPage() {
         </section>
       ) : null}
 
-      <ImmersiveReader story={story} />
+      {!account && playlist.storyIds.length > 1 ? (
+        <section className="panel">
+          <p className="eyebrow">Guest story queue</p>
+          <h2>
+            Story {playlist.currentIndex + 1} of {playlist.storyIds.length}
+          </h2>
+          <p>
+            StoryBloom will move to the next story automatically when narration finishes. If this story is text-first,
+            you can use the next button below to keep going.
+          </p>
+          {nextStoryPath ? (
+            <div className="hero-actions">
+              <Link to={nextStoryPath} className="ghost-button">
+                Next story
+              </Link>
+            </div>
+          ) : (
+            <span className="chip">Final story in this guest queue</span>
+          )}
+        </section>
+      ) : null}
+
+      <ImmersiveReader story={story} autoPlay={!account} onFinished={handlePlaylistAdvance} />
     </div>
   );
 }

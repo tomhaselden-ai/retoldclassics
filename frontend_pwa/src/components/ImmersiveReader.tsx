@@ -137,9 +137,16 @@ function renderInteractiveText(
   return <>{fragments}</>;
 }
 
-export function ImmersiveReader({ story }: { story: ClassicReadResponse }) {
+interface ImmersiveReaderProps {
+  story: ClassicReadResponse;
+  autoPlay?: boolean;
+  onFinished?: () => void;
+}
+
+export function ImmersiveReader({ story, autoPlay = false, onFinished }: ImmersiveReaderProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const unitRefs = useRef<Array<HTMLElement | null>>([]);
+  const autoPlayAttemptedRef = useRef(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -202,7 +209,10 @@ export function ImmersiveReader({ story }: { story: ClassicReadResponse }) {
     const audio = audioRef.current;
     const updateTime = () => setCurrentTime(audio.currentTime);
     const updateDuration = () => setDuration(audio.duration || 0);
-    const onEnded = () => setIsPlaying(false);
+    const onEnded = () => {
+      setIsPlaying(false);
+      onFinished?.();
+    };
     const onPause = () => setIsPlaying(false);
     const onPlay = () => {
       setIsPlaying(true);
@@ -233,7 +243,44 @@ export function ImmersiveReader({ story }: { story: ClassicReadResponse }) {
       audio.removeEventListener("canplay", onCanPlay);
       audio.removeEventListener("error", onError);
     };
-  }, [hasPlayableNarration]);
+  }, [hasPlayableNarration, onFinished]);
+
+  useEffect(() => {
+    autoPlayAttemptedRef.current = false;
+    setAudioStatus(null);
+  }, [resolvedAudioUrl]);
+
+  useEffect(() => {
+    if (!autoPlay || !hasPlayableNarration || !audioRef.current || autoPlayAttemptedRef.current) {
+      return;
+    }
+
+    const audio = audioRef.current;
+
+    const attemptAutoPlay = async () => {
+      autoPlayAttemptedRef.current = true;
+      try {
+        await audio.play();
+      } catch {
+        setAudioStatus("Narration is ready. Tap Play to start listening.");
+      }
+    };
+
+    if (audio.readyState >= 2) {
+      void attemptAutoPlay();
+      return;
+    }
+
+    const handleCanPlay = () => {
+      audio.removeEventListener("canplay", handleCanPlay);
+      void attemptAutoPlay();
+    };
+
+    audio.addEventListener("canplay", handleCanPlay);
+    return () => {
+      audio.removeEventListener("canplay", handleCanPlay);
+    };
+  }, [autoPlay, hasPlayableNarration, resolvedAudioUrl]);
 
   function jumpToUnit(index: number) {
     setActiveIndex(index);

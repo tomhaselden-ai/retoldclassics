@@ -9,8 +9,16 @@ const ACCENT_CLASS_MAP: Record<string, string> = {
   lagoon: "accent-lagoon",
 };
 
-export function StoryCard({ item }: { item: ShelfItem }) {
+interface StoryCardProps {
+  item: ShelfItem;
+  infoLabel?: string;
+  infoTo?: string;
+  readTo?: string | null;
+}
+
+export function StoryCard({ item, infoLabel = "Explore story", infoTo, readTo = null }: StoryCardProps) {
   const accentClass = ACCENT_CLASS_MAP[item.cover.accent_token ?? ""] ?? "accent-default";
+  const resolvedInfoTo = infoTo ?? `/classics/${item.story_id}`;
 
   return (
     <article className={`story-card ${accentClass}`}>
@@ -31,9 +39,16 @@ export function StoryCard({ item }: { item: ShelfItem }) {
           {item.reading_level ? <span>{item.reading_level}</span> : null}
         </div>
         <p>{item.preview_text}</p>
-        <Link to={`/classics/${item.story_id}`} className="primary-link">
-          Explore story
-        </Link>
+        <div className="story-card-actions">
+          <Link to={resolvedInfoTo} className={readTo ? "ghost-button" : "primary-link"}>
+            {infoLabel}
+          </Link>
+          {readTo ? (
+            <Link to={readTo} className="primary-link">
+              Read
+            </Link>
+          ) : null}
+        </div>
       </div>
     </article>
   );

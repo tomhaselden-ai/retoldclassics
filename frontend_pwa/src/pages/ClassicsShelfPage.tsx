@@ -19,6 +19,37 @@ import { ensureGuestSession } from "../services/guest";
 const AUTHORS = ["Andersen", "Grimm", "Bible", "Aesop"] as const;
 const GUEST_AUTHORS = ["Andersen", "Grimm", "Bible", "Aesop"] as const;
 
+function buildClassicReadPath(storyId: number, playlistStoryIds?: number[]) {
+  if (!playlistStoryIds || playlistStoryIds.length <= 1) {
+    return `/classics/${storyId}/read`;
+  }
+
+  const params = new URLSearchParams({
+    playlist: playlistStoryIds.join(","),
+    playlistIndex: String(Math.max(0, playlistStoryIds.indexOf(storyId))),
+  });
+
+  return `/classics/${storyId}/read?${params.toString()}`;
+}
+
+function buildGuestPlaylistStoryIds(items: ShelfItem[], maximumStories: number) {
+  const uniqueStoryIds: number[] = [];
+  const seen = new Set<number>();
+
+  for (const item of items) {
+    if (seen.has(item.story_id)) {
+      continue;
+    }
+    seen.add(item.story_id);
+    uniqueStoryIds.push(item.story_id);
+    if (uniqueStoryIds.length >= maximumStories) {
+      break;
+    }
+  }
+
+  return uniqueStoryIds;
+}
+
 export function ClassicsShelfPage() {
   const { account } = useAuth();
   const [author, setAuthor] = useState<string>("");
@@ -111,6 +142,19 @@ export function ClassicsShelfPage() {
     };
   }, [account, allowedAuthors, author, query]);
 
+  const guestPlaylistStoryIds = useMemo(() => {
+    if (account) {
+      return [];
+    }
+    const maximumStories = Math.min(3, guestLimits?.classics_reads_remaining ?? 0);
+    return buildGuestPlaylistStoryIds(items, maximumStories);
+  }, [account, guestLimits, items]);
+
+  const playAllPath =
+    !account && guestPlaylistStoryIds.length > 0
+      ? buildClassicReadPath(guestPlaylistStoryIds[0], guestPlaylistStoryIds)
+      : null;
+
   function handleSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setQuery(queryDraft.trim());
@@ -202,25 +246,43 @@ export function ClassicsShelfPage() {
           <section className="panel">
             <div className="section-heading">
               <div>
-                <p className="eyebrow">{query ? "Semantic discovery" : "Browse classics"}</p>
+                <p className="eyebrow">{query ? "Classic story search" : "Browse classics"}</p>
                 <h2>
                   {query
                     ? matchMode === "semantic"
-                      ? "Closest story matches"
-                      : "Keyword fallback matches"
+                      ? "Stories that fit your search"
+                      : "Stories matching your words"
                     : "Stories to begin with"}
                 </h2>
                 <p>
                   {query
-                    ? "Searches are ranked by story meaning first, then narrowed by the author filter when you use one."
+                    ? "Search in natural language and StoryBloom will bring forward classic stories that match the idea you have in mind."
                     : "Start anywhere, then search with a full idea when you want something more specific."}
                 </p>
               </div>
-              <span className="chip">{totalCount} stories</span>
+              <div className="section-actions">
+                <span className="chip">{totalCount} stories</span>
+                {!account && query ? (
+                  playAllPath ? (
+                    <StoryBloomActionButton to={playAllPath} shape="moon">
+                      Play all
+                    </StoryBloomActionButton>
+                  ) : (
+                    <StoryBloomActionButton type="button" shape="moon" disabled>
+                      Play all
+                    </StoryBloomActionButton>
+                  )
+                ) : null}
+              </div>
             </div>
             <div className="story-grid">
               {items.map((item) => (
-                <StoryCard key={item.story_id} item={item} />
+                <StoryCard
+                  key={item.story_id}
+                  item={item}
+                  infoLabel="Story info"
+                  readTo={buildClassicReadPath(item.story_id)}
+                />
               ))}
             </div>
           </section>

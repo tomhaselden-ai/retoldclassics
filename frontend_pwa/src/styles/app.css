@@ -148,7 +148,9 @@
 .meta-row,
 .reader-controls,
 .reader-stats,
-.section-heading {
+.section-heading,
+.section-actions,
+.story-card-actions {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -509,6 +511,10 @@ button:disabled,
 
 .story-card-body p {
   min-height: 4.4rem;
+}
+
+.story-card-actions {
+  margin-top: 0.9rem;
 }
 
 .story-card-body h3 {
