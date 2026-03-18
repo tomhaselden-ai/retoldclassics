@@ -20,14 +20,15 @@ const AUTHORS = ["Andersen", "Grimm", "Bible", "Aesop"] as const;
 const GUEST_AUTHORS = ["Andersen", "Grimm", "Bible", "Aesop"] as const;
 
 function buildClassicReadPath(storyId: number, playlistStoryIds?: number[]) {
-  if (!playlistStoryIds || playlistStoryIds.length <= 1) {
-    return `/classics/${storyId}/read`;
-  }
-
   const params = new URLSearchParams({
-    playlist: playlistStoryIds.join(","),
-    playlistIndex: String(Math.max(0, playlistStoryIds.indexOf(storyId))),
+    autostart: "1",
+    focus: "now-reading",
   });
+
+  if (playlistStoryIds && playlistStoryIds.length > 1) {
+    params.set("playlist", playlistStoryIds.join(","));
+    params.set("playlistIndex", String(Math.max(0, playlistStoryIds.indexOf(storyId))));
+  }
 
   return `/classics/${storyId}/read?${params.toString()}`;
 }
@@ -37,6 +38,9 @@ function buildGuestPlaylistStoryIds(items: ShelfItem[], maximumStories: number) 
   const seen = new Set<number>();
 
   for (const item of items) {
+    if (!item.narration_available) {
+      continue;
+    }
     if (seen.has(item.story_id)) {
       continue;
     }
@@ -144,16 +148,14 @@ export function ClassicsShelfPage() {
 
   const guestPlaylistStoryIds = useMemo(() => {
     if (account) {
-      return [];
+      return buildGuestPlaylistStoryIds(items, 6);
     }
     const maximumStories = Math.min(3, guestLimits?.classics_reads_remaining ?? 0);
     return buildGuestPlaylistStoryIds(items, maximumStories);
   }, [account, guestLimits, items]);
 
   const playAllPath =
-    !account && guestPlaylistStoryIds.length > 0
-      ? buildClassicReadPath(guestPlaylistStoryIds[0], guestPlaylistStoryIds)
-      : null;
+    guestPlaylistStoryIds.length > 0 ? buildClassicReadPath(guestPlaylistStoryIds[0], guestPlaylistStoryIds) : null;
 
   function handleSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -269,7 +271,7 @@ export function ClassicsShelfPage() {
               </div>
               <div className="section-actions">
                 <span className="chip">{totalCount} stories</span>
-                {!account && query ? (
+                {guestPlaylistStoryIds.length > 0 ? (
                   playAllPath ? (
                     <StoryBloomActionButton to={playAllPath} shape="moon">
                       Play all
@@ -279,7 +281,11 @@ export function ClassicsShelfPage() {
                       Play all
                     </StoryBloomActionButton>
                   )
-                ) : null}
+                ) : (
+                  <StoryBloomActionButton type="button" shape="moon" disabled>
+                    Play all
+                  </StoryBloomActionButton>
+                )}
               </div>
             </div>
             <div className="story-grid">

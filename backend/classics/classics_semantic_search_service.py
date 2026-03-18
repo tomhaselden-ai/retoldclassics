@@ -12,6 +12,7 @@ from backend.classics.classics_serializer import (
     build_cover_metadata,
     expand_author_filters,
     extract_preview_text,
+    has_playable_narration,
     normalize_author,
 )
 from backend.story_engine.vector_store import ClassicalStoryVectorStore
@@ -37,6 +38,7 @@ def _build_story_item(story: Any) -> dict[str, Any]:
         "preview_text": extract_preview_text(story),
         "cover": build_cover_metadata(story),
         "immersive_reader_available": True,
+        "narration_available": has_playable_narration(story),
     }
 
 

@@ -140,12 +140,19 @@ function renderInteractiveText(
 interface ImmersiveReaderProps {
   story: ClassicReadResponse;
   autoPlay?: boolean;
+  focusNowReading?: boolean;
   onFinished?: () => void;
 }
 
-export function ImmersiveReader({ story, autoPlay = false, onFinished }: ImmersiveReaderProps) {
+export function ImmersiveReader({
+  story,
+  autoPlay = false,
+  focusNowReading = false,
+  onFinished,
+}: ImmersiveReaderProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const unitRefs = useRef<Array<HTMLElement | null>>([]);
+  const storyFlowRef = useRef<HTMLElement | null>(null);
   const autoPlayAttemptedRef = useRef(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -249,6 +256,14 @@ export function ImmersiveReader({ story, autoPlay = false, onFinished }: Immersi
     autoPlayAttemptedRef.current = false;
     setAudioStatus(null);
   }, [resolvedAudioUrl]);
+
+  useEffect(() => {
+    if (!focusNowReading || !storyFlowRef.current) {
+      return;
+    }
+
+    storyFlowRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [focusNowReading, story.story_id]);
 
   useEffect(() => {
     if (!autoPlay || !hasPlayableNarration || !audioRef.current || autoPlayAttemptedRef.current) {
@@ -461,7 +476,13 @@ export function ImmersiveReader({ story, autoPlay = false, onFinished }: Immersi
           </section>
         )}
 
-        <article className="reader-card story-flow">
+        <article
+          id="classic-now-reading"
+          ref={(element) => {
+            storyFlowRef.current = element;
+          }}
+          className="reader-card story-flow"
+        >
           <header className="reader-story-header">
             <p className="eyebrow">Now Reading</p>
             <h3>{story.title ?? "Untitled classic"}</h3>

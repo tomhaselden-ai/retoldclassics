@@ -573,6 +573,7 @@ export interface ShelfItem {
   preview_text: string;
   cover: ClassicsCover;
   immersive_reader_available: boolean;
+  narration_available: boolean;
 }
 
 export interface ShelfGroup {

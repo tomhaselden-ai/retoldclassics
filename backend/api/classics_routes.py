@@ -35,6 +35,7 @@ class ShelfItemResponse(BaseModel):
     preview_text: str
     cover: CoverResponse
     immersive_reader_available: bool
+    narration_available: bool = False
 
 
 class ShelfGroupResponse(BaseModel):

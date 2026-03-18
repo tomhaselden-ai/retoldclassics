@@ -38,14 +38,15 @@ function parsePlaylistStoryIds(value: string | null) {
 }
 
 function buildPlaylistReadPath(storyId: number, playlistStoryIds: number[], playlistIndex: number) {
-  if (playlistStoryIds.length <= 1) {
-    return `/classics/${storyId}/read`;
-  }
-
   const params = new URLSearchParams({
-    playlist: playlistStoryIds.join(","),
-    playlistIndex: String(playlistIndex),
+    autostart: "1",
+    focus: "now-reading",
   });
+
+  if (playlistStoryIds.length > 1) {
+    params.set("playlist", playlistStoryIds.join(","));
+    params.set("playlistIndex", String(playlistIndex));
+  }
 
   return `/classics/${storyId}/read?${params.toString()}`;
 }
@@ -83,6 +84,14 @@ export function ClassicReaderPage() {
 
     return { storyIds: [numericStoryId, ...storyIds].slice(0, 3), currentIndex: 0 };
   }, [location.search, numericStoryId]);
+  const shouldAutoStart = useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get("autostart") === "1";
+  }, [location.search]);
+  const shouldFocusNowReading = useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get("focus") === "now-reading";
+  }, [location.search]);
 
   const nextStoryId =
     playlist.currentIndex < playlist.storyIds.length - 1 ? playlist.storyIds[playlist.currentIndex + 1] : null;
@@ -250,7 +259,12 @@ export function ClassicReaderPage() {
         </section>
       ) : null}
 
-      <ImmersiveReader story={story} autoPlay={!account} onFinished={handlePlaylistAdvance} />
+      <ImmersiveReader
+        story={story}
+        autoPlay={shouldAutoStart}
+        focusNowReading={shouldFocusNowReading}
+        onFinished={handlePlaylistAdvance}
+      />
     </div>
   );
 }

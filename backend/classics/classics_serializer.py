@@ -91,6 +91,14 @@ def build_cover_metadata(story: ClassicalStoryRecord) -> dict[str, Any]:
     }
 
 
+def has_playable_narration(story: ClassicalStoryRecord) -> bool:
+    parsed = parse_json_like(getattr(story, "narration", None))
+    if not isinstance(parsed, dict):
+        return False
+    audio_url = parsed.get("audio_url")
+    return isinstance(audio_url, str) and bool(audio_url.strip())
+
+
 def _extract_text(value: Any) -> str | None:
     if isinstance(value, str):
         text = value.strip()
@@ -287,6 +295,7 @@ def build_shelf_payload(stories: list[ClassicalStoryRecord], total_count: int) -
                 "preview_text": extract_preview_text(story),
                 "cover": build_cover_metadata(story),
                 "immersive_reader_available": True,
+                "narration_available": has_playable_narration(story),
             }
         )
 

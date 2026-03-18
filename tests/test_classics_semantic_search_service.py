@@ -44,6 +44,7 @@ class ClassicsSemanticSearchServiceTests(unittest.TestCase):
         self.assertEqual(payload["match_mode"], "semantic")
         self.assertEqual(payload["total_count"], 1)
         self.assertEqual(payload["items"][0]["story_id"], 11)
+        self.assertFalse(payload["items"][0]["narration_available"])
         stories_mocked.assert_called_once_with(self.db, [11], ["Aesop"])
 
     def test_discover_classics_falls_back_to_keyword_search_when_vector_store_fails(self) -> None:
@@ -90,6 +91,7 @@ class ClassicsSemanticSearchServiceTests(unittest.TestCase):
 
         self.assertEqual(payload["match_mode"], "browse")
         self.assertEqual(payload["items"][0]["source_author"], "Aesop")
+        self.assertFalse(payload["items"][0]["narration_available"])
 
 
 if __name__ == "__main__":
