@@ -186,7 +186,7 @@ export function ParentGoalsPage() {
             <article className="status-card dashboard-summary-card">
               <p className="eyebrow">Readers with goals</p>
               <h3>{summary.readers.filter((reader) => reader.goals.length > 0).length}</h3>
-              <p>Readers currently using the live Phase 6 goals system.</p>
+              <p>Readers currently using live goals in StoryBloom.</p>
             </article>
           </div>
         ) : null}
@@ -221,7 +221,7 @@ export function ParentGoalsPage() {
                   </div>
                   <div className="reader-panel-actions">
                     <Link className="ghost-button" to={`/parent/readers/${reader.reader_id}`}>
-                      Reader workspace
+                      Reader overview
                     </Link>
                     <button
                       type="button"

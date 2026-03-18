@@ -210,10 +210,10 @@ export function ParentCharacterCanonPage() {
           </div>
           <div className="library-action-row">
             <Link to={`/parent/readers/${readerId}`} className="ghost-button">
-              Reader workspace
+              Reader overview
             </Link>
             <Link to={`/reader/${readerId}/worlds/${worldId}`} className="ghost-button">
-              World info
+              Universe info
             </Link>
           </div>
         </div>

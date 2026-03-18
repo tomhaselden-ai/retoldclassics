@@ -107,7 +107,7 @@ export function VocabularyShelfPage() {
             <div>
               <p className="eyebrow">Vocabulary shelf</p>
               <h1>Reader vocabulary</h1>
-              <p>Track developing words, focus on practice words, and keep mastery progress moving without leaving the reader workspace.</p>
+              <p>Track developing words, focus on practice words, and keep mastery progress moving without leaving the reader area.</p>
             </div>
             <div className="library-action-row">
               {readerId ? (

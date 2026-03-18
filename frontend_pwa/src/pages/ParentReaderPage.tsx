@@ -37,7 +37,7 @@ export function ParentReaderPage() {
     setLoading(true);
     loadWorkspace(token, Number(readerId))
       .then(() => setError(null))
-      .catch((err) => setError(err instanceof Error ? err.message : "Unable to load the parent reader workspace."))
+      .catch((err) => setError(err instanceof Error ? err.message : "Unable to load the parent reader overview."))
       .finally(() => setLoading(false));
   }, [readerId, token]);
 
@@ -72,7 +72,7 @@ export function ParentReaderPage() {
   }
 
   if (loading) {
-    return <LoadingState label="Opening the parent reader workspace..." />;
+    return <LoadingState label="Opening the parent reader overview..." />;
   }
 
   if (error) {
@@ -80,7 +80,7 @@ export function ParentReaderPage() {
   }
 
   if (!workspace) {
-    return <ErrorState message="Reader workspace unavailable." />;
+    return <ErrorState message="Reader overview unavailable." />;
   }
 
   const { reader, dashboard, learning_insights, library_summary, world_summary } = workspace;
@@ -90,7 +90,7 @@ export function ParentReaderPage() {
       <section className="panel">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">Parent reader workspace</p>
+            <p className="eyebrow">Parent reader overview</p>
             <h1>{reader.name ?? `Reader ${reader.reader_id}`}</h1>
             <p>
               Parent-facing view for this reader&apos;s profile, current shelves, and launch points into the
@@ -119,7 +119,7 @@ export function ParentReaderPage() {
           <article className="status-card dashboard-summary-card">
             <p className="eyebrow">Stories read</p>
             <h3>{dashboard.reading_statistics.stories_read ?? 0}</h3>
-            <p>Reader progress tracked through the dashboard service.</p>
+            <p>Reader progress tracked through the family dashboard service.</p>
           </article>
           <article className="status-card dashboard-summary-card">
             <p className="eyebrow">Words mastered</p>
@@ -129,7 +129,7 @@ export function ParentReaderPage() {
           <article className="status-card dashboard-summary-card">
             <p className="eyebrow">World shelves</p>
             <h3>{world_summary.world_count}</h3>
-            <p>{library_summary.story_count} generated books currently visible in this reader&apos;s library.</p>
+            <p>{library_summary.story_count} generated books currently visible in this reader&apos;s bookshelf.</p>
           </article>
         </div>
 
@@ -146,7 +146,7 @@ export function ParentReaderPage() {
           <div>
             <p className="eyebrow">Profile</p>
             <h2>Reader profile and parent controls</h2>
-            <p>Use this space for profile maintenance, then launch into books, words, games, and worlds as needed.</p>
+            <p>Use this space for profile maintenance, then launch into books, words, games, and universes as needed.</p>
           </div>
           <div className="library-action-row">
             <button type="button" className="ghost-button" onClick={() => setEditing((value) => !value)}>
@@ -196,12 +196,12 @@ export function ParentReaderPage() {
             <p className="eyebrow">Books</p>
             <h2>Recent library activity</h2>
             <p>
-              The parent workspace summarizes recent generated books and gives you a quick jump back into the live
-              reader library.
+              This overview summarizes recent generated books and gives you a quick jump back into the live
+              reader bookshelf.
             </p>
           </div>
           <Link to={`/reader/${reader.reader_id}/books`} className="ghost-button">
-            Open full library
+            Open full bookshelf
           </Link>
         </div>
 
@@ -214,7 +214,7 @@ export function ParentReaderPage() {
                 <p>{story.custom_world_name || story.world_name || "Ungrouped world shelf"}</p>
                 <div className="library-action-row">
                   <Link className="primary-button" to={`/reader/${reader.reader_id}/books/${story.story_id}`}>
-                    View story
+                    Story info
                   </Link>
                   <Link className="ghost-button" to={`/reader/${reader.reader_id}/books/${story.story_id}/read`}>
                     Read
@@ -225,7 +225,7 @@ export function ParentReaderPage() {
           ) : (
             <div className="status-card">
               <h3>No generated books yet</h3>
-              <p>Use the reader library to assign worlds and generate the first book for this reader.</p>
+              <p>Use the reader bookshelf to assign universes and generate the first book for this reader.</p>
             </div>
           )}
         </div>
@@ -234,11 +234,11 @@ export function ParentReaderPage() {
       <section className="panel">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">World shelves</p>
+            <p className="eyebrow">Universe shelves</p>
             <h2>Reader universes and launch points</h2>
             <p>
-              World editing and new-book creation still happen through the existing reader library tools. This page
-              keeps the overview and links in one place.
+              Universe details and new-book creation still happen through the existing reader bookshelf flow. This
+              page keeps the overview and links in one place.
             </p>
           </div>
         </div>
@@ -247,17 +247,17 @@ export function ParentReaderPage() {
           {world_summary.worlds.length > 0 ? (
             world_summary.worlds.map((world) => (
               <article key={world.reader_world_id} className="panel inset-panel">
-                <p className="eyebrow">World shelf</p>
-                <h3>{world.custom_name || world.name || "Unnamed world shelf"}</h3>
+                <p className="eyebrow">Universe shelf</p>
+                <h3>{world.custom_name || world.name || "Unnamed universe shelf"}</h3>
                 <p>{world.description ?? "No world description available yet."}</p>
                 <div className="library-action-row">
                   <Link className="ghost-button" to={`/reader/${reader.reader_id}/books`}>
-                    Open library tools
+                    Open bookshelf
                   </Link>
                   {typeof world.world_id === "number" ? (
                     <>
                       <Link className="ghost-button" to={`/reader/${reader.reader_id}/worlds/${world.world_id}`}>
-                        World info
+                        Universe info
                       </Link>
                       <Link className="ghost-button" to={`/parent/readers/${reader.reader_id}/worlds/${world.world_id}/canon`}>
                         Character canon
@@ -269,8 +269,8 @@ export function ParentReaderPage() {
             ))
           ) : (
             <div className="status-card">
-              <h3>No world shelves yet</h3>
-              <p>Assign a world through the reader library to start organizing books by universe.</p>
+              <h3>No universe shelves yet</h3>
+              <p>Assign a universe through the reader bookshelf to start organizing books by shelf.</p>
             </div>
           )}
         </div>

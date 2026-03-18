@@ -52,8 +52,8 @@ export function RegisterPage() {
     <section className="center-shell">
       <form className="panel login-panel" onSubmit={handleSubmit}>
         <p className="eyebrow">New account</p>
-        <h1>Create your story universe account</h1>
-        <p>Set up an account for the family dashboard, reader profiles, and personal story libraries.</p>
+        <h1>Create your StoryBloom account</h1>
+        <p>Set up your family account for parent tools, reader profiles, and your home bookshelf.</p>
 
         <label className="field">
           <span>Email</span>

@@ -106,7 +106,7 @@ export function ParentAreaPage() {
             <h1>Family overview and reader management</h1>
             <p>
               This parent view keeps the important family signals together: reader progress, launch points into books
-              and worlds, and profile management without dropping straight into the legacy dashboard.
+              and universes, and profile management in one place.
             </p>
           </div>
           <div className="library-action-row">
@@ -114,10 +114,10 @@ export function ParentAreaPage() {
               Family chooser
             </Link>
             <Link to="/dashboard" className="ghost-button">
-              Legacy dashboard
+              Account dashboard
             </Link>
             <Link to="/parent/analytics" className="primary-button">
-              Analytics preview
+              Family analytics
             </Link>
           </div>
         </div>
@@ -162,8 +162,8 @@ export function ParentAreaPage() {
         <div className="section-heading">
           <div>
             <p className="eyebrow">Parent tools</p>
-            <h2>What lives where right now</h2>
-            <p>Phase 4 keeps the main parent workflow compact while deeper analytics, goals, and settings mature in place.</p>
+            <h2>Parent tools at a glance</h2>
+            <p>Use this area for everyday family management, then open deeper account tools when you need them.</p>
           </div>
         </div>
 
@@ -174,17 +174,17 @@ export function ParentAreaPage() {
             <p>Manage reader profiles here, then jump directly into each child-facing area.</p>
           </article>
           <article className="panel inset-panel">
-            <p className="eyebrow">Shelves and worlds</p>
-            <h3>Per-reader detail pages</h3>
-            <p>Open a reader workspace to see recent books, world shelves, and launch points into reader tools.</p>
+            <p className="eyebrow">Shelves and universes</p>
+            <h3>Per-reader details</h3>
+            <p>Open a reader overview to see recent books, universe shelves, and launch points into reader tools.</p>
           </article>
           <article className="panel inset-panel">
             <p className="eyebrow">Settings</p>
-            <h3>Legacy dashboard for now</h3>
-            <p>Account settings, classics controls, and the older management surface still live under the legacy dashboard.</p>
+            <h3>Account dashboard</h3>
+            <p>Account settings, classics controls, and longer-form management still live under the account dashboard.</p>
             <div className="library-action-row">
               <Link to="/dashboard" className="ghost-button">
-                Open legacy dashboard
+                Open account dashboard
               </Link>
             </div>
           </article>
@@ -305,7 +305,7 @@ export function ParentAreaPage() {
             ) : (
               <div className="status-card">
                 <h3>No readers yet</h3>
-                <p>Create the first reader profile here to open up books, worlds, and child-facing routes.</p>
+                <p>Create the first reader profile here to open up books, universes, and child-facing routes.</p>
               </div>
             )}
           </div>

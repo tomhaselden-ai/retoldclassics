@@ -129,7 +129,7 @@ export function ReaderHomePage() {
           <article className="panel inset-panel">
             <p className="eyebrow">Books</p>
             <h3>{summary.library_summary.story_count}</h3>
-            <p>{summary.library_summary.world_count} world shelves waiting for adventures.</p>
+            <p>{summary.library_summary.world_count} universe shelves waiting for adventures.</p>
             <div className="library-action-row">
               <Link to={`/reader/${summary.reader.reader_id}/books`} className="primary-button">
                 My books

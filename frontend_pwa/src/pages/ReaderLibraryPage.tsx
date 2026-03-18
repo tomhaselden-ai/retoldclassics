@@ -22,7 +22,7 @@ export function ReaderLibraryPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  async function loadWorkspace(activeToken: string, activeReaderId: number) {
+  async function loadBookshelf(activeToken: string, activeReaderId: number) {
     const [libraryPayload, readerWorldPayload] = await Promise.all([
       getReaderLibrary(activeReaderId, activeToken),
       getReaderWorlds(activeReaderId, activeToken),
@@ -36,8 +36,8 @@ export function ReaderLibraryPage() {
       return;
     }
 
-    loadWorkspace(token, Number(readerId))
-      .catch((err) => setError(err instanceof Error ? err.message : "Unable to load the reader library workspace."))
+    loadBookshelf(token, Number(readerId))
+      .catch((err) => setError(err instanceof Error ? err.message : "Unable to load the reader bookshelf."))
       .finally(() => setLoading(false));
   }, [readerId, token]);
 
@@ -100,7 +100,7 @@ export function ReaderLibraryPage() {
 
   return (
     <section className="panel">
-      {loading ? <LoadingState label="Opening the library workspace..." /> : null}
+      {loading ? <LoadingState label="Opening the reader bookshelf..." /> : null}
       {error ? <ErrorState message={error} /> : null}
 
       {library ? (
@@ -133,7 +133,7 @@ export function ReaderLibraryPage() {
             {readerWorlds.length > 0 ? (
               readerWorlds.map((readerWorld) => {
                 const shelfStories = storiesByReaderWorld.get(readerWorld.reader_world_id) ?? [];
-                const shelfName = readerWorld.custom_name || readerWorld.world.name || "Unnamed world shelf";
+                const shelfName = readerWorld.custom_name || readerWorld.world.name || "Unnamed universe shelf";
                 const playlist = shelfStories.map((story) => story.story_id);
 
                 return (

@@ -20,7 +20,7 @@ interface StoryCardProps {
 
 export function StoryCard({
   item,
-  infoLabel = "Explore story",
+  infoLabel = "Story info",
   infoTo,
   readTo = null,
   authorLabel,

@@ -44,11 +44,8 @@ export function ChooserPage() {
       <div className="section-heading">
         <div>
           <p className="eyebrow">Family chooser</p>
-          <h1>Choose who is using the story universe</h1>
-          <p>
-            Parent controls and reader journeys branch from here. Reader routes stay simple, and parent routes
-            are protected with a separate PIN.
-          </p>
+          <h1>Choose who is reading today</h1>
+          <p>Start from the parent area or open a reader home in one tap. Parent tools stay protected behind a separate PIN.</p>
         </div>
         <div className="library-action-row">
           <Link to="/classics" className="ghost-button">
@@ -109,7 +106,7 @@ export function ChooserPage() {
             <article className="panel inset-panel">
               <p className="eyebrow">No readers yet</p>
               <h2>Create your first reader</h2>
-              <p>The parent area is where reader creation and account setup live right now.</p>
+              <p>The parent area is where reader creation and family setup live right now.</p>
               <div className="library-action-row">
                 <Link to={parentActionTo} className="primary-button">
                   {parentActionLabel}

@@ -66,9 +66,7 @@ export function ParentAnalyticsPage() {
           <div>
             <p className="eyebrow">Parent analytics</p>
             <h1>Family analytics and goal progress</h1>
-            <p>
-              Phase 6 brings family totals, reader focus areas, and goal progress into one parent view.
-            </p>
+            <p>Keep family totals, reader focus areas, and goal progress together in one clear parent view.</p>
           </div>
           <div className="library-action-row">
             <Link to="/parent" className="primary-button">
@@ -215,7 +213,7 @@ export function ParentAnalyticsPage() {
                 </div>
                 <div className="reader-panel-actions">
                   <Link className="primary-link" to={`/parent/readers/${reader.reader_id}`}>
-                    Open reader workspace
+                    Open reader overview
                   </Link>
                   <Link className="ghost-button" to="/parent/goals">
                     View goals

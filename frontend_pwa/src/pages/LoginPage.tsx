@@ -33,8 +33,8 @@ export function LoginPage() {
     <section className="center-shell">
       <form className="panel login-panel" onSubmit={handleSubmit}>
         <p className="eyebrow">Account portal</p>
-        <h1>Sign in to your story universe</h1>
-        <p>Use your existing account to reach reader dashboards, libraries, and published adventures.</p>
+        <h1>Sign in to StoryBloom</h1>
+        <p>Use your family account to open parent tools, reader bookshelves, and your saved stories.</p>
 
         <label className="field">
           <span>Email</span>
@@ -52,7 +52,7 @@ export function LoginPage() {
         </label>
 
         <button type="submit" className="primary-button" disabled={submitting}>
-          {submitting ? "Opening portal..." : "Sign in"}
+          {submitting ? "Opening StoryBloom..." : "Sign in"}
         </button>
 
         {error ? <ErrorState title="Sign-in failed" message={error} /> : null}

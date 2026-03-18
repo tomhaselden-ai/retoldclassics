@@ -1,4 +1,4 @@
-import { NavLink, Route, Routes } from "react-router-dom";
+import { Navigate, NavLink, Route, Routes, useLocation, useParams } from "react-router-dom";
 
 import { ProtectedRoute } from "./routes/ProtectedRoute";
 import { ParentProtectedRoute } from "./routes/ParentProtectedRoute";
@@ -35,6 +35,42 @@ import { ReaderHomePage } from "./pages/ReaderHomePage";
 import { ReaderLibraryPage } from "./pages/ReaderLibraryPage";
 import { VocabularyShelfPage } from "./pages/VocabularyShelfPage";
 import { WorldInfoPage } from "./pages/WorldInfoPage";
+
+function LegacyReaderLibraryRedirect() {
+  const { readerId } = useParams();
+  const location = useLocation();
+  return <Navigate replace to={`/reader/${readerId}/books${location.search}`} />;
+}
+
+function LegacyReaderStoryRedirect() {
+  const { readerId, storyId } = useParams();
+  const location = useLocation();
+  return <Navigate replace to={`/reader/${readerId}/books/${storyId}${location.search}`} />;
+}
+
+function LegacyReaderStoryReadRedirect() {
+  const { readerId, storyId } = useParams();
+  const location = useLocation();
+  return <Navigate replace to={`/reader/${readerId}/books/${storyId}/read${location.search}`} />;
+}
+
+function LegacyReaderWorldRedirect() {
+  const { readerId, worldId } = useParams();
+  const location = useLocation();
+  return <Navigate replace to={`/reader/${readerId}/worlds/${worldId}${location.search}`} />;
+}
+
+function LegacyReaderGamesRedirect() {
+  const { readerId } = useParams();
+  const location = useLocation();
+  return <Navigate replace to={`/reader/${readerId}/games${location.search}`} />;
+}
+
+function LegacyReaderVocabularyRedirect() {
+  const { readerId } = useParams();
+  const location = useLocation();
+  return <Navigate replace to={`/reader/${readerId}/words${location.search}`} />;
+}
 
 function App() {
   const { account, logout } = useAuth();
@@ -223,7 +259,7 @@ function App() {
             path="/readers/:readerId/library"
             element={
               <ProtectedRoute>
-                <ReaderLibraryPage />
+                <LegacyReaderLibraryRedirect />
               </ProtectedRoute>
             }
           />
@@ -231,7 +267,7 @@ function App() {
             path="/readers/:readerId/library/:storyId"
             element={
               <ProtectedRoute>
-                <LibraryStoryPage />
+                <LegacyReaderStoryRedirect />
               </ProtectedRoute>
             }
           />
@@ -239,7 +275,7 @@ function App() {
             path="/readers/:readerId/library/:storyId/read"
             element={
               <ProtectedRoute>
-                <GeneratedStoryReaderPage />
+                <LegacyReaderStoryReadRedirect />
               </ProtectedRoute>
             }
           />
@@ -247,7 +283,7 @@ function App() {
             path="/readers/:readerId/worlds/:worldId"
             element={
               <ProtectedRoute>
-                <WorldInfoPage />
+                <LegacyReaderWorldRedirect />
               </ProtectedRoute>
             }
           />
@@ -255,7 +291,7 @@ function App() {
             path="/readers/:readerId/games"
             element={
               <ProtectedRoute>
-                <GameShelfPage />
+                <LegacyReaderGamesRedirect />
               </ProtectedRoute>
             }
           />
@@ -263,7 +299,7 @@ function App() {
             path="/readers/:readerId/vocabulary"
             element={
               <ProtectedRoute>
-                <VocabularyShelfPage />
+                <LegacyReaderVocabularyRedirect />
               </ProtectedRoute>
             }
           />
