@@ -300,14 +300,14 @@ export function LibraryStoryPage() {
         <>
           <div className="section-heading">
             <div>
-              <p className="eyebrow">Library story</p>
+              <p className="eyebrow">Story info</p>
               <h1>{detail.story.title ?? "Untitled Story"}</h1>
               <p>
                 Reader: <strong>{detail.reader_name ?? "Reader"}</strong>
               </p>
             </div>
             <Link to={`/reader/${detail.reader_id}/books`} className="text-link">
-              Back to books
+              Back to bookshelf
             </Link>
           </div>
 
@@ -337,41 +337,41 @@ export function LibraryStoryPage() {
 
           <div className="detail-grid">
             <article className="panel inset-panel">
-              <p className="eyebrow">World</p>
-              <h3>{detail.story.world_name ?? detail.story.custom_world_name ?? "World in progress"}</h3>
-              <p>Reader world ID: {detail.story.reader_world_id ?? "Pending"}</p>
+              <p className="eyebrow">Universe</p>
+              <h3>{detail.story.world_name ?? detail.story.custom_world_name ?? "Universe in progress"}</h3>
+              <p>{detail.story.reader_world_id ? `Shelf ID ${detail.story.reader_world_id}` : "Shelf placement is still being prepared."}</p>
             </article>
             <article className="panel inset-panel">
-              <p className="eyebrow">Story version</p>
+              <p className="eyebrow">Book version</p>
               <h3>Version {detail.story.current_version ?? 1}</h3>
-              <p>Trait focus: {detail.story.trait_focus ?? "Pending"}</p>
+              <p>{detail.story.trait_focus ? `Trait focus: ${detail.story.trait_focus}` : "Trait focus will appear here when it is ready."}</p>
             </article>
             <article className="panel inset-panel">
-              <p className="eyebrow">Publishing</p>
-              <h3>{detail.story.published ? "Published" : "Not published yet"}</h3>
+              <p className="eyebrow">Book file</p>
+              <h3>{detail.story.published ? "Book file ready" : "Book file not published yet"}</h3>
               <p>
                 {detail.story.epub_created_at
                   ? `EPUB created at ${detail.story.epub_created_at}`
-                  : "Create an EPUB to open this story as a book."}
+                  : "A downloadable book file can be published when needed."}
               </p>
             </article>
             <article className="panel inset-panel">
-              <p className="eyebrow">Illustrations</p>
-              <h3>{hasIllustrations ? "Illustration ready" : "Not illustrated yet"}</h3>
+              <p className="eyebrow">Story art</p>
+              <h3>{hasIllustrations ? "Artwork ready" : "Artwork not added yet"}</h3>
               <p>
                 {hasIllustrations
                   ? "A story image is ready for immersive reading."
-                  : "Generate an illustration to add a story image to this book."}
+                  : "Artwork can be added to the book when it is ready."}
               </p>
             </article>
           </div>
 
           <div className="library-action-row">
             <Link to={`/reader/${detail.reader_id}/books/${detail.story.story_id}/read`} className="primary-button">
-              Open immersive reader
+              Read
             </Link>
             {hasIllustrations ? (
-              <span className="chip">Illustration ready</span>
+              <span className="chip">Artwork ready</span>
             ) : (
               <button
                 type="button"
@@ -379,7 +379,7 @@ export function LibraryStoryPage() {
                 onClick={handleIllustrate}
                 disabled={illustrating || isActiveMediaJob(illustrationJob)}
               >
-                {illustrating || isActiveMediaJob(illustrationJob) ? "Illustration queued..." : "Generate illustration"}
+                {illustrating || isActiveMediaJob(illustrationJob) ? "Artwork queued..." : "Add artwork"}
               </button>
             )}
             {hasNarration ? (
@@ -391,25 +391,35 @@ export function LibraryStoryPage() {
                 onClick={handleNarrate}
                 disabled={narrating || isActiveMediaJob(narrationJob)}
               >
-                {narrating || isActiveMediaJob(narrationJob) ? "Narration queued..." : "Generate narration"}
+                {narrating || isActiveMediaJob(narrationJob) ? "Narration queued..." : "Add narration"}
               </button>
             )}
             <button type="button" className="primary-button" onClick={handlePublish} disabled={publishing}>
-              {publishing ? "Publishing..." : detail.story.published ? "Republish EPUB" : "Publish EPUB"}
+              {publishing ? "Publishing..." : detail.story.published ? "Republish book file" : "Publish book file"}
             </button>
             {detail.story.epub_url ? (
               <a className="ghost-button" href={detail.story.epub_url} target="_blank" rel="noreferrer">
-                Open EPUB
+                Open book file
               </a>
             ) : null}
           </div>
+
+          <section className="panel inset-panel">
+            <div className="section-heading">
+              <div>
+                <p className="eyebrow">Reading choices</p>
+                <h2>Choose how to open this book</h2>
+                <p>Use Read to start immersive reading right away, or stay here to look over the book details.</p>
+              </div>
+            </div>
+          </section>
 
           {hasIllustrations ? (
             <section className="panel inset-panel">
               <div className="section-heading">
                 <div>
-                  <p className="eyebrow">Illustration preview</p>
-                  <h2>Generated story artwork</h2>
+                  <p className="eyebrow">Artwork preview</p>
+                  <h2>Story artwork</h2>
                 </div>
               </div>
 
@@ -426,9 +436,9 @@ export function LibraryStoryPage() {
             <section className="panel inset-panel">
               <div className="section-heading">
                 <div>
-                  <p className="eyebrow">Memory</p>
-                  <h2>Story memory trace</h2>
-                  <p>Load the captured event memory behind this story.</p>
+                  <p className="eyebrow">Story tools</p>
+                  <h2>Story memory</h2>
+                  <p>Load the stored memory events behind this book.</p>
                 </div>
                 <button type="button" className="ghost-button" onClick={handleLoadStoryMemory} disabled={loadingMemory}>
                   {loadingMemory ? "Loading memory..." : "Load story memory"}
@@ -463,9 +473,9 @@ export function LibraryStoryPage() {
             <section className="panel inset-panel">
               <div className="section-heading">
                 <div>
-                  <p className="eyebrow">Safety</p>
+                  <p className="eyebrow">Story tools</p>
                   <h2>Story safety report</h2>
-                  <p>Inspect the generated story against the current account safety policy.</p>
+                  <p>Inspect this book against the current account safety policy.</p>
                 </div>
                 <button type="button" className="ghost-button" onClick={handleLoadStorySafety} disabled={loadingSafety}>
                   {loadingSafety ? "Loading safety..." : "Load safety report"}
@@ -508,7 +518,7 @@ export function LibraryStoryPage() {
             <section className="panel inset-panel">
               <div className="section-heading">
                 <div>
-                  <p className="eyebrow">Safety text check</p>
+                  <p className="eyebrow">Story tools</p>
                   <h2>Check custom text</h2>
                   <p>Run the platform safety evaluator against any text excerpt or proposed edit.</p>
                 </div>
@@ -539,7 +549,7 @@ export function LibraryStoryPage() {
             <section className="panel inset-panel">
               <div className="section-heading">
                 <div>
-                  <p className="eyebrow">Continuity</p>
+                  <p className="eyebrow">Story tools</p>
                   <h2>Story continuity check</h2>
                   <p>Provide a short story summary or planned revision to check against the current world memory.</p>
                 </div>
