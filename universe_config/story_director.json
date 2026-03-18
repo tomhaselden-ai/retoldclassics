@@ -1,0 +1,13 @@
+{
+  "story_director_rules": {
+    "story_length_minutes": 5,
+    "structure": [
+      "introduction",
+      "conflict",
+      "attempt_to_solve",
+      "resolution",
+      "moral_lesson"
+    ],
+    "tone": "gentle child-safe narration"
+  }
+}

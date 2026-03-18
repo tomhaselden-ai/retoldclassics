@@ -1,0 +1,17 @@
+{
+  "name": "Persistent Story Universe",
+  "short_name": "Story Universe",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#091222",
+  "theme_color": "#1df2c9",
+  "description": "A futuristic storyworld for children with classics, adventures, and immersive reading.",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

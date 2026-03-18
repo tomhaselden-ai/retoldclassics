@@ -1,0 +1,1 @@
+Persistent Story Universe Platform project context for Codex. Assist development of modular story engine, vector memory, and FastAPI backend.

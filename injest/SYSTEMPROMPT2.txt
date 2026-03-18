@@ -1,0 +1,679 @@
+Persistent Story Universe Platform
+High-Reliability Session Continuity Export
+Recovery Artifact for Future ChatGPT Sessions / Coding Agents
+1. Project Identity
+
+System Name
+
+Persistent Story Universe Platform
+
+Product Purpose
+
+The system generates personalized children's stories inside persistent narrative worlds.
+Stories evolve over time as characters, locations, and narrative events accumulate history.
+
+The system functions as both:
+
+a story generation engine
+
+a persistent narrative simulation environment
+
+Stories are not independent artifacts.
+They exist within persistent worlds that remember events and enforce narrative continuity.
+
+Core Product Goals
+
+Generate AI-driven personalized stories for readers.
+
+Maintain persistent narrative worlds with evolving history.
+
+Track characters, locations, and relationships across stories.
+
+Preserve narrative continuity across multiple stories.
+
+Support narration and illustrations.
+
+Deliver immersive reading experiences.
+
+Support educational gameplay and vocabulary learning.
+
+Enable multiplayer shared worlds where multiple readers influence the same universe.
+
+2. Verified Authorities
+
+This export uses the following authority hierarchy.
+
+Priority	Source	Classification
+1	db/schema.sql	Schema Authority
+2	current repository code structure (implied but not visible here)	Repo Authority (partially unverified)
+3	phase prompts used during implementation	Implementation Context
+4	planning / architecture prompts	Supporting Design Context
+5	roadmap descriptions from prompts	Roadmap Context
+6	inferred architecture patterns	Inferred Conclusions (explicitly labeled)
+
+Important note:
+
+The actual repository and schema file were not directly inspected in this session, therefore:
+
+schema tables referenced are derived from prior prompts
+
+repository module layout is partially inferred
+
+All such areas are marked UNVERIFIED where appropriate.
+
+3. Verified Current Repository State
+Repository Status
+
+Actual repository structure was not directly inspected in this session.
+
+Therefore the following is UNVERIFIED and inferred from prompts.
+
+Likely Backend Layout (Inferred)
+backend/
+    api/
+    memory/
+    continuity/
+    multiplayer/
+    story/
+    characters/
+    worlds/
+    locations/
+    narration/
+    illustrations/
+Expected FastAPI Structure (Inferred)
+
+Typical entrypoint likely:
+
+backend/main.py
+or
+backend/app.py
+
+With routers mounted from modules like:
+
+backend/api/memory_routes.py
+backend/api/continuity_routes.py
+backend/api/world_routes.py
+Implemented Subsystems (Unverified)
+
+Based on phase prompts:
+
+story generation engine
+
+persistent story memory
+
+continuity evaluation
+
+world system
+
+character system
+
+narration system
+
+illustration system
+
+Because repository inspection did not occur, implementation state remains unverified.
+
+4. Verified Schema State
+
+The following tables were referenced in prompts and assumed to exist in db/schema.sql.
+
+However fields are only listed when explicitly mentioned.
+
+If fields were not explicitly stated they are marked UNKNOWN.
+
+worlds
+
+Purpose
+
+Persistent narrative universes.
+
+Verified Fields
+
+world_id
+
+name
+
+description
+
+default_world
+
+updated_at
+
+locations
+
+Purpose
+
+Locations within worlds.
+
+Verified Fields
+
+location_id
+
+world_id
+
+name
+
+description
+
+characters
+
+Purpose
+
+Characters belonging to worlds.
+
+Verified Fields
+
+character_id
+
+world_id
+
+name
+
+species
+
+personality_traits
+
+home_location
+
+updated_at
+
+story_events
+
+Purpose
+
+Narrative memory events extracted from stories.
+
+Verified Fields
+
+event_id
+
+story_id
+
+characters
+
+location_id
+
+event_summary
+
+vector_memory_index
+
+Purpose
+
+Index referencing narrative events.
+
+Important limitation:
+
+This table does NOT store vector embeddings.
+
+Verified Fields
+
+vector_id
+
+source_type
+
+source_id
+
+created_at
+
+story_versions
+
+Purpose
+
+Story revision history.
+
+Verified Fields
+
+story_version_id
+
+story_id
+
+version_number
+
+title
+
+trait_focus
+
+version_notes
+
+created_at
+
+scene_versions
+
+Purpose
+
+Scene revision history.
+
+Verified Fields
+
+scene_version_id
+
+scene_id
+
+version_number
+
+scene_text
+
+illustration_url
+
+audio_url
+
+created_at
+
+character_relationships
+
+Purpose
+
+Character relationships used by continuity evaluation.
+
+Fields
+
+UNKNOWN — not explicitly defined in prompts.
+
+world_rules
+
+Purpose
+
+World-level narrative constraints.
+
+Fields
+
+UNKNOWN — not defined in prompts.
+
+Additional Schema Areas Mentioned But Not Verified
+
+The continuity export prompt referenced systems for:
+
+accounts
+
+readers
+
+reader progress
+
+vocabulary
+
+games
+
+narration
+
+illustrations
+
+EPUB
+
+story scenes
+
+However no schema fields were provided in this session, so they cannot be verified.
+
+5. Verified Implemented Phase State
+
+Actual repository verification did not occur.
+Therefore implementation status must be treated cautiously.
+
+Phase 14 — Persistent Story Memory Engine
+
+Status
+
+Design specified in prompts.
+Repository implementation not verified.
+
+Purpose
+
+Store narrative events so stories influence future stories.
+
+Key Tables
+
+story_events
+
+vector_memory_index
+
+Implied Modules
+
+backend/memory/memory_service.py
+backend/memory/event_repository.py
+backend/memory/vector_index_repository.py
+backend/api/memory_routes.py
+
+Implied APIs
+
+GET /stories/{story_id}/memory
+GET /characters/{character_id}/history
+GET /worlds/{world_id}/history
+Phase 15 — Story Continuity Engine
+
+Status
+
+Design created during this session.
+Implementation not verified.
+
+Purpose
+
+Evaluate proposed stories against narrative memory.
+
+Key Tables
+
+story_events
+
+characters
+
+locations
+
+worlds
+
+character_relationships
+
+world_rules
+
+APIs
+
+POST /continuity/story-check
+POST /continuity/character-check
+POST /continuity/world-check
+
+Important Constraint
+
+Evaluation only.
+Does NOT modify generation pipeline.
+
+6. Planned But Not Verified Roadmap
+
+These appear in prompts but are not confirmed implemented.
+
+Phase 16 — Multiplayer Story Worlds
+
+Concept:
+
+Multiple readers participate in the same world.
+
+Capabilities:
+
+shared worlds
+
+shared narrative state
+
+reader-world relationships
+
+Schema support for reader-world mapping is unknown.
+
+Future Systems Mentioned
+
+Unverified but likely planned:
+
+collaborative storytelling
+
+AI companion characters
+
+narrative simulation engine
+
+learning analytics
+
+vocabulary mastery tracking
+
+story-driven educational games
+
+7. Current API Surface
+Verified APIs
+
+None confirmed directly from repository.
+
+APIs Mentioned In Design Prompts
+Memory APIs
+GET /stories/{story_id}/memory
+GET /characters/{character_id}/history
+GET /worlds/{world_id}/history
+Continuity APIs
+POST /continuity/story-check
+POST /continuity/character-check
+POST /continuity/world-check
+Multiplayer APIs (planned)
+POST /worlds/{world_id}/join
+GET /worlds/{world_id}/participants
+GET /readers/{reader_id}/world
+8. Memory / Continuity State
+Story Memory
+
+Narrative events are stored in:
+
+story_events
+
+These represent:
+
+discoveries
+
+interactions
+
+location visits
+
+outcomes
+
+Event Indexing
+
+Events are indexed in:
+
+vector_memory_index
+
+Important limitation:
+
+The table only references events.
+It does not contain embeddings, meaning semantic retrieval may not yet exist.
+
+Continuity Evaluation
+
+Continuity checks compare proposed stories against:
+
+past story events
+
+character relationships
+
+world rules
+
+Continuity engine produces conflict reports.
+
+Version History
+
+Two version systems exist:
+
+Story Versions
+story_versions
+Scene Versions
+scene_versions
+
+These track regeneration or editing.
+
+9. Educational / Game System State
+
+The platform appears to include educational components.
+
+However schema support was not shown in this session.
+
+Possible systems (unverified):
+
+vocabulary tracking
+
+reading comprehension metrics
+
+adaptive learning
+
+educational mini-games
+
+reader skill progression
+
+Verification required.
+
+10. Frontend / Delivery State
+
+Based on prompts the system may support:
+
+PWA Reader
+
+Interactive reading interface.
+
+Narration
+
+Audio generation stored per scene.
+
+Illustrations
+
+Scene-level illustrations.
+
+EPUB
+
+Export of generated stories.
+
+Voice Storytelling
+
+Possibly Alexa or smart speaker delivery.
+
+None verified directly in repository.
+
+11. Constraints And Non-Negotiables
+
+These were repeatedly enforced in prompts.
+
+Schema Authority
+
+db/schema.sql is the canonical system definition.
+
+No implementation may invent tables or fields.
+
+Phase Isolation
+
+Each phase must:
+
+only implement its scope
+
+not modify earlier phases
+
+not introduce later features
+
+Architectural Drift Prevention
+
+Forbidden:
+
+speculative improvements
+
+new architecture layers
+
+unplanned APIs
+
+schema modifications
+
+Production Code Requirement
+
+Generated code must include:
+
+imports
+
+database queries
+
+logging
+
+error handling
+
+runnable implementation
+
+Forbidden:
+
+pseudocode
+
+TODO placeholders
+
+incomplete logic
+
+12. Known Conflicts / Gaps / Risks
+Vector Memory Misunderstanding
+
+vector_memory_index lacks embedding data.
+
+Semantic retrieval may not be possible.
+
+Continuity Engine Integration Gap
+
+Continuity system currently provides evaluation APIs but does not integrate into generation engine.
+
+Missing Schema Details
+
+Tables with unknown fields:
+
+character_relationships
+
+world_rules
+
+Continuity logic depends on them.
+
+Multiplayer Schema Gap
+
+Phase 16 requires reader-world relationships.
+
+No confirmed schema support.
+
+Repository Verification Gap
+
+Actual repository contents were not inspected in this session.
+
+Implementation state remains uncertain.
+
+13. Safe Next Step
+
+The safest next action is:
+
+Inspect the real repository and schema before continuing phase implementation.
+
+Specifically:
+
+Load db/schema.sql
+
+Extract all table definitions
+
+Inspect backend module structure
+
+Confirm which phases actually exist in code
+
+Only after that should new phase contracts be written.
+
+14. Ready-To-Use Next Prompts
+Prompt 1 — Repository Architecture Inspection
+Inspect the repository and list:
+
+1. all backend modules
+2. all FastAPI routers
+3. the main application entrypoint
+4. all existing subsystems
+
+Also extract every table definition from db/schema.sql.
+Prompt 2 — Phase Contract Generation
+Generate the implementation contract for Phase 16 — Multiplayer Story Worlds.
+
+Validate all referenced tables against db/schema.sql and define exact API request/response schemas.
+Prompt 3 — Contract Validation
+Review the Phase 16 contract against:
+
+1. db/schema.sql
+2. existing backend modules
+
+Identify any schema conflicts or required repository changes.
+15. Recovery Handoff Note
+
+The Persistent Story Universe Platform is an AI narrative system designed to generate evolving stories inside persistent worlds.
+
+During this session:
+
+Phase 14 (memory) design was produced.
+
+Phase 15 (continuity) design was corrected.
+
+Phase 16 (multiplayer worlds) was drafted.
+
+However:
+
+The actual repository and schema were never inspected directly.
+
+Therefore:
+
+implementation status of phases is uncertain
+
+schema assumptions must be revalidated
+
+module layout must be confirmed
+
+The next session should start by inspecting db/schema.sql and the repository structure before generating any further phase prompts.
+
+Do not assume the designs created here perfectly match the real codebase.

@@ -1,0 +1,707 @@
+1. System Identity
+
+Project Name: Persistent Story Universe Platform
+
+Purpose:
+A platform that generates personalized children's stories within persistent narrative worlds. Stories evolve over time as characters, locations, and events accumulate history.
+
+Core Product Goals:
+
+Generate AI-driven personalized children's stories.
+
+Maintain persistent narrative worlds where events affect future stories.
+
+Support recurring characters, evolving locations, and world states.
+
+Enable continuity across stories through narrative memory.
+
+Provide narration, illustrations, and immersive reading experiences.
+
+Support educational content and learning systems integrated into stories.
+
+Deliver content across multiple platforms (PWA, voice assistants, etc.).
+
+Eventually support multiplayer/shared story worlds.
+
+The platform functions as both:
+
+A narrative generation system
+
+A persistent narrative simulation environment
+
+2. Current Architecture Understanding
+
+The system is understood as a multi-layer story generation platform composed of several subsystems.
+
+Backend
+
+Primary backend appears to be:
+
+Python
+
+FastAPI for APIs
+
+Structured using service + repository pattern
+
+Subsystems likely include:
+
+story generation engine
+
+memory engine
+
+continuity engine
+
+world management
+
+multiplayer participation
+
+narration and illustration services
+
+learning systems
+
+Database
+
+Single authoritative relational database defined by:
+
+schema.sql
+
+All schema definitions must exist in:
+
+db/schema.sql
+
+Database responsibilities include:
+
+persistent story memory
+
+character tracking
+
+world state tracking
+
+story versions
+
+scene versions
+
+world rules
+
+relationships
+
+event indexing
+
+API Layer
+
+Implemented via FastAPI routers.
+
+Each subsystem exposes endpoints under backend/api modules.
+
+Example subsystems:
+
+backend/api/story_routes.py
+backend/api/memory_routes.py
+backend/api/continuity_routes.py
+backend/api/world_routes.py
+AI Generation Layer
+
+Story generation likely uses:
+
+LLM prompt orchestration
+
+narrative memory injection
+
+continuity constraint injection
+
+Important generation modules implied:
+
+story_engine.py
+prompt_builder.py
+
+These modules generate story prompts using narrative context.
+
+Narration System
+
+Audio narration likely generated through:
+
+text-to-speech pipeline
+
+scene-level narration storage
+
+Audio fields appear in:
+
+scene_versions.audio_url
+Illustration System
+
+Story scenes can include generated illustrations.
+
+Illustration references appear in:
+
+scene_versions.illustration_url
+Memory System
+
+Persistent narrative memory implemented through:
+
+story_events
+vector_memory_index
+
+Memory stores narrative events for continuity.
+
+Frontend
+
+Expected frontends include:
+
+Progressive Web App (PWA)
+
+Interactive reader interface
+
+Possibly voice assistants
+
+Possibly EPUB-style immersive reading
+
+Game Layer
+
+The platform also includes:
+
+educational gameplay
+
+vocabulary tracking
+
+adaptive learning
+
+Exact schema tables unknown.
+
+3. Authoritative Sources
+
+Authority hierarchy currently enforced in prompts:
+
+schema.sql
+
+system architecture documents
+
+phase roadmap
+
+implementation code
+
+Schema authority is non-negotiable.
+
+All implementation must validate against:
+
+db/schema.sql
+4. Schema Understanding
+
+Only tables mentioned in conversation are listed.
+
+Fields are not fully known for many tables.
+
+story_events
+
+Stores narrative events.
+
+Known fields:
+
+event_id
+
+story_id
+
+characters
+
+location_id
+
+event_summary
+
+Used for:
+
+narrative memory
+
+continuity evaluation
+
+vector_memory_index
+
+Stores event indexing metadata.
+
+Known fields:
+
+vector_id
+
+source_type
+
+source_id
+
+created_at
+
+Important note:
+
+This table does NOT contain vector embeddings.
+
+It likely only marks indexed memory entries.
+
+story_versions
+
+Tracks revisions of stories.
+
+Known fields:
+
+story_version_id
+
+story_id
+
+version_number
+
+title
+
+trait_focus
+
+version_notes
+
+created_at
+
+scene_versions
+
+Tracks revisions of scenes.
+
+Known fields:
+
+scene_version_id
+
+scene_id
+
+version_number
+
+scene_text
+
+illustration_url
+
+audio_url
+
+created_at
+
+characters
+
+Character definitions.
+
+Known fields:
+
+character_id
+
+world_id
+
+name
+
+species
+
+personality_traits
+
+home_location
+
+updated_at
+
+locations
+
+World locations.
+
+Known fields:
+
+location_id
+
+world_id
+
+name
+
+description
+
+worlds
+
+Persistent story worlds.
+
+Known fields:
+
+world_id
+
+name
+
+description
+
+default_world
+
+updated_at
+
+character_relationships
+
+Used in continuity.
+
+Exact fields unknown.
+
+world_rules
+
+Defines world constraints.
+
+Exact fields unknown.
+
+5. Implemented Phase Understanding
+Phase 1–13
+
+Exact details unknown.
+
+Assumed responsibilities:
+
+story generation pipeline
+
+character system
+
+world system
+
+narration pipeline
+
+illustration pipeline
+
+educational layer
+
+reading system
+
+PWA delivery
+
+Phase 14 — Persistent Story Memory Engine
+
+Purpose:
+
+Introduce persistent narrative memory.
+
+Responsibilities:
+
+store narrative events
+
+index events
+
+provide memory retrieval APIs
+
+Major APIs:
+
+GET /stories/{story_id}/memory
+GET /characters/{character_id}/history
+GET /worlds/{world_id}/history
+
+Modules implied:
+
+memory_service
+event_repository
+vector_index_repository
+memory_routes
+Phase 15 — Story Continuity Engine
+
+Purpose:
+
+Evaluate narrative continuity.
+
+Responsibilities:
+
+analyze proposed story summaries
+
+detect conflicts with previous story events
+
+evaluate character continuity
+
+evaluate world continuity
+
+Important constraint:
+
+Does NOT modify generation engine.
+
+Provides evaluation APIs only.
+
+Endpoints:
+
+POST /continuity/story-check
+POST /continuity/character-check
+POST /continuity/world-check
+
+Modules:
+
+continuity_service
+continuity_repository
+conflict_detector
+continuity_routes
+6. Phase Roadmap Understanding
+Phase 16 — Multiplayer Story Worlds
+
+Enable shared narrative worlds across readers.
+
+Capabilities:
+
+shared worlds
+
+world participation
+
+world-level state evolution
+
+reader-world relationships
+
+Likely new tables:
+
+reader_worlds (uncertain)
+
+APIs likely:
+
+POST /worlds/{world_id}/join
+GET /worlds/{world_id}/participants
+GET /readers/{reader_id}/world
+
+Future phases likely include:
+
+collaborative storytelling
+
+AI companions
+
+educational game mechanics
+
+narrative simulation layers
+
+7. Repository / Module Understanding
+
+Expected backend structure:
+
+backend/
+
+api/
+memory/
+continuity/
+multiplayer/
+story/
+illustration/
+narration/
+education/
+world/
+characters/
+locations/
+
+Core patterns:
+
+repository layer
+
+service layer
+
+FastAPI routers
+
+8. API Understanding
+Memory APIs
+GET /stories/{story_id}/memory
+GET /characters/{character_id}/history
+GET /worlds/{world_id}/history
+Continuity APIs
+POST /continuity/story-check
+POST /continuity/character-check
+POST /continuity/world-check
+Multiplayer APIs
+POST /worlds/{world_id}/join
+GET /worlds/{world_id}/participants
+GET /readers/{reader_id}/world
+9. Memory And Continuity Understanding
+
+Narrative persistence model:
+
+Story → Events → Memory → Continuity
+
+Flow:
+
+story generation
+→ event extraction
+→ story_events storage
+→ vector_memory_index indexing
+
+Continuity uses:
+
+story_events
+characters
+locations
+worlds
+character_relationships
+world_rules
+
+Continuity engine checks proposed story summaries against past events.
+
+10. Educational / Game System Understanding
+
+Platform includes learning features:
+
+vocabulary systems
+
+reading comprehension
+
+adaptive learning
+
+story-based educational content
+
+game mechanics embedded in narrative
+
+Schema tables unknown.
+
+Likely modules:
+
+education_service
+vocabulary_tracker
+learning_analytics
+11. Frontend / Delivery Understanding
+
+Delivery likely includes:
+
+Progressive Web App
+
+Features:
+
+immersive reading
+
+interactive illustrations
+
+adaptive learning overlays
+
+Voice Delivery
+
+Possibly:
+
+Alexa
+
+smart speakers
+
+Narration pipeline supports audio generation.
+
+Publishing
+
+Stories likely exportable as:
+
+EPUB
+
+mobile reader format
+
+12. Constraints And Non-Negotiables
+Schema Authority
+
+All implementations must validate against:
+
+db/schema.sql
+
+No schema invention allowed.
+
+Phase Isolation
+
+A phase cannot:
+
+modify earlier phases
+
+introduce later phase features
+
+Architectural Drift Prevention
+
+Forbidden:
+
+speculative improvements
+
+architecture redesign
+
+new subsystems outside roadmap
+
+Production Code Requirement
+
+Code must include:
+
+proper imports
+
+SQL queries
+
+logging
+
+error handling
+
+runnable code
+
+Forbidden:
+
+TODO placeholders
+
+pseudocode
+
+incomplete functions
+
+13. Known Gaps / Contradictions / Risks
+Vector Memory Misinterpretation
+
+vector_memory_index contains no embedding vectors.
+
+Semantic retrieval cannot currently be implemented.
+
+Continuity Engine Integration Gap
+
+Continuity evaluation does not yet integrate into generation pipeline.
+
+Story engine currently has no continuity hook.
+
+Missing API Contracts
+
+Several endpoints were previously underspecified.
+
+This has been partially corrected.
+
+Schema Uncertainty
+
+Unknown fields for:
+
+character_relationships
+
+world_rules
+
+Continuity logic may require clarification.
+
+Multiplayer Schema Unknown
+
+Phase 16 requires reader-world relationships.
+
+Schema tables not yet confirmed.
+
+14. Best Next-Step Prompts
+Architecture Validation Prompt
+Review the current backend repository and db/schema.sql.
+
+Determine whether the following systems are already implemented:
+
+- story generation engine
+- persistent memory engine
+- continuity engine
+- multiplayer worlds
+
+List all existing modules and map them to the phase roadmap.
+Phase Contract Generation Prompt
+Generate the implementation contract for Phase 16 — Multiplayer Story Worlds.
+
+The contract must validate all referenced tables against db/schema.sql and explicitly define API request/response structures.
+Schema Reconciliation Prompt
+Extract all table definitions from db/schema.sql and produce a structured schema reference.
+
+Highlight tables required by phases 14–16 and verify their fields.
+15. Session Handoff Summary
+
+The Persistent Story Universe Platform is a multi-phase AI narrative system designed to generate evolving stories inside persistent worlds.
+
+Key systems already designed:
+
+story generation engine
+
+narrative memory engine
+
+continuity evaluation engine
+
+Phase 15 design has been corrected to avoid modifying earlier phases and to function strictly as an evaluation API.
+
+Major uncertainties remain around:
+
+schema details for relationships and world rules
+
+integration of continuity into the story generation pipeline
+
+multiplayer world schema
+
+The next session should validate the actual repository and schema before continuing implementation work.
+
+Do not assume schema structure without verifying db/schema.sql.
+
+Focus next on:
+
+schema validation
+
+repository architecture confirmation
+
+Phase 16 contract generation

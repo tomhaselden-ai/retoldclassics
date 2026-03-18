@@ -1,0 +1,63 @@
+import os
+
+APP_ENV = os.getenv("APP_ENV", "development").strip().lower()
+
+
+def _env_int(name: str, default: int) -> int:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    try:
+        return int(raw)
+    except ValueError:
+        return default
+
+
+DATABASE_URL = os.getenv("DATABASE_URL") or os.getenv("DESTINATION_DATABASE_URL")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+AWS_ACCESS_KEY = os.getenv("AWS_ACCESS_KEY")
+AWS_SECRET_KEY = os.getenv("AWS_SECRET_KEY")
+AWS_REGION = os.getenv("AWS_REGION", "us-east-1")
+S3_BUCKET = os.getenv("S3_BUCKET")
+JWT_SECRET = os.getenv("JWT_SECRET", "change_me")
+CHROMA_PATH = os.getenv("CHROMA_PATH", "./chroma")
+SMTP_HOST = os.getenv("SMTP_HOST")
+SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
+SMTP_USERNAME = os.getenv("SMTP_USERNAME")
+SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
+SMTP_FROM_EMAIL = os.getenv("SMTP_FROM_EMAIL")
+SMTP_USE_TLS = os.getenv("SMTP_USE_TLS", "1").strip().lower() not in {"0", "false", "no"}
+FRONTEND_APP_URL = os.getenv("FRONTEND_APP_URL", "http://localhost:5173").rstrip("/")
+RATE_LIMIT_LOGIN_REQUESTS = _env_int("RATE_LIMIT_LOGIN_REQUESTS", 10)
+RATE_LIMIT_LOGIN_WINDOW_SECONDS = _env_int("RATE_LIMIT_LOGIN_WINDOW_SECONDS", 60)
+RATE_LIMIT_RESET_REQUESTS = _env_int("RATE_LIMIT_RESET_REQUESTS", 5)
+RATE_LIMIT_RESET_WINDOW_SECONDS = _env_int("RATE_LIMIT_RESET_WINDOW_SECONDS", 300)
+RATE_LIMIT_GENERATE_REQUESTS = _env_int("RATE_LIMIT_GENERATE_REQUESTS", 5)
+RATE_LIMIT_GENERATE_WINDOW_SECONDS = _env_int("RATE_LIMIT_GENERATE_WINDOW_SECONDS", 300)
+RATE_LIMIT_MEDIA_REQUESTS = _env_int("RATE_LIMIT_MEDIA_REQUESTS", 10)
+RATE_LIMIT_MEDIA_WINDOW_SECONDS = _env_int("RATE_LIMIT_MEDIA_WINDOW_SECONDS", 300)
+RATE_LIMIT_PUBLISH_REQUESTS = _env_int("RATE_LIMIT_PUBLISH_REQUESTS", 10)
+RATE_LIMIT_PUBLISH_WINDOW_SECONDS = _env_int("RATE_LIMIT_PUBLISH_WINDOW_SECONDS", 300)
+MEDIA_JOB_POLL_SECONDS = _env_int("MEDIA_JOB_POLL_SECONDS", 3)
+MEDIA_WORKER_IDLE_SECONDS = _env_int("MEDIA_WORKER_IDLE_SECONDS", 2)
+MEDIA_WORKER_MAX_JOBS_PER_CYCLE = _env_int("MEDIA_WORKER_MAX_JOBS_PER_CYCLE", 5)
+
+POLLY_ENGINE_PRIORITY = os.getenv("POLLY_ENGINE_PRIORITY", "generative,long-form,neural,standard")
+POLLY_DEFAULT_STYLE_MODE = os.getenv("POLLY_DEFAULT_STYLE_MODE", "classic_read_aloud")
+POLLY_OUTPUT_FORMAT = os.getenv("POLLY_OUTPUT_FORMAT", "mp3")
+POLLY_SAMPLE_RATE = os.getenv("POLLY_SAMPLE_RATE", "24000")
+POLLY_ENABLE_SPEECH_MARKS = os.getenv("POLLY_ENABLE_SPEECH_MARKS", "1").strip().lower() not in {"0", "false", "no"}
+POLLY_GENERATIVE_VOICE = os.getenv("POLLY_GENERATIVE_VOICE", "Ruth")
+POLLY_LONG_FORM_VOICE = os.getenv("POLLY_LONG_FORM_VOICE", "Ruth")
+POLLY_NEURAL_VOICE = os.getenv("POLLY_NEURAL_VOICE", "Joanna")
+POLLY_STANDARD_VOICE = os.getenv("POLLY_STANDARD_VOICE", "Joanna")
+POLLY_DEFAULT_VOICE = os.getenv("POLLY_DEFAULT_VOICE")
+POLLY_LEXICON_NAMES = os.getenv("POLLY_LEXICON_NAMES", "")
+POLLY_PRONUNCIATION_DICTIONARY_PATH = os.getenv(
+    "POLLY_PRONUNCIATION_DICTIONARY_PATH",
+    "./backend/narration/pronunciation_overrides.json",
+)
+
+
+def is_production_env() -> bool:
+    return APP_ENV in {"production", "prod"}

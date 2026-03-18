@@ -1,0 +1,43 @@
+{
+  "world_definition": {
+    "world_name": "Silverwood Forest",
+    "world_description": "A peaceful forest where animals cooperate and learn lessons about kindness and sharing.",
+    "world_story_rules": [
+      "Stories emphasize kindness, sharing, and cooperation.",
+      "Conflicts resolve peacefully.",
+      "Characters help one another.",
+      "Stories are appropriate for children."
+    ]
+  },
+  "world_characters": [
+    {
+      "character_name": "Rowan the Fox",
+      "character_role": "story_guide",
+      "character_personality_traits": [
+        "curious",
+        "kind",
+        "clever"
+      ],
+      "character_home_location": "Berry Meadow"
+    },
+    {
+      "character_name": "Pip the Sparrow",
+      "character_role": "messenger",
+      "character_personality_traits": [
+        "cheerful",
+        "loyal"
+      ],
+      "character_home_location": "Old Oak Tree"
+    }
+  ],
+  "world_locations": [
+    {
+      "location_name": "Berry Meadow",
+      "location_description": "Sunny meadow where animals gather."
+    },
+    {
+      "location_name": "Old Oak Tree",
+      "location_description": "Tall oak where birds live."
+    }
+  ]
+}
