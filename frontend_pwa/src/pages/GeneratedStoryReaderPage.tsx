@@ -1,5 +1,5 @@
-import { type ReactNode, useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { Link, useNavigate, useSearchParams, useParams } from "react-router-dom";
 
 import { ErrorState } from "../components/ErrorState";
 import { LoadingState } from "../components/LoadingState";
@@ -152,6 +152,8 @@ function renderInteractiveSceneText(
 export function GeneratedStoryReaderPage() {
   const { readerId, storyId } = useParams();
   const { token } = useAuth();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [story, setStory] = useState<GeneratedStoryReadResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [pageError, setPageError] = useState<string | null>(null);
@@ -167,8 +169,26 @@ export function GeneratedStoryReaderPage() {
   const [illustrating, setIllustrating] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const sceneRefs = useRef<Array<HTMLElement | null>>([]);
+  const nowReadingRef = useRef<HTMLElement | null>(null);
   const autoplayAcrossScenesRef = useRef(false);
   const pendingPlaybackRef = useRef<{ index: number; startSeconds: number } | null>(null);
+  const initialReaderFocusRef = useRef(false);
+  const autoPlayAttemptedRef = useRef(false);
+
+  const shouldAutoPlay = searchParams.get("autoplay") === "1";
+  const shouldFocusNowReading = searchParams.get("focus") === "now-reading";
+  const playlist = useMemo(
+    () =>
+      (searchParams.get("playlist") ?? "")
+        .split(",")
+        .map((value) => Number(value.trim()))
+        .filter((value) => Number.isInteger(value) && value > 0),
+    [searchParams],
+  );
+  const playlistIndex = useMemo(() => {
+    const raw = Number(searchParams.get("playlistIndex") ?? "0");
+    return Number.isInteger(raw) && raw >= 0 ? raw : 0;
+  }, [searchParams]);
 
   async function loadStory(activeToken: string, activeStoryId: number) {
     const payload = await getGeneratedStoryRead(activeStoryId, activeToken);
@@ -209,6 +229,7 @@ export function GeneratedStoryReaderPage() {
   const hasNarration = !!story?.scenes.some((scene) => !!scene.audio_url);
   const storyIllustrationUrl = story?.scenes.find((scene) => !!scene.illustration_url)?.illustration_url ?? null;
   const hasIllustrations = !!storyIllustrationUrl;
+  const hasNextStoryInPlaylist = playlistIndex < playlist.length - 1;
 
   useEffect(() => {
     if (!token || !storyId) {
@@ -266,12 +287,25 @@ export function GeneratedStoryReaderPage() {
   }, [illustrationJob, narrationJob, storyId, token]);
 
   useEffect(() => {
+    if (shouldFocusNowReading && !initialReaderFocusRef.current) {
+      return;
+    }
+
     const activeElement = sceneRefs.current[activeIndex];
     if (!activeElement) {
       return;
     }
     activeElement.scrollIntoView({ behavior: "smooth", block: "center" });
-  }, [activeIndex]);
+  }, [activeIndex, shouldFocusNowReading]);
+
+  useEffect(() => {
+    if (!shouldFocusNowReading || !nowReadingRef.current || initialReaderFocusRef.current) {
+      return;
+    }
+
+    nowReadingRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    initialReaderFocusRef.current = true;
+  }, [shouldFocusNowReading, story?.story_id]);
 
   useEffect(() => {
     if (!audioRef.current) {
@@ -289,6 +323,9 @@ export function GeneratedStoryReaderPage() {
       setIsPlaying(false);
       if (!story || activeIndex >= story.scenes.length - 1) {
         autoplayAcrossScenesRef.current = false;
+        if (hasNextStoryInPlaylist) {
+          goToPlaylistStory(playlistIndex + 1, true);
+        }
         return;
       }
       if (!autoplayAcrossScenesRef.current) {
@@ -318,7 +355,7 @@ export function GeneratedStoryReaderPage() {
       audio.removeEventListener("error", onError);
       audio.removeEventListener("ended", onEnded);
     };
-  }, [activeIndex, story, volume]);
+  }, [activeIndex, hasNextStoryInPlaylist, playlistIndex, story, volume]);
 
   useEffect(() => {
     setCurrentTime(0);
@@ -361,6 +398,19 @@ export function GeneratedStoryReaderPage() {
       audio.removeEventListener("loadedmetadata", onLoadedMetadata);
     };
   }, [activeIndex, sceneAudioUrl]);
+
+  useEffect(() => {
+    autoPlayAttemptedRef.current = false;
+  }, [story?.story_id]);
+
+  useEffect(() => {
+    if (!shouldAutoPlay || !story || !hasNarration || autoPlayAttemptedRef.current) {
+      return;
+    }
+
+    autoPlayAttemptedRef.current = true;
+    void playStoryFromBeginning();
+  }, [hasNarration, shouldAutoPlay, story]);
 
   async function seekAndPlay(index: number, startSeconds: number) {
     const targetScene = story?.scenes[index] ?? null;
@@ -421,6 +471,23 @@ export function GeneratedStoryReaderPage() {
     }
 
     await seekAndPlay(firstNarratedSceneIndex, 0);
+  }
+
+  function goToPlaylistStory(nextIndex: number, autoPlayNext: boolean) {
+    const nextStoryId = playlist[nextIndex];
+    if (!readerId || !nextStoryId) {
+      return;
+    }
+
+    const params = new URLSearchParams(searchParams);
+    params.set("playlistIndex", String(nextIndex));
+    params.set("focus", "now-reading");
+    if (autoPlayNext) {
+      params.set("autoplay", "1");
+    } else {
+      params.delete("autoplay");
+    }
+    navigate(`/reader/${readerId}/books/${nextStoryId}/read?${params.toString()}`);
   }
 
   function goToScene(index: number) {
@@ -543,6 +610,11 @@ export function GeneratedStoryReaderPage() {
             <p className="reader-stage-subtitle">
               Scene {activeScene?.scene_order ?? activeIndex + 1}
             </p>
+            {playlist.length > 1 ? (
+              <p className="reader-stage-subtitle">
+                Book {Math.min(playlistIndex + 1, playlist.length)} of {playlist.length} in this universe
+              </p>
+            ) : null}
           </div>
           <div className="reader-controls">
             {hasIllustrations ? (
@@ -570,6 +642,11 @@ export function GeneratedStoryReaderPage() {
             <Link to={`/reader/${readerId}/books/${story.story_id}`} className="ghost-button">
               Back to story
             </Link>
+            {hasNextStoryInPlaylist ? (
+              <button type="button" className="ghost-button" onClick={() => goToPlaylistStory(playlistIndex + 1, true)}>
+                Next book
+              </button>
+            ) : null}
           </div>
         </div>
 
@@ -606,6 +683,11 @@ export function GeneratedStoryReaderPage() {
             </p>
             {!hasNarration ? <p>Use Generate narration when you want scene audio and word highlighting.</p> : null}
             {!hasIllustrations ? <p>Use Generate illustration when you want a story image to appear above the reader.</p> : null}
+            {hasNextStoryInPlaylist ? (
+              <button type="button" className="primary-button" onClick={() => goToPlaylistStory(playlistIndex + 1, true)}>
+                Continue to next book
+              </button>
+            ) : null}
           </section>
         )}
 
@@ -615,7 +697,12 @@ export function GeneratedStoryReaderPage() {
           </section>
         ) : null}
 
-        <article className="reader-card story-flow">
+        <article
+          ref={(element) => {
+            nowReadingRef.current = element;
+          }}
+          className="reader-card story-flow"
+        >
           <header className="reader-story-header">
             <p className="eyebrow">Now Reading</p>
             <h3>{story.title ?? "Untitled story"}</h3>

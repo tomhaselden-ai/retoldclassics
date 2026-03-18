@@ -708,6 +708,9 @@ export interface LibraryStory {
   published: boolean;
   epub_url: string | null;
   epub_created_at: string | null;
+  cover_image_url: string | null;
+  narration_available: boolean;
+  artwork_available: boolean;
 }
 
 export interface ReaderLibraryResponse {

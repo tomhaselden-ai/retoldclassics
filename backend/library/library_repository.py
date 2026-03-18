@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 
-from sqlalchemy import Column, Integer, MetaData, String, Table, TIMESTAMP, Text, and_, desc, select
+from sqlalchemy import Column, Integer, MetaData, String, Table, TIMESTAMP, Text, and_, case, desc, exists, func, select
 from sqlalchemy.orm import Session
 
 
@@ -69,6 +69,33 @@ epub_books_table = Table(
     Column("created_at", TIMESTAMP),
 )
 
+story_scenes_table = Table(
+    "story_scenes",
+    metadata,
+    Column("scene_id", Integer, primary_key=True),
+    Column("story_id", Integer),
+    Column("scene_order", Integer),
+    Column("illustration_url", Text),
+    Column("audio_url", Text),
+)
+
+narration_audio_table = Table(
+    "narration_audio",
+    metadata,
+    Column("audio_id", Integer, primary_key=True),
+    Column("story_id", Integer),
+    Column("scene_id", Integer),
+    Column("audio_url", Text),
+)
+
+illustrations_table = Table(
+    "illustrations",
+    metadata,
+    Column("illustration_id", Integer, primary_key=True),
+    Column("scene_id", Integer),
+    Column("image_url", Text),
+)
+
 
 @dataclass
 class ReaderRecord:
@@ -103,6 +130,9 @@ class LibraryStoryRecord:
     custom_world_name: str | None
     epub_url: str | None
     epub_created_at: datetime | None
+    cover_image_url: str | None
+    narration_available: bool
+    artwork_available: bool
 
 
 def _to_reader(row) -> ReaderRecord | None:
@@ -146,6 +176,109 @@ def _to_library_story(row) -> LibraryStoryRecord | None:
         custom_world_name=row.custom_world_name,
         epub_url=row.epub_url,
         epub_created_at=row.epub_created_at,
+        cover_image_url=row.cover_image_url,
+        narration_available=bool(row.narration_available),
+        artwork_available=bool(row.artwork_available),
+    )
+
+
+def _library_story_query():
+    cover_from_illustrations = (
+        select(illustrations_table.c.image_url)
+        .select_from(
+            story_scenes_table.join(
+                illustrations_table,
+                story_scenes_table.c.scene_id == illustrations_table.c.scene_id,
+            )
+        )
+        .where(
+            and_(
+                story_scenes_table.c.story_id == stories_generated_table.c.story_id,
+                illustrations_table.c.image_url.isnot(None),
+            )
+        )
+        .order_by(story_scenes_table.c.scene_order.asc(), illustrations_table.c.illustration_id.asc())
+        .limit(1)
+        .scalar_subquery()
+    )
+
+    cover_from_scene = (
+        select(story_scenes_table.c.illustration_url)
+        .where(
+            and_(
+                story_scenes_table.c.story_id == stories_generated_table.c.story_id,
+                story_scenes_table.c.illustration_url.isnot(None),
+            )
+        )
+        .order_by(story_scenes_table.c.scene_order.asc(), story_scenes_table.c.scene_id.asc())
+        .limit(1)
+        .scalar_subquery()
+    )
+
+    narration_exists = exists(
+        select(1).where(
+            and_(
+                narration_audio_table.c.story_id == stories_generated_table.c.story_id,
+                narration_audio_table.c.audio_url.isnot(None),
+            )
+        )
+    )
+
+    scene_audio_exists = exists(
+        select(1).where(
+            and_(
+                story_scenes_table.c.story_id == stories_generated_table.c.story_id,
+                story_scenes_table.c.audio_url.isnot(None),
+            )
+        )
+    )
+
+    artwork_exists = exists(
+        select(1)
+        .select_from(
+            story_scenes_table.outerjoin(
+                illustrations_table,
+                story_scenes_table.c.scene_id == illustrations_table.c.scene_id,
+            )
+        )
+        .where(
+            and_(
+                story_scenes_table.c.story_id == stories_generated_table.c.story_id,
+                func.coalesce(illustrations_table.c.image_url, story_scenes_table.c.illustration_url).isnot(None),
+            )
+        )
+    )
+
+    return select(
+        stories_generated_table.c.story_id,
+        stories_generated_table.c.reader_id,
+        stories_generated_table.c.reader_world_id,
+        stories_generated_table.c.title,
+        stories_generated_table.c.trait_focus,
+        stories_generated_table.c.current_version,
+        stories_generated_table.c.created_at,
+        stories_generated_table.c.updated_at,
+        reader_worlds_table.c.world_id,
+        worlds_table.c.name.label("world_name"),
+        reader_worlds_table.c.custom_name.label("custom_world_name"),
+        epub_books_table.c.epub_url,
+        epub_books_table.c.created_at.label("epub_created_at"),
+        func.coalesce(cover_from_illustrations, cover_from_scene).label("cover_image_url"),
+        case((narration_exists, True), (scene_audio_exists, True), else_=False).label("narration_available"),
+        case((artwork_exists, True), else_=False).label("artwork_available"),
+    ).select_from(
+        stories_generated_table.outerjoin(
+            reader_worlds_table,
+            stories_generated_table.c.reader_world_id == reader_worlds_table.c.reader_world_id,
+        )
+        .outerjoin(
+            worlds_table,
+            reader_worlds_table.c.world_id == worlds_table.c.world_id,
+        )
+        .outerjoin(
+            epub_books_table,
+            stories_generated_table.c.story_id == epub_books_table.c.story_id,
+        )
     )
 
 
@@ -172,35 +305,7 @@ def get_reader_bookshelf(db: Session, reader_id: int) -> BookshelfRecord | None:
 
 def list_reader_library_stories(db: Session, reader_id: int) -> list[LibraryStoryRecord]:
     rows = db.execute(
-        select(
-            stories_generated_table.c.story_id,
-            stories_generated_table.c.reader_id,
-            stories_generated_table.c.reader_world_id,
-            stories_generated_table.c.title,
-            stories_generated_table.c.trait_focus,
-            stories_generated_table.c.current_version,
-            stories_generated_table.c.created_at,
-            stories_generated_table.c.updated_at,
-            reader_worlds_table.c.world_id,
-            worlds_table.c.name.label("world_name"),
-            reader_worlds_table.c.custom_name.label("custom_world_name"),
-            epub_books_table.c.epub_url,
-            epub_books_table.c.created_at.label("epub_created_at"),
-        )
-        .select_from(
-            stories_generated_table.outerjoin(
-                reader_worlds_table,
-                stories_generated_table.c.reader_world_id == reader_worlds_table.c.reader_world_id,
-            )
-            .outerjoin(
-                worlds_table,
-                reader_worlds_table.c.world_id == worlds_table.c.world_id,
-            )
-            .outerjoin(
-                epub_books_table,
-                stories_generated_table.c.story_id == epub_books_table.c.story_id,
-            )
-        )
+        _library_story_query()
         .where(stories_generated_table.c.reader_id == reader_id)
         .order_by(desc(stories_generated_table.c.updated_at), desc(stories_generated_table.c.story_id))
     ).mappings().all()
@@ -209,35 +314,7 @@ def list_reader_library_stories(db: Session, reader_id: int) -> list[LibraryStor
 
 def get_reader_library_story(db: Session, reader_id: int, story_id: int) -> LibraryStoryRecord | None:
     row = db.execute(
-        select(
-            stories_generated_table.c.story_id,
-            stories_generated_table.c.reader_id,
-            stories_generated_table.c.reader_world_id,
-            stories_generated_table.c.title,
-            stories_generated_table.c.trait_focus,
-            stories_generated_table.c.current_version,
-            stories_generated_table.c.created_at,
-            stories_generated_table.c.updated_at,
-            reader_worlds_table.c.world_id,
-            worlds_table.c.name.label("world_name"),
-            reader_worlds_table.c.custom_name.label("custom_world_name"),
-            epub_books_table.c.epub_url,
-            epub_books_table.c.created_at.label("epub_created_at"),
-        )
-        .select_from(
-            stories_generated_table.outerjoin(
-                reader_worlds_table,
-                stories_generated_table.c.reader_world_id == reader_worlds_table.c.reader_world_id,
-            )
-            .outerjoin(
-                worlds_table,
-                reader_worlds_table.c.world_id == worlds_table.c.world_id,
-            )
-            .outerjoin(
-                epub_books_table,
-                stories_generated_table.c.story_id == epub_books_table.c.story_id,
-            )
-        )
+        _library_story_query()
         .where(
             and_(
                 stories_generated_table.c.reader_id == reader_id,

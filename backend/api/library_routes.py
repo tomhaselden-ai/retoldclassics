@@ -42,6 +42,9 @@ class LibraryStoryResponse(BaseModel):
     published: bool
     epub_url: str | None
     epub_created_at: datetime | None
+    cover_image_url: str | None
+    narration_available: bool
+    artwork_available: bool
 
 
 class ReaderLibraryResponse(BaseModel):

@@ -367,7 +367,10 @@ export function LibraryStoryPage() {
           </div>
 
           <div className="library-action-row">
-            <Link to={`/reader/${detail.reader_id}/books/${detail.story.story_id}/read`} className="primary-button">
+            <Link
+              to={`/reader/${detail.reader_id}/books/${detail.story.story_id}/read?autoplay=1&focus=now-reading`}
+              className="primary-button"
+            >
               Read
             </Link>
             {hasIllustrations ? (

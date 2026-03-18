@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from backend.epub.epub_service import EpubService
 from backend.epub.assets_manager import EpubAssetsManager
+from backend.visuals.image_storage import IllustrationImageStorage
 from backend.library.library_repository import (
     get_account_reader,
     get_reader_bookshelf,
@@ -17,6 +18,7 @@ from backend.library.library_repository import (
 
 logger = logging.getLogger(__name__)
 epub_assets_manager = EpubAssetsManager()
+illustration_storage = IllustrationImageStorage()
 
 
 class LibraryServiceError(Exception):
@@ -46,6 +48,7 @@ def _resolve_reader_context(db: Session, account_id: int, reader_id: int):
 
 def _serialize_library_story(story) -> dict[str, Any]:
     normalized_epub_url = epub_assets_manager.normalize_epub_url(story.story_id, story.epub_url)
+    normalized_cover_image_url = illustration_storage.normalize_public_url(story.cover_image_url)
     return {
         "story_id": story.story_id,
         "title": story.title,
@@ -60,6 +63,9 @@ def _serialize_library_story(story) -> dict[str, Any]:
         "published": bool(normalized_epub_url),
         "epub_url": normalized_epub_url,
         "epub_created_at": story.epub_created_at,
+        "cover_image_url": normalized_cover_image_url,
+        "narration_available": story.narration_available,
+        "artwork_available": story.artwork_available,
     }
 
 

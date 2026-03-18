@@ -63,26 +63,39 @@ export function ReaderLibraryPage() {
     story: ReaderLibraryResponse["stories"][number],
     shelfName: string | null,
   ): ShelfItem {
-    const previewParts = [story.trait_focus ? `Focus: ${story.trait_focus}` : null, `Version ${story.current_version ?? 1}`].filter(
-      (value): value is string => !!value,
-    );
+    const previewParts = [
+      story.trait_focus ? `Focus: ${story.trait_focus}` : null,
+      story.narration_available ? "Narration ready" : "Text-first reading",
+      story.artwork_available ? "Artwork ready" : null,
+    ].filter((value): value is string => !!value);
 
     return {
       story_id: story.story_id,
       title: story.title,
       source_author: shelfName,
       age_range: shelfName ? `${shelfName} universe` : "Reader library",
-      reading_level: story.published ? "EPUB ready" : "Read in StoryBloom",
+      reading_level: `Version ${story.current_version ?? 1}`,
       preview_text: previewParts.join(" • "),
       cover: {
         mode: "generated-library",
-        image_url: null,
-        accent_token: story.published ? "sunrise" : "lagoon",
+        image_url: story.cover_image_url,
+        accent_token: story.artwork_available ? "sunrise" : story.published ? "sunrise" : "lagoon",
         display_title: story.title ?? "Untitled Story",
       },
       immersive_reader_available: true,
-      narration_available: false,
+      narration_available: story.narration_available,
     };
+  }
+
+  function buildReadTo(storyId: number, playlist?: number[], playlistIndex = 0): string {
+    const params = new URLSearchParams();
+    params.set("autoplay", "1");
+    params.set("focus", "now-reading");
+    if (playlist && playlist.length > 0) {
+      params.set("playlist", playlist.join(","));
+      params.set("playlistIndex", String(playlistIndex));
+    }
+    return `/reader/${library?.reader_id}/books/${storyId}/read?${params.toString()}`;
   }
 
   return (
@@ -121,6 +134,7 @@ export function ReaderLibraryPage() {
               readerWorlds.map((readerWorld) => {
                 const shelfStories = storiesByReaderWorld.get(readerWorld.reader_world_id) ?? [];
                 const shelfName = readerWorld.custom_name || readerWorld.world.name || "Unnamed world shelf";
+                const playlist = shelfStories.map((story) => story.story_id);
 
                 return (
                   <article key={readerWorld.reader_world_id} className="panel inset-panel world-shelf-card">
@@ -128,10 +142,19 @@ export function ReaderLibraryPage() {
                       <div>
                         <p className="eyebrow">Universe shelf</p>
                         <h3>{shelfName}</h3>
-                        <p>{shelfStories.length > 0 ? "Choose a book to open the story details or start reading." : "This universe is ready for its first book."}</p>
+                        <p>
+                          {shelfStories.length > 0
+                            ? "Choose a book to open the story details, start reading, or play through the whole shelf."
+                            : "This universe is ready for its first book."}
+                        </p>
                       </div>
                       <div className="library-action-row">
                         <span className="chip">{shelfStories.length} books</span>
+                        {shelfStories.length > 0 ? (
+                          <Link className="primary-button" to={buildReadTo(shelfStories[0].story_id, playlist, 0)}>
+                            Play all
+                          </Link>
+                        ) : null}
                         {typeof readerWorld.world_id === "number" ? (
                           <Link className="ghost-button" to={`/reader/${library.reader_id}/worlds/${readerWorld.world_id}`}>
                             Info
@@ -148,10 +171,11 @@ export function ReaderLibraryPage() {
                             item={buildGeneratedStoryItem(story, shelfName)}
                             infoLabel="Story info"
                             infoTo={`/reader/${library.reader_id}/books/${story.story_id}`}
-                            readTo={`/reader/${library.reader_id}/books/${story.story_id}/read`}
+                            readTo={buildReadTo(story.story_id)}
                             authorLabel={null}
                             metaOverride={[
                               story.trait_focus ? `Focus: ${story.trait_focus}` : "StoryBloom book",
+                              story.narration_available ? "Narration ready" : "Text-first reading",
                               `Version ${story.current_version ?? 1}`,
                             ]}
                           />
@@ -190,10 +214,11 @@ export function ReaderLibraryPage() {
                     item={buildGeneratedStoryItem(story, null)}
                     infoLabel="Story info"
                     infoTo={`/reader/${library.reader_id}/books/${story.story_id}`}
-                    readTo={`/reader/${library.reader_id}/books/${story.story_id}/read`}
+                    readTo={buildReadTo(story.story_id)}
                     authorLabel={null}
                     metaOverride={[
                       story.trait_focus ? `Focus: ${story.trait_focus}` : "StoryBloom book",
+                      story.narration_available ? "Narration ready" : "Text-first reading",
                       `Version ${story.current_version ?? 1}`,
                     ]}
                   />
