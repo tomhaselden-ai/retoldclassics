@@ -1253,6 +1253,61 @@ button:disabled,
     rgba(255, 248, 236, 0.98);
 }
 
+.game-crossword-grid {
+  display: grid;
+  gap: 0.22rem;
+  align-self: start;
+}
+
+.game-crossword-cell {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  min-width: 2.5rem;
+  display: grid;
+  place-items: center;
+  border-radius: 0.35rem;
+  border: 1px solid rgba(131, 169, 210, 0.2);
+  background: rgba(255, 251, 245, 0.98);
+  color: var(--text-strong);
+}
+
+.game-crossword-cell-empty {
+  background: rgba(7, 14, 27, 0.72);
+  border-color: rgba(7, 14, 27, 0.72);
+}
+
+.game-crossword-cell-active {
+  border-color: rgba(121, 168, 217, 0.32);
+  background: rgba(235, 245, 255, 0.96);
+}
+
+.game-crossword-cell-filled {
+  border-color: rgba(128, 185, 139, 0.3);
+}
+
+.game-crossword-cell strong {
+  font-size: 1rem;
+}
+
+.game-crossword-number {
+  position: absolute;
+  top: 0.14rem;
+  left: 0.22rem;
+  font-size: 0.55rem;
+  color: var(--text-soft);
+}
+
+.game-crossword-clues {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.game-crossword-clue-active {
+  border-color: rgba(232, 180, 86, 0.3);
+  background: rgba(255, 243, 216, 0.92);
+}
+
 .game-outcome-card {
   margin-top: 1rem;
 }

@@ -20,8 +20,7 @@ import {
 } from "../services/api";
 import { useAuth } from "../services/auth";
 
-type LiveGameType = "build_the_word" | "guess_the_word" | "word_match" | "word_scramble" | "flash_cards";
-type SourceType = "story" | "global_vocab";
+type LiveGameType = "build_the_word" | "guess_the_word" | "word_match" | "word_scramble" | "flash_cards" | "crossword";
 type FeedbackKind = "success" | "gentle" | "complete";
 
 interface FeedbackState {
@@ -123,6 +122,50 @@ interface FlashCardsPayload {
   cards: FlashCardItem[];
 }
 
+interface CrosswordCell {
+  row: number;
+  column: number;
+  solution: string;
+  clue_number: number | null;
+  across_entry_id: string | null;
+  down_entry_id: string | null;
+}
+
+interface CrosswordEntry {
+  entry_id: string;
+  word_id: number | null;
+  display_word: string;
+  answer: string;
+  clue: string;
+  example_sentence: string | null;
+  direction: "across" | "down";
+  row: number;
+  column: number;
+  clue_number: number;
+  length: number;
+}
+
+interface CrosswordPayload {
+  game_type: "crossword";
+  difficulty_level: number;
+  item_count: number;
+  crossword: {
+    rows: number;
+    columns: number;
+    cells: CrosswordCell[];
+    entries: CrosswordEntry[];
+    across_clues: CrosswordEntry[];
+    down_clues: CrosswordEntry[];
+  };
+  launch_config?: {
+    hint_mode?: string;
+    session_size?: number;
+    source_reason?: string;
+    launch_mode?: string;
+    auto_selected_story?: number | null;
+  };
+}
+
 const LIVE_GAME_OPTIONS: Array<{
   gameType: LiveGameType;
   label: string;
@@ -159,12 +202,12 @@ const LIVE_GAME_OPTIONS: Array<{
     description: "Flip word cards and mark what feels known or needs more practice.",
     encouragement: "Great for fast review without pressure.",
   },
-];
-
-const DIFFICULTY_OPTIONS = [
-  { value: 1, label: "Easy" },
-  { value: 2, label: "Medium" },
-  { value: 3, label: "Hard" },
+  {
+    gameType: "crossword",
+    label: "Crossword",
+    description: "Fill a connected word grid using gentle clues from reading and vocabulary practice.",
+    encouragement: "Great for spelling, clue reading, and noticing how words connect.",
+  },
 ];
 
 const FEEDBACK_MESSAGES = {
@@ -253,11 +296,15 @@ function isFlashCardsPayload(payload: unknown): payload is FlashCardsPayload {
   return !!candidate && candidate.game_type === "flash_cards" && Array.isArray(candidate.cards);
 }
 
+function isCrosswordPayload(payload: unknown): payload is CrosswordPayload {
+  const candidate = payload as Partial<CrosswordPayload> | null;
+  return !!candidate && candidate.game_type === "crossword" && !!candidate.crossword && Array.isArray(candidate.crossword.entries);
+}
+
 export function GameShelfPage() {
   const { readerId } = useParams();
   const { token } = useAuth();
   const audioContextRef = useRef<AudioContext | null>(null);
-  const difficultyHydratedRef = useRef(false);
 
   const [catalog, setCatalog] = useState<V1GameCatalogResponse | null>(null);
   const [library, setLibrary] = useState<ReaderLibraryResponse | null>(null);
@@ -268,9 +315,6 @@ export function GameShelfPage() {
   const [notice, setNotice] = useState<string | null>(null);
 
   const [selectedGameType, setSelectedGameType] = useState<LiveGameType>("build_the_word");
-  const [selectedDifficulty, setSelectedDifficulty] = useState<number>(2);
-  const [selectedSourceType, setSelectedSourceType] = useState<SourceType>("story");
-  const [selectedStoryId, setSelectedStoryId] = useState<number | "">("");
   const [startingSession, setStartingSession] = useState(false);
   const [savingSession, setSavingSession] = useState(false);
 
@@ -293,6 +337,10 @@ export function GameShelfPage() {
   const [scrambleSelection, setScrambleSelection] = useState<number[]>([]);
   const [scrambleAttemptCount, setScrambleAttemptCount] = useState(0);
   const [flashCardFlipped, setFlashCardFlipped] = useState(false);
+  const [crosswordInput, setCrosswordInput] = useState("");
+  const [crosswordAttemptCount, setCrosswordAttemptCount] = useState(0);
+  const [crosswordSolvedEntryIds, setCrosswordSolvedEntryIds] = useState<string[]>([]);
+  const [crosswordSolvedAnswers, setCrosswordSolvedAnswers] = useState<Record<string, string>>({});
 
   async function loadShelf(activeToken: string, activeReaderId: number) {
     const [catalogPayload, libraryPayload, historyPayload, practiceSummaryPayload] = await Promise.all([
@@ -305,10 +353,6 @@ export function GameShelfPage() {
     setLibrary(libraryPayload);
     setHistory(historyPayload);
     setPracticeSummary(practiceSummaryPayload);
-    if (!difficultyHydratedRef.current) {
-      setSelectedDifficulty(catalogPayload.recommended_difficulty);
-      difficultyHydratedRef.current = true;
-    }
   }
 
   useEffect(() => {
@@ -335,12 +379,6 @@ export function GameShelfPage() {
     }, feedback.kind === "complete" ? 3200 : 1800);
     return () => window.clearTimeout(timeoutId);
   }, [feedback]);
-
-  const availableStories = useMemo(() => library?.stories ?? [], [library?.stories]);
-  const selectedGame = useMemo(
-    () => LIVE_GAME_OPTIONS.find((option) => option.gameType === selectedGameType) ?? LIVE_GAME_OPTIONS[0],
-    [selectedGameType],
-  );
 
   const buildPayload = useMemo(() => {
     if (!activeSession || activeSession.game_type !== "build_the_word") {
@@ -382,16 +420,26 @@ export function GameShelfPage() {
     return isFlashCardsPayload(payload) ? payload : null;
   }, [activeSession]);
 
+  const crosswordPayload = useMemo(() => {
+    if (!activeSession || activeSession.game_type !== "crossword") {
+      return null;
+    }
+    const payload = activeSession.payload as Record<string, unknown> | null;
+    return isCrosswordPayload(payload) ? payload : null;
+  }, [activeSession]);
+
   const buildRound = buildPayload?.rounds[currentRoundIndex] ?? null;
   const guessRound = guessPayload?.rounds[currentRoundIndex] ?? null;
   const scrambleRound = wordScramblePayload?.rounds[currentRoundIndex] ?? null;
   const flashCard = flashCardsPayload?.cards[currentRoundIndex] ?? null;
+  const crosswordEntry = crosswordPayload?.crossword.entries[currentRoundIndex] ?? null;
 
   const totalRounds =
     buildPayload?.rounds.length ??
     guessPayload?.rounds.length ??
     wordScramblePayload?.rounds.length ??
     flashCardsPayload?.cards.length ??
+    crosswordPayload?.crossword.entries.length ??
     (wordMatchPayload ? wordMatchPayload.grid.cards.length / 2 : 0);
   const elapsedSeconds = sessionStartedAtMs ? Math.max(1, Math.round((Date.now() - sessionStartedAtMs) / 1000)) : 0;
   const currentRoundElapsedSeconds = roundStartedAtMs
@@ -421,6 +469,7 @@ export function GameShelfPage() {
   }, [scrambleRound, scrambleSelection]);
 
   const wordMatchCards = wordMatchPayload?.grid.cards ?? [];
+  const launchConfig = (activeSession?.payload as { launch_config?: CrosswordPayload["launch_config"] } | undefined)?.launch_config;
   const visibleWordMatchCardIds = useMemo(() => {
     const visible = new Set(wordMatchSelectedCardIds);
     wordMatchMatchedPairIds.forEach((pairId) => {
@@ -430,6 +479,39 @@ export function GameShelfPage() {
     });
     return visible;
   }, [wordMatchCards, wordMatchMatchedPairIds, wordMatchSelectedCardIds]);
+
+  const crosswordCellMap = useMemo(() => {
+    return new Map((crosswordPayload?.crossword.cells ?? []).map((cell) => [`${cell.row}-${cell.column}`, cell]));
+  }, [crosswordPayload]);
+
+  const crosswordVisibleLetters = useMemo(() => {
+    const visible = new Map<string, string>();
+    Object.entries(crosswordSolvedAnswers).forEach(([entryId, answer]) => {
+      const entry = crosswordPayload?.crossword.entries.find((candidate) => candidate.entry_id === entryId);
+      if (!entry) {
+        return;
+      }
+      answer.split("").forEach((letter, index) => {
+        const row = entry.direction === "down" ? entry.row + index : entry.row;
+        const column = entry.direction === "across" ? entry.column + index : entry.column;
+        visible.set(`${row}-${column}`, letter);
+      });
+    });
+    if (crosswordEntry) {
+      normalizeWord(crosswordInput)
+        .slice(0, crosswordEntry.length)
+        .split("")
+        .forEach((letter, index) => {
+          const row = crosswordEntry.direction === "down" ? crosswordEntry.row + index : crosswordEntry.row;
+          const column = crosswordEntry.direction === "across" ? crosswordEntry.column + index : crosswordEntry.column;
+          visible.set(`${row}-${column}`, letter);
+        });
+      if (launchConfig?.hint_mode === "guided" && crosswordEntry.answer.length > 0) {
+        visible.set(`${crosswordEntry.row}-${crosswordEntry.column}`, crosswordEntry.answer[0]);
+      }
+    }
+    return visible;
+  }, [crosswordEntry, crosswordInput, crosswordPayload, crosswordSolvedAnswers, launchConfig?.hint_mode]);
 
   function playFeedbackTone(kind: FeedbackKind) {
     const constructor = getAudioContextConstructor();
@@ -484,6 +566,8 @@ export function GameShelfPage() {
     setScrambleSelection([]);
     setScrambleAttemptCount(0);
     setFlashCardFlipped(false);
+    setCrosswordInput("");
+    setCrosswordAttemptCount(0);
     setRoundOutcome(null);
     setRoundStartedAtMs(Date.now());
   }
@@ -506,12 +590,16 @@ export function GameShelfPage() {
     setScrambleSelection([]);
     setScrambleAttemptCount(0);
     setFlashCardFlipped(false);
+    setCrosswordInput("");
+    setCrosswordAttemptCount(0);
+    setCrosswordSolvedEntryIds([]);
+    setCrosswordSolvedAnswers({});
     if (message) {
       setNotice(message);
     }
   }
 
-  async function handleStartSession() {
+  async function handleStartSession(gameType: LiveGameType) {
     if (!token || !readerId) {
       return;
     }
@@ -519,16 +607,14 @@ export function GameShelfPage() {
     setStartingSession(true);
     setError(null);
     setNotice(null);
+    setSelectedGameType(gameType);
+    const selectedGame = LIVE_GAME_OPTIONS.find((option) => option.gameType === gameType) ?? LIVE_GAME_OPTIONS[0];
 
     try {
       const session = await createReaderGameSession(
         Number(readerId),
         {
-          game_type: selectedGameType,
-          source_type: selectedSourceType,
-          story_id: selectedSourceType === "story" && selectedStoryId !== "" ? selectedStoryId : null,
-          difficulty_level: selectedDifficulty,
-          item_count: 8,
+          game_type: gameType,
         },
         token,
       );
@@ -540,6 +626,8 @@ export function GameShelfPage() {
       setSessionComplete(false);
       setWordMatchMatchedPairIds([]);
       setWordMatchPairAttempts({});
+      setCrosswordSolvedEntryIds([]);
+      setCrosswordSolvedAnswers({});
       resetRoundState();
       setNotice(`${selectedGame.label} is ready to play.`);
       await loadShelf(token, Number(readerId));
@@ -623,6 +711,12 @@ export function GameShelfPage() {
       buildRound ??
       guessRound ??
       scrambleRound ??
+      (crosswordEntry
+        ? {
+            word_id: crosswordEntry.word_id,
+            target_word: crosswordEntry.display_word,
+          }
+        : null) ??
       (flashCard
         ? {
             word_id: flashCard.word_id,
@@ -642,12 +736,14 @@ export function GameShelfPage() {
             ? guessAttemptCount
             : activeSession?.game_type === "word_scramble"
               ? scrambleAttemptCount
+              : activeSession?.game_type === "crossword"
+                ? crosswordAttemptCount
               : activeSession?.game_type === "flash_cards"
                 ? 1
                 : guessedLetters.length,
         correct: false,
         time_spent_seconds: currentRoundElapsedSeconds,
-        hint_used: false,
+        hint_used: activeSession?.game_type === "crossword" && launchConfig?.hint_mode === "guided",
         skipped: true,
       },
       `We'll come back to "${activeRound.target_word}" another time.`,
@@ -855,6 +951,65 @@ export function GameShelfPage() {
     );
   }
 
+  function handleCrosswordSubmit() {
+    if (!crosswordEntry || roundOutcome || sessionComplete) {
+      return;
+    }
+
+    const normalizedGuess = normalizeWord(crosswordInput);
+    if (!normalizedGuess) {
+      return;
+    }
+
+    const nextAttemptCount = crosswordAttemptCount + 1;
+    setCrosswordAttemptCount(nextAttemptCount);
+
+    if (normalizedGuess === crosswordEntry.answer) {
+      setCrosswordSolvedEntryIds((current) => [...current, crosswordEntry.entry_id]);
+      setCrosswordSolvedAnswers((current) => ({
+        ...current,
+        [crosswordEntry.entry_id]: crosswordEntry.answer,
+      }));
+      finishRound(
+        {
+          word_id: crosswordEntry.word_id ?? undefined,
+          word_text: crosswordEntry.display_word,
+          attempt_count: nextAttemptCount,
+          correct: true,
+          time_spent_seconds: currentRoundElapsedSeconds,
+          hint_used: launchConfig?.hint_mode === "guided",
+          skipped: false,
+        },
+        `You filled "${crosswordEntry.display_word}" into the crossword.`,
+        "success",
+      );
+      return;
+    }
+
+    if (nextAttemptCount >= 3) {
+      setCrosswordSolvedAnswers((current) => ({
+        ...current,
+        [crosswordEntry.entry_id]: crosswordEntry.answer,
+      }));
+      finishRound(
+        {
+          word_id: crosswordEntry.word_id ?? undefined,
+          word_text: crosswordEntry.display_word,
+          attempt_count: nextAttemptCount,
+          correct: false,
+          time_spent_seconds: currentRoundElapsedSeconds,
+          hint_used: launchConfig?.hint_mode === "guided",
+          skipped: false,
+        },
+        `The answer was "${crosswordEntry.display_word}".`,
+        "gentle",
+      );
+      return;
+    }
+
+    pushFeedback("gentle", pickMessage(FEEDBACK_MESSAGES.incorrect, nextAttemptCount));
+  }
+
   function handleContinue() {
     if (!activeSession) {
       return;
@@ -964,8 +1119,13 @@ export function GameShelfPage() {
             <p>{option.description}</p>
             <p className="helper-text">{option.encouragement}</p>
             <div className="library-action-row">
-              <button type="button" className="primary-button" onClick={() => setSelectedGameType(option.gameType)}>
-                {selectedGameType === option.gameType ? "Selected" : "Choose game"}
+              <button
+                type="button"
+                className="primary-button"
+                onClick={() => void handleStartSession(option.gameType)}
+                disabled={startingSession || !!activeSession}
+              >
+                {startingSession && selectedGameType === option.gameType ? "Preparing..." : `Play ${option.label}`}
               </button>
             </div>
           </article>
@@ -975,56 +1135,33 @@ export function GameShelfPage() {
       <section className="panel inset-panel">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">Start playing</p>
-            <h2>{selectedGame.label}</h2>
-            <p>Recommended difficulty for this reader is {catalog.recommended_difficulty}. Choose a word source and begin.</p>
+            <p className="eyebrow">Instant launch</p>
+            <h2>Tap a game and StoryBloom starts the session</h2>
+            <p>
+              Each launch now auto-selects the difficulty, source, hint style, and session size from this reader&apos;s
+              recent practice and reading history.
+            </p>
           </div>
           <span className="chip">{catalog.recent_sessions.length} recent sessions</span>
         </div>
 
         <div className="game-launch-form">
-          <label className="field">
-            <span>Difficulty</span>
-            <select value={selectedDifficulty} onChange={(event) => setSelectedDifficulty(Number(event.target.value))}>
-              {DIFFICULTY_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="field">
-            <span>Word source</span>
-            <select value={selectedSourceType} onChange={(event) => setSelectedSourceType(event.target.value as SourceType)}>
-              <option value="story">Recent story words</option>
-              <option value="global_vocab">Practice word shelf</option>
-            </select>
-          </label>
-
-          <label className="field">
-            <span>Focus story</span>
-            <select
-              value={selectedStoryId}
-              onChange={(event) => setSelectedStoryId(event.target.value ? Number(event.target.value) : "")}
-              disabled={selectedSourceType !== "story" || availableStories.length === 0}
-            >
-              <option value="">Use any recent story words</option>
-              {availableStories.map((story) => (
-                <option key={story.story_id} value={story.story_id}>
-                  {story.title ?? `Story ${story.story_id}`}
-                </option>
-              ))}
-            </select>
-          </label>
+          <div className="game-launch-summary">
+            <p className="eyebrow">Adaptive launch</p>
+            <h3>Recommended difficulty: level {catalog.recommended_difficulty}</h3>
+            <p>
+              StoryBloom prefers recent story words first, falls back to the word shelf when needed, and keeps sessions
+              short enough for repeat play.
+            </p>
+          </div>
 
           <div className="game-launch-summary">
-            <p className="eyebrow">Session shape</p>
-            <h3>{selectedGame.label}</h3>
-            <p>Eight quick rounds, light encouragement, and saved literacy practice for this reader.</p>
-            <button type="button" className="primary-button" onClick={handleStartSession} disabled={startingSession || !!activeSession}>
-              {startingSession ? "Preparing session..." : `Play ${selectedGame.label}`}
-            </button>
+            <p className="eyebrow">Official game set</p>
+            <h3>Six live games</h3>
+            <p>
+              Build the Word, Guess the Word, Word Match, Word Scramble, Flash Cards, and Crossword all launch from the
+              same saved-session system.
+            </p>
           </div>
         </div>
       </section>
@@ -1038,6 +1175,12 @@ export function GameShelfPage() {
               <p className="reader-stage-subtitle">
                 Round {Math.min(currentRoundIndex + 1, totalRounds)} of {totalRounds} · {elapsedSeconds} seconds so far
               </p>
+              {launchConfig ? (
+                <p className="helper-text">
+                  Auto launch: {(launchConfig.source_reason ?? "adaptive source").replace(/_/g, " ")} | hints{" "}
+                  {launchConfig.hint_mode ?? "balanced"} | {launchConfig.session_size ?? totalRounds} prompts
+                </p>
+              ) : null}
             </div>
             <div className="library-action-row">
               {!sessionComplete ? (
@@ -1053,7 +1196,7 @@ export function GameShelfPage() {
               <article className="game-clue-card">
                 <p className="eyebrow">Clue</p>
                 <h3>{buildRound.clue}</h3>
-                {buildRound.example_sentence ? <p>{buildRound.example_sentence}</p> : null}
+                {launchConfig?.hint_mode !== "light" && buildRound.example_sentence ? <p>{buildRound.example_sentence}</p> : null}
               </article>
 
               <div className="game-pattern-row" aria-label="Current word pattern">
@@ -1104,7 +1247,7 @@ export function GameShelfPage() {
               <article className="game-clue-card">
                 <p className="eyebrow">Clue</p>
                 <h3>{guessRound.clue}</h3>
-                {guessRound.example_sentence ? <p>{guessRound.example_sentence}</p> : null}
+                {launchConfig?.hint_mode !== "light" && guessRound.example_sentence ? <p>{guessRound.example_sentence}</p> : null}
               </article>
 
               <div className="game-pattern-row" aria-label="Letter boxes">
@@ -1257,6 +1400,116 @@ export function GameShelfPage() {
               </div>
 
               <p className="helper-text">You have up to three tries before this word moves on.</p>
+            </div>
+          ) : null}
+
+          {!sessionComplete && crosswordPayload && crosswordEntry ? (
+            <div className="game-stage-shell">
+              <article className="game-clue-card">
+                <p className="eyebrow">Crossword clue</p>
+                <h3>
+                  {crosswordEntry.clue_number}. {crosswordEntry.clue}
+                </h3>
+                <p>
+                  {crosswordEntry.direction === "across" ? "Across" : "Down"} · {crosswordEntry.length} letters ·{" "}
+                  {crosswordSolvedEntryIds.length} solved so far
+                </p>
+                {launchConfig?.hint_mode !== "light" && crosswordEntry.example_sentence ? <p>{crosswordEntry.example_sentence}</p> : null}
+                {launchConfig?.hint_mode === "guided" ? <p className="helper-text">The first letter is revealed for this clue.</p> : null}
+              </article>
+
+              <div className="game-crossword-grid" style={{ gridTemplateColumns: `repeat(${crosswordPayload.crossword.columns}, minmax(0, 1fr))` }}>
+                {Array.from({ length: crosswordPayload.crossword.rows }).flatMap((_, row) =>
+                  Array.from({ length: crosswordPayload.crossword.columns }).map((__, column) => {
+                    const key = `${row}-${column}`;
+                    const cell = crosswordCellMap.get(key);
+                    if (!cell) {
+                      return <div key={key} className="game-crossword-cell game-crossword-cell-empty" />;
+                    }
+                    const isActive =
+                      cell.across_entry_id === crosswordEntry.entry_id || cell.down_entry_id === crosswordEntry.entry_id;
+                    return (
+                      <div
+                        key={key}
+                        className={[
+                          "game-crossword-cell",
+                          isActive ? "game-crossword-cell-active" : "",
+                          crosswordVisibleLetters.has(key) ? "game-crossword-cell-filled" : "",
+                        ]
+                          .filter(Boolean)
+                          .join(" ")}
+                      >
+                        {cell.clue_number ? <span className="game-crossword-number">{cell.clue_number}</span> : null}
+                        <strong>{crosswordVisibleLetters.get(key) ?? ""}</strong>
+                      </div>
+                    );
+                  }),
+                )}
+              </div>
+
+              <label className="field game-answer-field">
+                <span>Your answer</span>
+                <input
+                  type="text"
+                  value={crosswordInput}
+                  onChange={(event) => setCrosswordInput(event.target.value)}
+                  disabled={!!roundOutcome}
+                  autoCapitalize="characters"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  placeholder={`Fill ${crosswordEntry.length} letters`}
+                />
+              </label>
+
+              <div className="library-action-row">
+                <button
+                  type="button"
+                  className="primary-button"
+                  onClick={handleCrosswordSubmit}
+                  disabled={!!roundOutcome || normalizeWord(crosswordInput).length === 0}
+                >
+                  Check answer
+                </button>
+                <button type="button" className="ghost-button" onClick={handleSkipCurrentRound} disabled={!!roundOutcome}>
+                  Skip this clue
+                </button>
+              </div>
+
+              <div className="game-crossword-clues">
+                <article className="panel inset-panel">
+                  <p className="eyebrow">Across</p>
+                  <div className="tooling-mini-list">
+                    {crosswordPayload.crossword.across_clues.map((entry) => (
+                      <div
+                        key={entry.entry_id}
+                        className={entry.entry_id === crosswordEntry.entry_id ? "tooling-mini-card game-crossword-clue-active" : "tooling-mini-card"}
+                      >
+                        <strong>
+                          {entry.clue_number}. {entry.clue}
+                        </strong>
+                        <p>{entry.length} letters</p>
+                      </div>
+                    ))}
+                  </div>
+                </article>
+
+                <article className="panel inset-panel">
+                  <p className="eyebrow">Down</p>
+                  <div className="tooling-mini-list">
+                    {crosswordPayload.crossword.down_clues.map((entry) => (
+                      <div
+                        key={entry.entry_id}
+                        className={entry.entry_id === crosswordEntry.entry_id ? "tooling-mini-card game-crossword-clue-active" : "tooling-mini-card"}
+                      >
+                        <strong>
+                          {entry.clue_number}. {entry.clue}
+                        </strong>
+                        <p>{entry.length} letters</p>
+                      </div>
+                    ))}
+                  </div>
+                </article>
+              </div>
             </div>
           ) : null}
 

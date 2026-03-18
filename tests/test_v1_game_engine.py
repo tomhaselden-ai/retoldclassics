@@ -136,6 +136,17 @@ class V1GameEngineTests(unittest.TestCase):
         self.assertEqual(payload["cards"][0]["front_text"], "Lantern")
         self.assertEqual(payload["cards"][0]["back_text"], "A lamp with a handle.")
 
+    def test_crossword_payload_builds_grid_and_clues(self) -> None:
+        payload = build_v1_game_payload(game_type="crossword", difficulty_level=2, items=build_items()[:6])
+
+        self.assertEqual(payload["game_type"], "crossword")
+        self.assertIn("crossword", payload)
+        self.assertGreaterEqual(payload["crossword"]["rows"], 1)
+        self.assertGreaterEqual(payload["crossword"]["columns"], 1)
+        self.assertGreaterEqual(len(payload["crossword"]["entries"]), 4)
+        self.assertGreaterEqual(len(payload["crossword"]["cells"]), 4)
+        self.assertTrue(payload["crossword"]["across_clues"] or payload["crossword"]["down_clues"])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import defaultdict
 from typing import Any
 
 
@@ -66,6 +67,152 @@ def _base_payload(game_type: str, difficulty_level: int, items: list[dict[str, A
         "item_count": len(items),
         "items": items,
         "reward_profile": REWARD_PROFILE,
+    }
+
+
+def _crossword_layout(items: list[dict[str, Any]]) -> dict[str, Any]:
+    entries = [
+        {
+            "entry_id": f"entry-{index + 1}",
+            "word_id": item["word_id"],
+            "answer": _normalize_word_letters(item["word"]).upper(),
+            "display_word": item["word"],
+            "clue": _pick_clue(item),
+            "example_sentence": item.get("example_sentence"),
+        }
+        for index, item in enumerate(items)
+        if _normalize_word_letters(item["word"])
+    ]
+
+    if not entries:
+        return {"rows": 0, "columns": 0, "cells": [], "entries": []}
+
+    entries.sort(key=lambda entry: (-len(entry["answer"]), entry["answer"]))
+    placements: list[dict[str, Any]] = [
+        {
+            **entries[0],
+            "direction": "across",
+            "row": 0,
+            "column": 0,
+        }
+    ]
+
+    occupied: dict[tuple[int, int], str] = {
+        (0, index): letter
+        for index, letter in enumerate(entries[0]["answer"])
+    }
+
+    def can_place(answer: str, row: int, column: int, direction: str) -> bool:
+        for index, letter in enumerate(answer):
+            current_row = row + index if direction == "down" else row
+            current_column = column + index if direction == "across" else column
+            existing = occupied.get((current_row, current_column))
+            if existing is not None and existing != letter:
+                return False
+        return True
+
+    def place_entry(entry: dict[str, Any], row: int, column: int, direction: str) -> None:
+        placements.append(
+            {
+                **entry,
+                "direction": direction,
+                "row": row,
+                "column": column,
+            }
+        )
+        for index, letter in enumerate(entry["answer"]):
+            current_row = row + index if direction == "down" else row
+            current_column = column + index if direction == "across" else column
+            occupied[(current_row, current_column)] = letter
+
+    for entry in entries[1:]:
+        placed = False
+        for existing in placements:
+            for existing_index, existing_letter in enumerate(existing["answer"]):
+                if placed:
+                    break
+                for answer_index, answer_letter in enumerate(entry["answer"]):
+                    if answer_letter != existing_letter:
+                        continue
+                    direction = "down" if existing["direction"] == "across" else "across"
+                    row = existing["row"] + existing_index if existing["direction"] == "down" else existing["row"] - answer_index
+                    column = existing["column"] - answer_index if existing["direction"] == "across" else existing["column"] + existing_index
+                    if can_place(entry["answer"], row, column, direction):
+                        place_entry(entry, row, column, direction)
+                        placed = True
+                        break
+        if not placed:
+            fallback_row = max(placement["row"] for placement in placements) + 2
+            place_entry(entry, fallback_row, 0, "across")
+
+    min_row = min(placement["row"] for placement in placements)
+    min_column = min(placement["column"] for placement in placements)
+
+    normalized_placements = []
+    for placement in placements:
+        normalized_placements.append(
+            {
+                **placement,
+                "row": placement["row"] - min_row,
+                "column": placement["column"] - min_column,
+            }
+        )
+
+    cell_lookup: dict[tuple[int, int], dict[str, Any]] = {}
+    clue_number = 1
+    clue_numbers: dict[tuple[int, int], int] = {}
+
+    for placement in sorted(normalized_placements, key=lambda item: (item["row"], item["column"], item["direction"])):
+        start = (placement["row"], placement["column"])
+        if start not in clue_numbers:
+            clue_numbers[start] = clue_number
+            clue_number += 1
+        placement["clue_number"] = clue_numbers[start]
+        for index, letter in enumerate(placement["answer"]):
+            row = placement["row"] + index if placement["direction"] == "down" else placement["row"]
+            column = placement["column"] + index if placement["direction"] == "across" else placement["column"]
+            cell = cell_lookup.setdefault(
+                (row, column),
+                {
+                    "row": row,
+                    "column": column,
+                    "solution": letter,
+                    "clue_number": clue_numbers[start] if index == 0 else None,
+                    "across_entry_id": None,
+                    "down_entry_id": None,
+                },
+            )
+            if placement["direction"] == "across":
+                cell["across_entry_id"] = placement["entry_id"]
+            else:
+                cell["down_entry_id"] = placement["entry_id"]
+
+    rows = max((cell["row"] for cell in cell_lookup.values()), default=-1) + 1
+    columns = max((cell["column"] for cell in cell_lookup.values()), default=-1) + 1
+
+    return {
+        "rows": rows,
+        "columns": columns,
+        "cells": sorted(cell_lookup.values(), key=lambda cell: (cell["row"], cell["column"])),
+        "entries": sorted(
+            [
+                {
+                    "entry_id": placement["entry_id"],
+                    "word_id": placement["word_id"],
+                    "display_word": placement["display_word"],
+                    "answer": placement["answer"],
+                    "clue": placement["clue"],
+                    "example_sentence": placement["example_sentence"],
+                    "direction": placement["direction"],
+                    "row": placement["row"],
+                    "column": placement["column"],
+                    "clue_number": placement["clue_number"],
+                    "length": len(placement["answer"]),
+                }
+                for placement in normalized_placements
+            ],
+            key=lambda entry: (entry["clue_number"], entry["direction"]),
+        ),
     }
 
 
@@ -172,15 +319,45 @@ def _flash_cards_payload(difficulty_level: int, items: list[dict[str, Any]]) -> 
     return payload
 
 
-def build_v1_game_payload(*, game_type: str, difficulty_level: int, items: list[dict[str, Any]]) -> dict[str, Any]:
+def _crossword_payload(difficulty_level: int, items: list[dict[str, Any]]) -> dict[str, Any]:
+    payload = _base_payload("crossword", difficulty_level, items[:6])
+    crossword = _crossword_layout(items[:6])
+    entries = crossword["entries"]
+    by_direction: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for entry in entries:
+        by_direction[entry["direction"]].append(entry)
+    payload["crossword"] = {
+        "rows": crossword["rows"],
+        "columns": crossword["columns"],
+        "cells": crossword["cells"],
+        "entries": entries,
+        "across_clues": by_direction["across"],
+        "down_clues": by_direction["down"],
+    }
+    return payload
+
+
+def build_v1_game_payload(
+    *,
+    game_type: str,
+    difficulty_level: int,
+    items: list[dict[str, Any]],
+    launch_config: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     if game_type == "build_the_word":
-        return _build_the_word_payload(difficulty_level, items)
-    if game_type == "guess_the_word":
-        return _guess_the_word_payload(difficulty_level, items)
-    if game_type == "word_match":
-        return _word_match_payload(difficulty_level, items)
-    if game_type == "word_scramble":
-        return _word_scramble_payload(difficulty_level, items)
-    if game_type == "flash_cards":
-        return _flash_cards_payload(difficulty_level, items)
-    raise ValueError(f"Unsupported game type: {game_type}")
+        payload = _build_the_word_payload(difficulty_level, items)
+    elif game_type == "guess_the_word":
+        payload = _guess_the_word_payload(difficulty_level, items)
+    elif game_type == "word_match":
+        payload = _word_match_payload(difficulty_level, items)
+    elif game_type == "word_scramble":
+        payload = _word_scramble_payload(difficulty_level, items)
+    elif game_type == "flash_cards":
+        payload = _flash_cards_payload(difficulty_level, items)
+    elif game_type == "crossword":
+        payload = _crossword_payload(difficulty_level, items)
+    else:
+        raise ValueError(f"Unsupported game type: {game_type}")
+    if launch_config:
+        payload["launch_config"] = launch_config
+    return payload

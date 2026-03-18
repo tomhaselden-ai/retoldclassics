@@ -74,7 +74,7 @@ class GameSessionServiceTests(unittest.TestCase):
             payload = get_game_catalog(self.db, 42, 7)
 
         self.assertEqual(payload["reader_id"], 7)
-        self.assertEqual(len(payload["games"]), 5)
+        self.assertEqual(len(payload["games"]), 6)
         reader_mocked.assert_called_once_with(self.db, 7, 42)
 
     def test_create_v1_game_session_returns_shared_items_and_payload(self) -> None:
@@ -165,9 +165,111 @@ class GameSessionServiceTests(unittest.TestCase):
         self.assertEqual(payload["payload"]["game_type"], "build_the_word")
         self.assertGreaterEqual(len(payload["payload"]["rounds"]), 2)
         self.assertIn("figure_steps", payload["payload"])
+        self.assertEqual(payload["payload"]["launch_config"]["launch_mode"], "custom")
         create_mocked.assert_called_once()
         self.assertEqual(create_mocked.call_args.kwargs["session_payload"]["game_type"], "build_the_word")
         self.db.commit.assert_called_once()
+
+    def test_create_v1_game_session_auto_selects_launch_settings(self) -> None:
+        practice_item = SimpleNamespace(
+            word_id=1,
+            word="Lantern",
+            definition="A lamp with a handle.",
+            example_sentence="The lantern glowed at dusk.",
+            difficulty_level=2,
+            reader_id=7,
+            story_id=12,
+            source_type="story",
+            trait_focus="curiosity",
+        )
+        story_item = SimpleNamespace(
+            word_id=2,
+            word="Harbor",
+            definition="A sheltered place for boats.",
+            example_sentence="The harbor shimmered at dawn.",
+            difficulty_level=2,
+            reader_id=7,
+            story_id=12,
+            source_type="story",
+            trait_focus="curiosity",
+        )
+        extra_items = [
+            SimpleNamespace(
+                word_id=index,
+                word=word,
+                definition=f"Definition for {word}.",
+                example_sentence=None,
+                difficulty_level=1,
+                reader_id=7,
+                story_id=12,
+                source_type="story",
+                trait_focus="curiosity",
+            )
+            for index, word in ((3, "Meadow"), (4, "Pebble"), (5, "Willow"), (6, "Comet"))
+        ]
+
+        with patch(
+            "backend.games.game_session_service.get_reader_for_account",
+            return_value=SimpleNamespace(reader_id=7),
+        ), patch(
+            "backend.games.game_session_service.get_latest_story_for_reader",
+            return_value=SimpleNamespace(story_id=12),
+        ), patch(
+            "backend.games.game_session_service.list_recent_game_results",
+            return_value=[],
+        ), patch(
+            "backend.games.game_session_service.list_reader_story_word_items",
+            side_effect=[[practice_item, story_item, *extra_items], [practice_item, story_item, *extra_items]],
+        ), patch(
+            "backend.games.game_session_service.list_reader_practice_word_items",
+            return_value=[practice_item, story_item],
+        ), patch(
+            "backend.games.game_session_service.list_global_word_items",
+            return_value=[],
+        ), patch(
+            "backend.games.game_session_service.create_game_session",
+            return_value=9,
+        ):
+            session = build_session()
+            session.game_type = "crossword"
+            session.source_story_id = 12
+            session.session_payload = {
+                "version": 1,
+                "game_type": "crossword",
+                "difficulty_level": 1,
+                "item_count": 4,
+                "items": [
+                    {
+                        "word_id": 1,
+                        "word": "Lantern",
+                        "definition": "A lamp with a handle.",
+                        "example_sentence": "The lantern glowed at dusk.",
+                        "difficulty_level": 1,
+                        "reader_id": 7,
+                        "story_id": 12,
+                        "source_type": "story",
+                        "trait_focus": "curiosity",
+                    }
+                ],
+                "crossword": {"rows": 1, "columns": 1, "cells": [], "entries": [], "across_clues": [], "down_clues": []},
+                "launch_config": {"launch_mode": "auto", "source_reason": "recent_story"},
+            }
+            with patch(
+                "backend.games.game_session_service.get_game_session_for_account",
+                return_value=session,
+            ):
+                payload = create_v1_game_session(
+                    self.db,
+                    42,
+                    7,
+                    game_type="crossword",
+                )
+
+        self.assertEqual(payload["game_type"], "crossword")
+        self.assertEqual(payload["source_type"], "story")
+        self.assertEqual(payload["source_story_id"], 12)
+        self.assertEqual(payload["payload"]["launch_config"]["launch_mode"], "auto")
+        self.assertEqual(payload["payload"]["launch_config"]["source_reason"], "recent_story")
 
     def test_complete_v1_game_session_records_attempts_and_legacy_result(self) -> None:
         completed_session = build_session(status="completed", completion_status="completed")

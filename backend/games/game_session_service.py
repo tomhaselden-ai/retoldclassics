@@ -8,7 +8,12 @@ from sqlalchemy.orm import Session
 from backend.adaptive.adaptive_engine import recommend_game_difficulty
 from backend.adaptive.adaptive_repository import list_recent_game_results
 from backend.games.v1_game_engine import build_v1_game_payload
-from backend.games.game_repository import get_reader_for_account, get_story_for_reader, insert_game_result
+from backend.games.game_repository import (
+    get_latest_story_for_reader,
+    get_reader_for_account,
+    get_story_for_reader,
+    insert_game_result,
+)
 from backend.games.game_session_repository import (
     create_game_session,
     get_game_session_for_account,
@@ -28,6 +33,7 @@ SUPPORTED_V1_GAME_TYPES = {
     "word_match",
     "word_scramble",
     "flash_cards",
+    "crossword",
 }
 
 SUPPORTED_SOURCE_TYPES = {
@@ -82,6 +88,57 @@ def _validate_item_count(value: Any) -> int:
     if not isinstance(value, int) or value < 4 or value > 16:
         raise GameSessionServiceError("invalid_input", 400)
     return value
+
+
+def _summarize_recent_results(recent_results: list[Any]) -> dict[str, Any]:
+    if not recent_results:
+        return {"average_score": None, "session_count": 0}
+    average_score = sum((item.score or 0) for item in recent_results) / len(recent_results)
+    return {"average_score": average_score, "session_count": len(recent_results)}
+
+
+def _resolve_hint_mode(game_type: str, recent_results: list[Any]) -> str:
+    snapshot = _summarize_recent_results(recent_results)
+    average_score = snapshot["average_score"]
+    if game_type == "crossword":
+        if average_score is None or average_score < 70:
+            return "guided"
+        if average_score < 85:
+            return "balanced"
+        return "light"
+    if average_score is None or average_score < 60:
+        return "supportive"
+    if average_score < 85:
+        return "balanced"
+    return "light"
+
+
+def _resolve_item_count(game_type: str, difficulty_level: int, requested_item_count: int | None) -> int:
+    if requested_item_count is not None:
+        return requested_item_count
+    if game_type == "crossword":
+        return 4 if difficulty_level == 1 else 5 if difficulty_level == 2 else 6
+    return 6 if difficulty_level == 1 else 8 if difficulty_level == 2 else 10
+
+
+def _resolve_source_selection(
+    db: Session,
+    *,
+    reader_id: int,
+    requested_source_type: str | None,
+    requested_story_id: int | None,
+) -> tuple[str, int | None, str]:
+    if requested_story_id is not None:
+        return "story", requested_story_id, "specific_story"
+
+    latest_story = get_latest_story_for_reader(db, reader_id)
+    if requested_source_type == "global_vocab":
+        return "global_vocab", None, "reader_vocabulary"
+    if requested_source_type == "story":
+        return ("story", latest_story.story_id if latest_story else None, "recent_story" if latest_story else "story_words")
+    if latest_story is not None:
+        return "story", latest_story.story_id, "recent_story"
+    return "global_vocab", None, "reader_vocabulary"
 
 
 def _resolve_difficulty(db: Session, reader_id: int, requested_difficulty: int | None) -> int:
@@ -260,6 +317,13 @@ def get_game_catalog(db: Session, account_id: int, reader_id: int) -> dict[str, 
                 "default_item_count": 8,
                 "supports_story_source": True,
             },
+            {
+                "game_type": "crossword",
+                "label": "Crossword",
+                "description": "Fill a connected word grid using clues from reading practice.",
+                "default_item_count": 5,
+                "supports_story_source": True,
+            },
         ],
         "recent_sessions": [
             {
@@ -290,7 +354,7 @@ def create_v1_game_session(
     normalized_game_type = _validate_game_type(game_type)
     normalized_source_type = _validate_source_type(source_type)
     normalized_difficulty = _validate_difficulty_level(difficulty_level)
-    normalized_item_count = _validate_item_count(item_count)
+    normalized_item_count = _validate_item_count(item_count) if item_count is not None else None
     if story_id is not None:
         _validate_identifier(story_id)
 
@@ -302,15 +366,29 @@ def create_v1_game_session(
         if story_id is not None and get_story_for_reader(db, reader_id, story_id) is None:
             raise GameSessionServiceError("missing_resource", 404)
 
-        resolved_difficulty = _resolve_difficulty(db, reader_id, normalized_difficulty)
-        resolved_source_type = normalized_source_type or ("story" if story_id is not None else "story")
+        recent_results = list_recent_game_results(db, reader_id)
+        resolved_difficulty = normalized_difficulty if normalized_difficulty is not None else recommend_game_difficulty(recent_results)
+        resolved_source_type, resolved_story_id, source_reason = _resolve_source_selection(
+            db,
+            reader_id=reader_id,
+            requested_source_type=normalized_source_type,
+            requested_story_id=story_id,
+        )
+        resolved_item_count = _resolve_item_count(normalized_game_type, resolved_difficulty, normalized_item_count)
+        launch_config = {
+            "launch_mode": "auto" if normalized_source_type is None and normalized_difficulty is None and normalized_item_count is None and story_id is None else "custom",
+            "hint_mode": _resolve_hint_mode(normalized_game_type, recent_results),
+            "session_size": resolved_item_count,
+            "source_reason": source_reason,
+            "auto_selected_story": resolved_story_id,
+        }
         items = _load_session_items(
             db,
             reader_id=reader_id,
             difficulty_level=resolved_difficulty,
-            item_count=normalized_item_count,
+            item_count=resolved_item_count,
             source_type=resolved_source_type,
-            story_id=story_id,
+            story_id=resolved_story_id,
         )
         if len(items) < 4:
             raise GameSessionServiceError("missing_resource", 404)
@@ -318,6 +396,7 @@ def create_v1_game_session(
             game_type=normalized_game_type,
             difficulty_level=resolved_difficulty,
             items=items,
+            launch_config=launch_config,
         )
 
         session_id = create_game_session(
@@ -326,7 +405,7 @@ def create_v1_game_session(
             reader_id=reader_id,
             game_type=normalized_game_type,
             source_type=resolved_source_type,
-            source_story_id=story_id,
+            source_story_id=resolved_story_id,
             difficulty_level=resolved_difficulty,
             item_count=len(items),
             session_payload=session_payload,
