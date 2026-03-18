@@ -101,7 +101,7 @@ class ClassicalStoryVectorStore:
     def query(self, query_text: str, top_k: int = 5) -> list[dict[str, Any]]:
         result = self._collection.query(
             query_texts=[query_text],
-            n_results=min(top_k, 5),
+            n_results=min(max(top_k, 1), 24),
             include=["documents", "metadatas", "distances"],
         )
 

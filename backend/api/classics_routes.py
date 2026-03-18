@@ -10,6 +10,7 @@ from backend.classics.classics_service import (
     ClassicsServiceError,
     get_classic_story_detail,
     get_classic_story_read_payload,
+    get_classics_discovery,
     get_classics_shelf,
 )
 from backend.db.database import get_db
@@ -39,6 +40,17 @@ class ShelfItemResponse(BaseModel):
 class ShelfGroupResponse(BaseModel):
     author: str
     items: list[ShelfItemResponse]
+
+
+class ClassicsDiscoveryResponse(BaseModel):
+    items: list[ShelfItemResponse]
+    total_count: int
+    limit: int
+    offset: int
+    query: str | None
+    applied_author: str | None
+    match_mode: str
+    prompt_examples: list[str]
 
 
 class ClassicsShelfResponse(BaseModel):
@@ -119,6 +131,20 @@ def _error_response(exc: ClassicsServiceError) -> JSONResponse:
     return JSONResponse(status_code=exc.status_code, content={"error": exc.error_code})
 
 
+@router.get("/discover", response_model=ClassicsDiscoveryResponse)
+def get_classics_discovery_route(
+    author: str | None = Query(default=None),
+    q: str | None = Query(default=None),
+    limit: int = Query(default=24, ge=1, le=100),
+    offset: int = Query(default=0, ge=0),
+    db: Session = Depends(get_db),
+) -> Any:
+    try:
+        return get_classics_discovery(db, author=author, q=q, limit=limit, offset=offset)
+    except ClassicsServiceError as exc:
+        return _error_response(exc)
+
+
 @router.get("/shelf", response_model=ClassicsShelfResponse)
 def get_classics_shelf_route(
     author: str | None = Query(default=None),
@@ -126,7 +152,7 @@ def get_classics_shelf_route(
     limit: int = Query(default=40, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
-) -> dict[str, Any] | JSONResponse:
+) -> Any:
     try:
         return get_classics_shelf(db, author=author, q=q, limit=limit, offset=offset)
     except ClassicsServiceError as exc:
@@ -137,7 +163,7 @@ def get_classics_shelf_route(
 def get_classic_story_detail_route(
     story_id: int,
     db: Session = Depends(get_db),
-) -> dict[str, Any] | JSONResponse:
+) -> Any:
     try:
         return get_classic_story_detail(db, story_id)
     except ClassicsServiceError as exc:
@@ -148,7 +174,7 @@ def get_classic_story_detail_route(
 def get_classic_story_read_route(
     story_id: int,
     db: Session = Depends(get_db),
-) -> dict[str, Any] | JSONResponse:
+) -> Any:
     try:
         return get_classic_story_read_payload(db, story_id)
     except ClassicsServiceError as exc:

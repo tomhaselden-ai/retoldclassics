@@ -8,10 +8,10 @@ import { StoryBloomActionButton } from "../components/StoryBloomActionButton";
 import { StoryCard } from "../components/StoryCard";
 import {
   ApiError,
-  getClassicsShelf,
-  getGuestClassics,
+  getClassicsDiscovery,
+  getGuestClassicsDiscovery,
   type GuestLimitsResponse,
-  type ShelfGroup,
+  type ShelfItem,
 } from "../services/api";
 import { useAuth } from "../services/auth";
 import { ensureGuestSession } from "../services/guest";
@@ -24,7 +24,10 @@ export function ClassicsShelfPage() {
   const [author, setAuthor] = useState<string>("");
   const [queryDraft, setQueryDraft] = useState("");
   const [query, setQuery] = useState("");
-  const [groups, setGroups] = useState<ShelfGroup[]>([]);
+  const [items, setItems] = useState<ShelfItem[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [matchMode, setMatchMode] = useState("browse");
+  const [promptExamples, setPromptExamples] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [guestLimits, setGuestLimits] = useState<GuestLimitsResponse | null>(null);
@@ -59,7 +62,7 @@ export function ClassicsShelfPage() {
           }
           setGuestLimits(limits);
 
-          const payload = await getGuestClassics({
+          const payload = await getGuestClassicsDiscovery({
             author: author || undefined,
             q: query || undefined,
             limit: 24,
@@ -68,21 +71,27 @@ export function ClassicsShelfPage() {
           if (cancelled) {
             return;
           }
-          setGroups(payload.groups.filter((group) => allowedAuthors.includes(group.author)));
+          setItems(payload.items.filter((item) => item.source_author && allowedAuthors.includes(item.source_author)));
+          setTotalCount(payload.total_count);
+          setMatchMode(payload.match_mode);
+          setPromptExamples(payload.prompt_examples);
           return;
         }
 
         setGuestLimits(null);
-        const payload = await getClassicsShelf({
+        const payload = await getClassicsDiscovery({
           author: author || undefined,
           q: query || undefined,
-          limit: 80,
+          limit: 48,
           offset: 0,
         });
         if (cancelled) {
           return;
         }
-        setGroups(payload.groups.filter((group) => allowedAuthors.includes(group.author)));
+        setItems(payload.items.filter((item) => item.source_author && allowedAuthors.includes(item.source_author)));
+        setTotalCount(payload.total_count);
+        setMatchMode(payload.match_mode);
+        setPromptExamples(payload.prompt_examples);
       } catch (err) {
         if (cancelled) {
           return;
@@ -116,10 +125,10 @@ export function ClassicsShelfPage() {
 
       <section className="panel">
         <p className="eyebrow">Shared classics shelf</p>
-        <h1>Timeless stories, ready for today's reader</h1>
+        <h1>Ask for the kind of classic story you want</h1>
         <p>
-          Explore Andersen, Grimm, Bible, and Aesop stories in one welcoming shelf built for browsing, read-aloud
-          moments, and repeat visits.
+          Search naturally for kindness, patience, brave heroes, bedtime pacing, or clever tricksters. StoryBloom will
+          surface the closest classic matches and keep the shelf easy to explore.
         </p>
         {!account && guestLimits ? (
           <div className="status-card">
@@ -161,35 +170,27 @@ export function ClassicsShelfPage() {
           <input
             type="search"
             value={queryDraft}
-            placeholder="Search classic titles"
+            placeholder="Try: bedtime stories about kindness"
             onChange={(event) => setQueryDraft(event.target.value)}
           />
           <StoryBloomActionButton type="submit" shape="diamond">
-            Search
+            Find stories
           </StoryBloomActionButton>
         </form>
-      </section>
-
-      <section className="panel">
-        <div className="growth-grid">
-          <article className="panel inset-panel">
-            <p className="eyebrow">Easy discovery</p>
-            <h3>Start with stories families already know and love</h3>
-            <p>The classics shelf is an easy way to try the reading experience before moving into a full family account.</p>
-          </article>
-          <article className="panel inset-panel">
-            <p className="eyebrow">When you're ready</p>
-            <h3>Open a family account and keep your place</h3>
-            <p>Free signup opens the chooser, parent tools, reader spaces, and saved progress.</p>
-            <div className="library-action-row">
-              <StoryBloomActionButton to="/register" shape="heart">
-                Start free
-              </StoryBloomActionButton>
-              <Link to="/how-it-works" className="ghost-button">
-                How it works
-              </Link>
-            </div>
-          </article>
+        <div className="filter-row">
+          {promptExamples.map((example) => (
+            <button
+              key={example}
+              type="button"
+              className="filter-chip"
+              onClick={() => {
+                setQueryDraft(example);
+                setQuery(example);
+              }}
+            >
+              {example}
+            </button>
+          ))}
         </div>
       </section>
 
@@ -197,27 +198,36 @@ export function ClassicsShelfPage() {
       {error ? <ErrorState message={error} /> : null}
 
       {!loading && !error ? (
-        groups.length > 0 ? (
-          groups.map((group) => (
-            <section key={group.author} className="panel">
-              <div className="section-heading">
-                <div>
-                  <p className="eyebrow">Author collection</p>
-                  <h2>{group.author}</h2>
-                </div>
-                <span className="chip">{group.items.length} stories</span>
+        items.length > 0 ? (
+          <section className="panel">
+            <div className="section-heading">
+              <div>
+                <p className="eyebrow">{query ? "Semantic discovery" : "Browse classics"}</p>
+                <h2>
+                  {query
+                    ? matchMode === "semantic"
+                      ? "Closest story matches"
+                      : "Keyword fallback matches"
+                    : "Stories to begin with"}
+                </h2>
+                <p>
+                  {query
+                    ? "Searches are ranked by story meaning first, then narrowed by the author filter when you use one."
+                    : "Start anywhere, then search with a full idea when you want something more specific."}
+                </p>
               </div>
-              <div className="story-grid">
-                {group.items.map((item) => (
-                  <StoryCard key={item.story_id} item={item} />
-                ))}
-              </div>
-            </section>
-          ))
+              <span className="chip">{totalCount} stories</span>
+            </div>
+            <div className="story-grid">
+              {items.map((item) => (
+                <StoryCard key={item.story_id} item={item} />
+              ))}
+            </div>
+          </section>
         ) : (
           <div className="status-card">
             <h3>No classics matched that search</h3>
-            <p>Try a broader title search or clear the author filter.</p>
+            <p>Try a broader story idea like kindness, patience, bravery, or clear the author filter and search again.</p>
           </div>
         )
       ) : null}

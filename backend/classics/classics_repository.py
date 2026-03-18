@@ -129,6 +129,28 @@ def get_classical_story(
     return _to_classical_story(row)
 
 
+def get_classical_stories_by_ids(
+    db: Session,
+    story_ids: list[int],
+    authors: list[str],
+) -> list[ClassicalStoryRecord]:
+    if not story_ids:
+        return []
+
+    rows = db.execute(
+        select(stories_table).where(
+            stories_table.c.story_id.in_(story_ids),
+            stories_table.c.source_author.in_(authors),
+        )
+    ).mappings().all()
+    by_id = {
+        story.story_id: story
+        for story in (_to_classical_story(row) for row in rows)
+        if story is not None
+    }
+    return [by_id[story_id] for story_id in story_ids if story_id in by_id]
+
+
 def list_classical_story_candidates(
     db: Session,
     authors: list[str],

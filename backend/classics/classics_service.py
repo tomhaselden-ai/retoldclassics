@@ -9,6 +9,7 @@ from backend.classics.classics_repository import (
     get_classical_story,
     list_classical_stories,
 )
+from backend.classics.classics_semantic_search_service import discover_classics
 from backend.classics.classics_serializer import (
     ALLOWED_AUTHORS,
     build_read_payload,
@@ -78,6 +79,37 @@ def get_classics_shelf(
         raise
     except SQLAlchemyError as exc:
         logger.exception("database failure during classics shelf lookup")
+        raise ClassicsServiceError(error_code="database_failure", status_code=500) from exc
+
+
+def get_classics_discovery(
+    db: Session,
+    author: Any | None = None,
+    q: Any | None = None,
+    limit: Any = 24,
+    offset: Any = 0,
+) -> dict[str, Any]:
+    authors = _resolve_authors(author)
+    normalized_limit, normalized_offset = _validate_limit_offset(limit, offset)
+    query_text = q.strip() if isinstance(q, str) and q.strip() else None
+    applied_author = normalize_author(author) if isinstance(author, str) and author.strip() else None
+
+    logger.info(
+        "classics discovery requested",
+        extra={"author": applied_author, "limit": normalized_limit, "offset": normalized_offset, "query": query_text},
+    )
+
+    try:
+        return discover_classics(
+            db,
+            authors=authors,
+            query_text=query_text,
+            limit=normalized_limit,
+            offset=normalized_offset,
+            applied_author=applied_author,
+        )
+    except SQLAlchemyError as exc:
+        logger.exception("database failure during classics discovery lookup")
         raise ClassicsServiceError(error_code="database_failure", status_code=500) from exc
 
 

@@ -7,6 +7,7 @@ from typing import Any
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
+from backend.classics.classics_semantic_search_service import discover_classics
 from backend.classics.classics_repository import count_classical_stories, get_classical_story, list_classical_stories
 from backend.classics.classics_serializer import (
     build_read_payload,
@@ -205,6 +206,33 @@ def get_guest_classics_shelf(
         payload = build_shelf_payload(stories, total_count)
         payload["limit"] = normalized_limit
         payload["offset"] = normalized_offset
+        payload["guest_allowed_authors"] = list(GUEST_ALLOWED_AUTHORS)
+        return payload
+    except SQLAlchemyError as exc:
+        raise GuestServiceError("database_failure", 500) from exc
+
+
+def get_guest_classics_discovery(
+    db: Session,
+    author: Any | None = None,
+    q: Any | None = None,
+    limit: Any = 24,
+    offset: Any = 0,
+) -> dict[str, Any]:
+    authors = _resolve_guest_authors(author)
+    normalized_limit, normalized_offset = _validate_limit_offset(limit, offset, max_limit=24)
+    query_text = q.strip() if isinstance(q, str) and q.strip() else None
+    applied_author = normalize_author(author) if isinstance(author, str) and author.strip() else None
+
+    try:
+        payload = discover_classics(
+            db,
+            authors=authors,
+            query_text=query_text,
+            limit=normalized_limit,
+            offset=normalized_offset,
+            applied_author=applied_author,
+        )
         payload["guest_allowed_authors"] = list(GUEST_ALLOWED_AUTHORS)
         return payload
     except SQLAlchemyError as exc:

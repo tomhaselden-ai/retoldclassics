@@ -25,6 +25,7 @@ from backend.api.blog_routes import (
     get_blog_post_route,
     list_blog_posts_route,
 )
+from backend.api.classics_routes import get_classics_discovery_route
 from backend.api.contact_routes import ContactSubmissionRequest, create_contact_submission_route
 from backend.api.content_routes import (
     CommentModerationRequest,
@@ -35,6 +36,7 @@ from backend.api.content_routes import (
 from backend.api.guest_routes import (
     GuestGameLaunchRequest,
     GuestSessionStartRequest,
+    get_guest_classics_discovery_route,
     get_guest_classic_story_read_route,
     launch_guest_game_preview_route,
     start_guest_session_route,
@@ -347,6 +349,17 @@ class RouteContractTests(unittest.TestCase):
             )
         self.assertEqual(result, {"game_type": "build_the_word"})
         preview_mocked.assert_called_once_with(self.db, "guest-token", 9, 5, "127.0.0.1")
+
+    def test_classics_discovery_routes_pass_search_filters(self) -> None:
+        with patch("backend.api.classics_routes.get_classics_discovery", return_value={"items": []}) as classics_mocked:
+            result = get_classics_discovery_route(author="Aesop", q="clever foxes", limit=12, offset=3, db=self.db)
+        self.assertEqual(result, {"items": []})
+        classics_mocked.assert_called_once_with(self.db, author="Aesop", q="clever foxes", limit=12, offset=3)
+
+        with patch("backend.api.guest_routes.get_guest_classics_discovery", return_value={"items": []}) as guest_mocked:
+            result = get_guest_classics_discovery_route(author="Aesop", q="clever foxes", limit=12, offset=0, db=self.db)
+        self.assertEqual(result, {"items": []})
+        guest_mocked.assert_called_once_with(self.db, author="Aesop", q="clever foxes", limit=12, offset=0)
 
     def test_parent_pin_routes_use_account_scope_and_session_header(self) -> None:
         with patch("backend.api.parent_pin_routes.get_parent_pin_status", return_value={"pin_enabled": False}) as status_mocked:

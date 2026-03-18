@@ -587,6 +587,17 @@ export interface ClassicsShelfResponse {
   offset: number;
 }
 
+export interface ClassicsDiscoveryResponse {
+  items: ShelfItem[];
+  total_count: number;
+  limit: number;
+  offset: number;
+  query: string | null;
+  applied_author: string | null;
+  match_mode: string;
+  prompt_examples: string[];
+}
+
 export interface GuestLimitsResponse {
   session_token: string;
   expires_at: string | null;
@@ -1830,6 +1841,24 @@ export function getClassicsShelf(params: { author?: string; q?: string; limit?: 
   return request<ClassicsShelfResponse>(`/classics/shelf${suffix}`);
 }
 
+export function getClassicsDiscovery(params: { author?: string; q?: string; limit?: number; offset?: number }) {
+  const search = new URLSearchParams();
+  if (params.author) {
+    search.set("author", params.author);
+  }
+  if (params.q) {
+    search.set("q", params.q);
+  }
+  if (params.limit) {
+    search.set("limit", String(params.limit));
+  }
+  if (params.offset) {
+    search.set("offset", String(params.offset));
+  }
+  const suffix = search.toString() ? `?${search.toString()}` : "";
+  return request<ClassicsDiscoveryResponse>(`/classics/discover${suffix}`);
+}
+
 export function getClassicStory(storyId: number) {
   return request<ClassicStoryDetail>(`/classics/stories/${storyId}`);
 }
@@ -1873,6 +1902,24 @@ export function getGuestClassics(params: { author?: string; q?: string; limit?: 
   }
   const suffix = search.toString() ? `?${search.toString()}` : "";
   return request<ClassicsShelfResponse>(`/guest/classics${suffix}`);
+}
+
+export function getGuestClassicsDiscovery(params: { author?: string; q?: string; limit?: number; offset?: number }) {
+  const search = new URLSearchParams();
+  if (params.author) {
+    search.set("author", params.author);
+  }
+  if (params.q) {
+    search.set("q", params.q);
+  }
+  if (params.limit) {
+    search.set("limit", String(params.limit));
+  }
+  if (params.offset) {
+    search.set("offset", String(params.offset));
+  }
+  const suffix = search.toString() ? `?${search.toString()}` : "";
+  return request<ClassicsDiscoveryResponse>(`/guest/classics/discover${suffix}`);
 }
 
 export function getGuestClassicStory(storyId: number) {

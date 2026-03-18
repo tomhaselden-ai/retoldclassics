@@ -11,6 +11,7 @@ from backend.guest.guest_service import (
     generate_guest_classic_preview_session,
     get_guest_classic_story_detail,
     get_guest_classic_story_read,
+    get_guest_classics_discovery,
     get_guest_classics_shelf,
     get_guest_games_catalog,
     get_guest_limits,
@@ -114,6 +115,20 @@ def get_guest_classics_route(
 ) -> dict[str, Any] | JSONResponse:
     try:
         return get_guest_classics_shelf(db, author=author, q=q, limit=limit, offset=offset)
+    except GuestServiceError as exc:
+        return _error_response(exc)
+
+
+@router.get("/classics/discover", response_model=None)
+def get_guest_classics_discovery_route(
+    author: str | None = Query(default=None),
+    q: str | None = Query(default=None),
+    limit: int = Query(default=24, ge=1, le=24),
+    offset: int = Query(default=0, ge=0),
+    db: Session = Depends(get_db),
+) -> Any:
+    try:
+        return get_guest_classics_discovery(db, author=author, q=q, limit=limit, offset=offset)
     except GuestServiceError as exc:
         return _error_response(exc)
 
