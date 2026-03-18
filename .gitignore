@@ -2,11 +2,23 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+*.log
 .env
+.env.*
+*.env
 .venv/
 venv/
 venv_broken/
 .vscode/
+.idea/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage/
+htmlcov/
+dist/
+build/
 local_backend_env.bat
 
 frontend_pwa/node_modules/
@@ -18,6 +30,7 @@ frontend_pwa/.env.production.local
 
 backend/media/
 backend/epub/
+backend/images/stories/
 chroma/
 character_canon_runs/
 story_universe_app_handoff*.zip
