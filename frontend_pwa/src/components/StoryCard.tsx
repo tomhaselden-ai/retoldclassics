@@ -14,11 +14,22 @@ interface StoryCardProps {
   infoLabel?: string;
   infoTo?: string;
   readTo?: string | null;
+  authorLabel?: string | null;
+  metaOverride?: string[];
 }
 
-export function StoryCard({ item, infoLabel = "Explore story", infoTo, readTo = null }: StoryCardProps) {
+export function StoryCard({
+  item,
+  infoLabel = "Explore story",
+  infoTo,
+  readTo = null,
+  authorLabel,
+  metaOverride,
+}: StoryCardProps) {
   const accentClass = ACCENT_CLASS_MAP[item.cover.accent_token ?? ""] ?? "accent-default";
   const resolvedInfoTo = infoTo ?? `/classics/${item.story_id}`;
+  const resolvedAuthorLabel = authorLabel ?? item.source_author;
+  const resolvedMeta = metaOverride ?? [item.age_range, item.reading_level].filter((value): value is string => !!value);
 
   return (
     <article className={`story-card ${accentClass}`}>
@@ -30,14 +41,11 @@ export function StoryCard({ item, infoLabel = "Explore story", infoTo, readTo = 
             className="story-cover-image"
           />
         ) : null}
-        <span className="story-author">{item.source_author}</span>
+        {resolvedAuthorLabel ? <span className="story-author">{resolvedAuthorLabel}</span> : null}
         <h3>{item.cover.display_title ?? item.title ?? "Untitled Story"}</h3>
       </div>
       <div className="story-card-body">
-        <div className="meta-row">
-          {item.age_range ? <span>{item.age_range}</span> : null}
-          {item.reading_level ? <span>{item.reading_level}</span> : null}
-        </div>
+        {resolvedMeta.length > 0 ? <div className="meta-row">{resolvedMeta.map((value) => <span key={value}>{value}</span>)}</div> : null}
         <p>{item.preview_text}</p>
         <div className="story-card-actions">
           <Link to={resolvedInfoTo} className={readTo ? "ghost-button" : "primary-link"}>
