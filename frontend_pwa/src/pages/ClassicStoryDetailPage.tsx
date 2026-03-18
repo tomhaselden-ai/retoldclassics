@@ -130,10 +130,17 @@ export function ClassicStoryDetailPage() {
           {!account && guestLimits ? (
             <div className="status-card">
               <h3>Guest story access</h3>
-              <p>
-                This preview is open to guests. Reading this story in immersive mode uses one of your remaining guest
-                story openings. You currently have {guestLimits.classics_reads_remaining} left.
-              </p>
+              {guestLimits.classics_reads_remaining > 0 ? (
+                <p>
+                  This preview is open to guests. Reading this story in immersive mode uses one of your remaining guest
+                  story openings. You currently have {guestLimits.classics_reads_remaining} left.
+                </p>
+              ) : (
+                <p>
+                  Your guest story openings are used up for this session. You can still review story information here,
+                  and a free account will let you keep reading.
+                </p>
+              )}
             </div>
           ) : null}
           <div className="meta-row">

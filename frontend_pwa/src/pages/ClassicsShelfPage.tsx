@@ -177,11 +177,18 @@ export function ClassicsShelfPage() {
         {!account && guestLimits ? (
           <div className="status-card">
             <h3>Free guest access</h3>
-            <p>
-              Guests can open up to {guestLimits.classics_read_limit} classics and launch {guestLimits.game_launch_limit}{" "}
-              guest games. You have {guestLimits.classics_reads_remaining} reads and{" "}
-              {guestLimits.game_launches_remaining} game launches remaining.
-            </p>
+            {guestLimits.classics_reads_remaining > 0 ? (
+              <p>
+                Guests can open up to {guestLimits.classics_read_limit} classics and launch {guestLimits.game_launch_limit}{" "}
+                guest games. You have {guestLimits.classics_reads_remaining} reads and{" "}
+                {guestLimits.game_launches_remaining} game launches remaining.
+              </p>
+            ) : (
+              <p>
+                Your guest story openings are used up for this session. You can still browse story information, and a
+                free account will let you keep reading.
+              </p>
+            )}
             <div className="hero-actions">
               <Link to="/games/guest" className="ghost-button">
                 Try a guest game
