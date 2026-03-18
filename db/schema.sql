@@ -1064,6 +1064,108 @@ LOCK TABLES `character_canon_enhancement_runs` WRITE;
 /*!40000 ALTER TABLE `character_canon_enhancement_runs` DISABLE KEYS */;
 /*!40000 ALTER TABLE `character_canon_enhancement_runs` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `blog_posts`
+--
+
+DROP TABLE IF EXISTS `blog_posts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `blog_posts` (
+  `post_id` int NOT NULL AUTO_INCREMENT,
+  `slug` varchar(160) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `summary` text NOT NULL,
+  `body_text` longtext NOT NULL,
+  `cover_eyebrow` varchar(120) DEFAULT NULL,
+  `author_name` varchar(120) NOT NULL DEFAULT 'Retold Classics Studios',
+  `status` varchar(20) NOT NULL DEFAULT 'published',
+  `published_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`post_id`),
+  UNIQUE KEY `uq_blog_posts_slug` (`slug`),
+  KEY `idx_blog_posts_status_published` (`status`,`published_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `blog_posts`
+--
+
+LOCK TABLES `blog_posts` WRITE;
+/*!40000 ALTER TABLE `blog_posts` DISABLE KEYS */;
+INSERT INTO `blog_posts` (`post_id`, `slug`, `title`, `summary`, `body_text`, `cover_eyebrow`, `author_name`, `status`, `published_at`, `created_at`, `updated_at`) VALUES
+(1,'building-gentle-reading-routines-at-home','Building Gentle Reading Routines at Home','Small, repeatable reading moments can do more for confidence than long, high-pressure sessions.','A strong reading routine does not have to feel elaborate. For many families, the best rhythm starts with ten calm minutes, one familiar story, and a predictable place to begin.\n\nYoung readers build confidence when they know what comes next. A steady routine helps them settle in, notice patterns, and connect reading with comfort instead of pressure.\n\nThat is one reason we love a mix of classics, read-aloud support, and playful word practice. Families can revisit trusted stories, notice growth over time, and keep reading connected to everyday life.\n\nStoryBloom is built for that kind of rhythm: a welcoming shelf, child-friendly reading spaces, and family tools that support consistency without making reading time feel like school.','Reading routines','Retold Classics Studios','published',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP),
+(2,'why-classics-still-matter-for-early-readers','Why Classics Still Matter for Early Readers','Timeless stories give children strong language patterns, memorable characters, and stories worth returning to.','Classics endure for a reason. They offer strong story structure, memorable moral questions, and language that invites rereading.\n\nFor early readers, that matters. Familiar tales lower the barrier to entry while still leaving room for curiosity, discussion, and vocabulary growth.\n\nFamilies often tell us that children love revisiting a story once they feel ownership over it. A known tale becomes a place to practice expression, confidence, and comprehension.\n\nThat is the role classics play inside StoryBloom. They are not there as dusty artifacts. They are there as living story touchstones that children can read, hear, and return to as they grow.','Why classics','Retold Classics Studios','published',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
+/*!40000 ALTER TABLE `blog_posts` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `blog_comments`
+--
+
+DROP TABLE IF EXISTS `blog_comments`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `blog_comments` (
+  `comment_id` int NOT NULL AUTO_INCREMENT,
+  `post_id` int NOT NULL,
+  `author_name` varchar(80) NOT NULL,
+  `author_email` varchar(255) NOT NULL,
+  `comment_body` text NOT NULL,
+  `moderation_status` varchar(20) NOT NULL DEFAULT 'pending',
+  `moderation_notes` text,
+  `moderated_by_email` varchar(255) DEFAULT NULL,
+  `client_ip` varchar(64) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `moderated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`comment_id`),
+  KEY `idx_blog_comments_post_status_created` (`post_id`,`moderation_status`,`created_at`),
+  CONSTRAINT `fk_blog_comments_post` FOREIGN KEY (`post_id`) REFERENCES `blog_posts` (`post_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `blog_comments`
+--
+
+LOCK TABLES `blog_comments` WRITE;
+/*!40000 ALTER TABLE `blog_comments` DISABLE KEYS */;
+/*!40000 ALTER TABLE `blog_comments` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `contact_submissions`
+--
+
+DROP TABLE IF EXISTS `contact_submissions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `contact_submissions` (
+  `submission_id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(120) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `subject` varchar(160) NOT NULL,
+  `message` text NOT NULL,
+  `delivery_status` varchar(20) NOT NULL DEFAULT 'queued',
+  `client_ip` varchar(64) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `delivered_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`submission_id`),
+  KEY `idx_contact_submissions_status_created` (`delivery_status`,`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `contact_submissions`
+--
+
+LOCK TABLES `contact_submissions` WRITE;
+/*!40000 ALTER TABLE `contact_submissions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `contact_submissions` ENABLE KEYS */;
+UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

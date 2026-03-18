@@ -8,6 +8,8 @@ from backend.api.alexa_routes import router as alexa_router
 from backend.api.character_canon_routes import router as character_canon_router
 from backend.api.continuity_routes import router as continuity_router
 from backend.api.classics_routes import router as classics_router
+from backend.api.contact_routes import router as contact_router
+from backend.api.content_routes import router as content_router
 from backend.api.epub_routes import router as epub_router
 from backend.api.auth_routes import router as auth_router
 from backend.api.dashboard_routes import router as dashboard_router
@@ -29,11 +31,13 @@ from backend.api.scaling_routes import router as scaling_router
 from backend.api.story_routes import router as story_router
 from backend.api.vocabulary_routes import router as vocabulary_router
 from backend.api.world_routes import router as world_router
+from backend.api.blog_routes import router as blog_router
 from backend.classics.classics_audio_storage import BASE_CLASSICS_AUDIO_DIR
 from backend.classics.classics_image_storage import BASE_CLASSICS_IMAGE_DIR
 from backend.config.runtime_validation import validate_runtime_settings
 from backend.db.schema_migrations import (
     ensure_character_canon_schema,
+    ensure_content_schema,
     ensure_game_foundation_schema,
     ensure_guest_session_schema,
     ensure_goal_schema,
@@ -45,7 +49,7 @@ from backend.epub.assets_manager import BASE_EPUB_DIR
 from backend.visuals.image_storage import BASE_IMAGE_DIR, BASE_IMAGE_ROUTE
 
 
-app = FastAPI(title="Persistent Story Universe API")
+app = FastAPI(title="StoryBloom API")
 
 app.add_middleware(
     CORSMiddleware,
@@ -70,9 +74,12 @@ app.mount(BASE_IMAGE_ROUTE, StaticFiles(directory=str(BASE_IMAGE_DIR)), name="ge
 app.include_router(adaptive_router)
 app.include_router(analytics_router)
 app.include_router(alexa_router)
+app.include_router(blog_router)
 app.include_router(classics_router)
 app.include_router(character_canon_router)
 app.include_router(continuity_router)
+app.include_router(contact_router)
+app.include_router(content_router)
 app.include_router(epub_router)
 app.include_router(auth_router)
 app.include_router(dashboard_router)
@@ -106,6 +113,7 @@ def apply_startup_schema_updates() -> None:
     ensure_goal_schema()
     ensure_game_foundation_schema()
     ensure_character_canon_schema()
+    ensure_content_schema()
 
 
 @app.get("/health")

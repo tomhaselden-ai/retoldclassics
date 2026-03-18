@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { ErrorState } from "../components/ErrorState";
 import { LoadingState } from "../components/LoadingState";
 import { PageSeo } from "../components/PageSeo";
+import { StoryBloomActionButton } from "../components/StoryBloomActionButton";
 import { StoryCard } from "../components/StoryCard";
 import {
   ApiError,
@@ -28,17 +29,14 @@ export function ClassicsShelfPage() {
   const [error, setError] = useState<string | null>(null);
   const [guestLimits, setGuestLimits] = useState<GuestLimitsResponse | null>(null);
 
-  const allowedAuthors = useMemo(
-    () => {
-      if (!account) {
-        return [...GUEST_AUTHORS];
-      }
-      return Array.isArray(account.allowed_classics_authors) && account.allowed_classics_authors.length > 0
-        ? account.allowed_classics_authors
-        : [...AUTHORS];
-    },
-    [account],
-  );
+  const allowedAuthors = useMemo(() => {
+    if (!account) {
+      return [...GUEST_AUTHORS];
+    }
+    return Array.isArray(account.allowed_classics_authors) && account.allowed_classics_authors.length > 0
+      ? account.allowed_classics_authors
+      : [...AUTHORS];
+  }, [account]);
 
   useEffect(() => {
     if (author && !allowedAuthors.includes(author)) {
@@ -112,32 +110,32 @@ export function ClassicsShelfPage() {
   return (
     <div className="page-grid">
       <PageSeo
-        title="Classics Shelf | Persistent Story Universe"
-        description="Browse Andersen, Grimm, Aesop, and more in the Persistent Story Universe classics shelf, with guest-friendly discovery and immersive reading."
+        title="Classics Shelf | StoryBloom"
+        description="Browse timeless classics in StoryBloom, with family-friendly discovery and welcoming read-aloud experiences."
       />
 
       <section className="panel">
-        <p className="eyebrow">Global classics shelf</p>
-        <h1>Timeless stories for every reader</h1>
+        <p className="eyebrow">Shared classics shelf</p>
+        <h1>Timeless stories, ready for today's reader</h1>
         <p>
-          Explore Andersen, Grimm, Bible, and Aesop stories in one glowing shelf designed for quick
-          discovery and deep reading.
+          Explore Andersen, Grimm, Bible, and Aesop stories in one welcoming shelf built for browsing, read-aloud
+          moments, and repeat visits.
         </p>
         {!account && guestLimits ? (
           <div className="status-card">
-            <h3>Guest classics preview</h3>
+            <h3>Free guest access</h3>
             <p>
-              Guests can open up to {guestLimits.classics_read_limit} classics and launch{" "}
-              {guestLimits.game_launch_limit} guest games. You have {guestLimits.classics_reads_remaining} reads and{" "}
+              Guests can open up to {guestLimits.classics_read_limit} classics and launch {guestLimits.game_launch_limit}{" "}
+              guest games. You have {guestLimits.classics_reads_remaining} reads and{" "}
               {guestLimits.game_launches_remaining} game launches remaining.
             </p>
             <div className="hero-actions">
               <Link to="/games/guest" className="ghost-button">
                 Try a guest game
               </Link>
-              <Link to="/register" className="primary-button">
+              <StoryBloomActionButton to="/register" shape="sun">
                 Create free account
-              </Link>
+              </StoryBloomActionButton>
               <Link to="/login" className="text-link">
                 Sign in
               </Link>
@@ -166,27 +164,27 @@ export function ClassicsShelfPage() {
             placeholder="Search classic titles"
             onChange={(event) => setQueryDraft(event.target.value)}
           />
-          <button type="submit" className="primary-button">
+          <StoryBloomActionButton type="submit" shape="diamond">
             Search
-          </button>
+          </StoryBloomActionButton>
         </form>
       </section>
 
       <section className="panel">
         <div className="growth-grid">
           <article className="panel inset-panel">
-            <p className="eyebrow">Public discovery</p>
-            <h3>Start with the stories children already recognize</h3>
-            <p>The classics shelf is the simplest way to try the reading experience before setting up a family flow.</p>
+            <p className="eyebrow">Easy discovery</p>
+            <h3>Start with stories families already know and love</h3>
+            <p>The classics shelf is an easy way to try the reading experience before moving into a full family account.</p>
           </article>
           <article className="panel inset-panel">
-            <p className="eyebrow">Next step</p>
-            <h3>Move into a family account when you’re ready</h3>
-            <p>Free signup opens chooser, parent analytics, reader routes, and progress-driven goals.</p>
+            <p className="eyebrow">When you're ready</p>
+            <h3>Open a family account and keep your place</h3>
+            <p>Free signup opens the chooser, parent tools, reader spaces, and saved progress.</p>
             <div className="library-action-row">
-              <Link to="/register" className="primary-button">
+              <StoryBloomActionButton to="/register" shape="heart">
                 Start free
-              </Link>
+              </StoryBloomActionButton>
               <Link to="/how-it-works" className="ghost-button">
                 How it works
               </Link>

@@ -401,3 +401,105 @@ def ensure_character_canon_schema() -> None:
             connection.execute(
                 text("CREATE INDEX idx_character_canon_enhancement_runs_scope ON character_canon_enhancement_runs (account_id, reader_world_id, character_id, enhancement_run_id)")
             )
+
+
+def ensure_content_schema() -> None:
+    inspector = inspect(engine)
+    table_names = set(inspector.get_table_names())
+
+    with engine.begin() as connection:
+        if "blog_posts" not in table_names:
+            connection.execute(
+                text(
+                    """
+                    CREATE TABLE blog_posts (
+                        post_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                        slug VARCHAR(160) NOT NULL,
+                        title VARCHAR(255) NOT NULL,
+                        summary TEXT NOT NULL,
+                        body_text LONGTEXT NOT NULL,
+                        cover_eyebrow VARCHAR(120) NULL,
+                        author_name VARCHAR(120) NOT NULL DEFAULT 'Retold Classics Studios',
+                        status VARCHAR(20) NOT NULL DEFAULT 'published',
+                        published_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+                        created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+                        updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                        CONSTRAINT uq_blog_posts_slug UNIQUE (slug)
+                    )
+                    """
+                )
+            )
+            connection.execute(text("CREATE INDEX idx_blog_posts_status_published ON blog_posts (status, published_at)"))
+            connection.execute(
+                text(
+                    """
+                    INSERT INTO blog_posts (slug, title, summary, body_text, cover_eyebrow, author_name, status)
+                    VALUES
+                    (
+                        'building-gentle-reading-routines-at-home',
+                        'Building Gentle Reading Routines at Home',
+                        'Small, repeatable reading moments can do more for confidence than long, high-pressure sessions.',
+                        'A strong reading routine does not have to feel elaborate. For many families, the best rhythm starts with ten calm minutes, one familiar story, and a predictable place to begin.\n\nYoung readers build confidence when they know what comes next. A steady routine helps them settle in, notice patterns, and connect reading with comfort instead of pressure.\n\nThat is one reason we love a mix of classics, read-aloud support, and playful word practice. Families can revisit trusted stories, notice growth over time, and keep reading connected to everyday life.\n\nStoryBloom is built for that kind of rhythm: a welcoming shelf, child-friendly reading spaces, and family tools that support consistency without making reading time feel like school.',
+                        'Reading routines',
+                        'Retold Classics Studios',
+                        'published'
+                    ),
+                    (
+                        'why-classics-still-matter-for-early-readers',
+                        'Why Classics Still Matter for Early Readers',
+                        'Timeless stories give children strong language patterns, memorable characters, and stories worth returning to.',
+                        'Classics endure for a reason. They offer strong story structure, memorable moral questions, and language that invites rereading.\n\nFor early readers, that matters. Familiar tales lower the barrier to entry while still leaving room for curiosity, discussion, and vocabulary growth.\n\nFamilies often tell us that children love revisiting a story once they feel ownership over it. A known tale becomes a place to practice expression, confidence, and comprehension.\n\nThat is the role classics play inside StoryBloom. They are not there as dusty artifacts. They are there as living story touchstones that children can read, hear, and return to as they grow.',
+                        'Why classics',
+                        'Retold Classics Studios',
+                        'published'
+                    )
+                    """
+                )
+            )
+
+        if "blog_comments" not in table_names:
+            connection.execute(
+                text(
+                    """
+                    CREATE TABLE blog_comments (
+                        comment_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                        post_id INT NOT NULL,
+                        author_name VARCHAR(80) NOT NULL,
+                        author_email VARCHAR(255) NOT NULL,
+                        comment_body TEXT NOT NULL,
+                        moderation_status VARCHAR(20) NOT NULL DEFAULT 'pending',
+                        moderation_notes TEXT NULL,
+                        moderated_by_email VARCHAR(255) NULL,
+                        client_ip VARCHAR(64) NULL,
+                        created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+                        moderated_at TIMESTAMP NULL DEFAULT NULL,
+                        CONSTRAINT fk_blog_comments_post FOREIGN KEY (post_id) REFERENCES blog_posts (post_id) ON DELETE CASCADE
+                    )
+                    """
+                )
+            )
+            connection.execute(
+                text("CREATE INDEX idx_blog_comments_post_status_created ON blog_comments (post_id, moderation_status, created_at)")
+            )
+
+        if "contact_submissions" not in table_names:
+            connection.execute(
+                text(
+                    """
+                    CREATE TABLE contact_submissions (
+                        submission_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                        name VARCHAR(120) NOT NULL,
+                        email VARCHAR(255) NOT NULL,
+                        subject VARCHAR(160) NOT NULL,
+                        message TEXT NOT NULL,
+                        delivery_status VARCHAR(20) NOT NULL DEFAULT 'queued',
+                        client_ip VARCHAR(64) NULL,
+                        created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+                        delivered_at TIMESTAMP NULL DEFAULT NULL
+                    )
+                    """
+                )
+            )
+            connection.execute(
+                text("CREATE INDEX idx_contact_submissions_status_created ON contact_submissions (delivery_status, created_at)")
+            )

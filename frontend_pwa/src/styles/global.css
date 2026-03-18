@@ -1,26 +1,35 @@
+@import url("https://fonts.googleapis.com/css2?family=Alegreya:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap");
+
 :root {
-  color-scheme: dark;
-  font-family: "Verdana", "Trebuchet MS", "Segoe UI", sans-serif;
+  color-scheme: light;
+  font-family: "Nunito", "Segoe UI", sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: #ebf8ff;
+  color: #2b3048;
   background:
-    radial-gradient(circle at top left, rgba(29, 242, 201, 0.18), transparent 28%),
-    radial-gradient(circle at top right, rgba(255, 181, 74, 0.16), transparent 24%),
-    linear-gradient(180deg, #07111f 0%, #081729 42%, #0c2034 100%);
+    radial-gradient(circle at top left, rgba(255, 220, 163, 0.48), transparent 28%),
+    radial-gradient(circle at top right, rgba(163, 209, 247, 0.42), transparent 25%),
+    linear-gradient(180deg, #fffaf1 0%, #fdf6ea 48%, #f8f0e5 100%);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   --page-width: 1180px;
-  --panel: rgba(12, 24, 43, 0.82);
-  --panel-border: rgba(125, 249, 255, 0.18);
-  --text-soft: #9ec7d7;
-  --teal: #1df2c9;
-  --gold: #ffb54a;
-  --coral: #ff8c6b;
-  --sky: #7df9ff;
-  --danger: #ff6d8f;
+  --font-display: "Alegreya", Georgia, serif;
+  --surface: rgba(255, 252, 247, 0.9);
+  --surface-strong: rgba(255, 248, 239, 0.96);
+  --panel: rgba(255, 252, 247, 0.9);
+  --panel-border: rgba(131, 169, 210, 0.3);
+  --text-main: #2b3048;
+  --text-soft: #6b718f;
+  --text-strong: #1d2135;
+  --teal: #80b98b;
+  --gold: #e8b456;
+  --coral: #dd8569;
+  --sky: #79a8d9;
+  --danger: #c96269;
+  --shadow-soft: 0 18px 44px rgba(96, 79, 53, 0.14);
+  --shadow-float: 0 12px 28px rgba(121, 93, 62, 0.18);
 }
 
 * {
@@ -36,6 +45,7 @@ body,
 
 body {
   min-height: 100vh;
+  color: var(--text-main);
 }
 
 a {
@@ -44,6 +54,8 @@ a {
 }
 
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
 }

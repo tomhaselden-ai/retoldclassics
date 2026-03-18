@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { ErrorState } from "../components/ErrorState";
 import { LoadingState } from "../components/LoadingState";
 import { PageSeo } from "../components/PageSeo";
+import { StoryBloomActionButton } from "../components/StoryBloomActionButton";
 import {
   ApiError,
   getGuestGamesCatalog,
@@ -232,27 +233,26 @@ export function GuestGamesPage() {
   return (
     <div className="page-grid">
       <PageSeo
-        title="Guest Story Games | Persistent Story Universe"
-        description="Try a bounded Build the Word preview from a classic story before creating a free family account."
+        title="Free Story Games | StoryBloom"
+        description="Try a gentle Build the Word preview from a classic story before opening a free StoryBloom family account."
       />
 
       <section className="panel">
         <div className="section-heading">
           <div>
             <p className="eyebrow">Guest games</p>
-            <h1>Try Build the Word from a classic</h1>
+            <h1>Try a gentle story game from a classic</h1>
             <p>
-              Guest access now uses the same new game direction as the reader game hub. Pick a classic and try a gentle
-              word-building preview.
+              Pick a classic and try a quick word-building round designed to feel welcoming, playful, and easy to start.
             </p>
           </div>
           <div className="hero-actions">
-            <Link to="/classics" className="ghost-button">
+            <StoryBloomActionButton to="/classics" variant="ghost" shape="moon">
               Browse classics
-            </Link>
-            <Link to={account ? "/chooser" : "/register"} className="primary-button">
+            </StoryBloomActionButton>
+            <StoryBloomActionButton to={account ? "/chooser" : "/register"} shape="sun">
               {account ? "Open family chooser" : "Create free account"}
-            </Link>
+            </StoryBloomActionButton>
             <Link to="/for-families" className="text-link">
               Why families use it
             </Link>
@@ -275,14 +275,14 @@ export function GuestGamesPage() {
       <section className="panel">
         <div className="growth-grid">
           <article className="panel inset-panel">
-            <p className="eyebrow">Replacement path</p>
-            <h3>Same new game direction</h3>
-            <p>The guest preview now mirrors the new vocabulary-first game system instead of the retired quiz flow.</p>
+            <p className="eyebrow">A welcoming first step</p>
+            <h3>Start with one classic and one clear challenge</h3>
+            <p>The guest preview helps children try the game flow without feeling overloaded.</p>
           </article>
           <article className="panel inset-panel">
             <p className="eyebrow">After signup</p>
-            <h3>Unlock all five reader games</h3>
-            <p>Free accounts open the full reader game hub with Build the Word, Guess the Word, Match, Scramble, and Flash Cards.</p>
+            <h3>Unlock the full reader game shelf</h3>
+            <p>Free accounts open the full reader game area with more ways to practice words and build confidence.</p>
           </article>
         </div>
       </section>
@@ -325,14 +325,19 @@ export function GuestGamesPage() {
           <select value={itemCount} onChange={(event) => setItemCount(Number(event.target.value))}>
             <option value={3}>3 quick words</option>
             <option value={4}>4 quick words</option>
-            <option value={5}>5 quick words</option>
+            <option value={5}>5 guided words</option>
           </select>
         </label>
 
         <div className="hero-actions">
-          <button type="button" className="primary-button" onClick={handleLaunchPreview} disabled={launching || !selectedStoryId}>
+          <StoryBloomActionButton
+            type="button"
+            shape="star"
+            onClick={handleLaunchPreview}
+            disabled={launching || !selectedStoryId}
+          >
             {launching ? "Preparing preview..." : "Start Build the Word"}
-          </button>
+          </StoryBloomActionButton>
           {preview ? (
             <button type="button" className="ghost-button" onClick={handleResetPreview}>
               Choose another story

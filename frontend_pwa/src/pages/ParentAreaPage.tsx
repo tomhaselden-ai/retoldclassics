@@ -17,7 +17,8 @@ import {
 import { useAuth } from "../services/auth";
 
 export function ParentAreaPage() {
-  const { token } = useAuth();
+  const { token, account } = useAuth();
+  const isStudioModerator = Boolean(account?.email?.toLowerCase().endsWith("@retoldclassics.com"));
   const [summary, setSummary] = useState<ParentSummaryResponse | null>(null);
   const [readers, setReaders] = useState<Reader[]>([]);
   const [loading, setLoading] = useState(true);
@@ -187,6 +188,18 @@ export function ParentAreaPage() {
               </Link>
             </div>
           </article>
+          {isStudioModerator ? (
+            <article className="panel inset-panel">
+              <p className="eyebrow">Studio tools</p>
+              <h3>Content moderation</h3>
+              <p>Review pending blog comments and recent contact submissions for StoryBloom.</p>
+              <div className="library-action-row">
+                <Link to="/parent/content" className="ghost-button">
+                  Open content moderation
+                </Link>
+              </div>
+            </article>
+          ) : null}
         </div>
       </section>
 

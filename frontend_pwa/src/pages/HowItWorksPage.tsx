@@ -1,35 +1,34 @@
-import { Link } from "react-router-dom";
-
 import { PageSeo } from "../components/PageSeo";
+import { StoryBloomActionButton } from "../components/StoryBloomActionButton";
 
 export function HowItWorksPage() {
   return (
     <div className="page-grid">
       <PageSeo
-        title="How It Works | Persistent Story Universe"
-        description="Learn how guest discovery, family setup, reader routes, classics, goals, and immersive story tools work together in Persistent Story Universe."
+        title="How It Works | StoryBloom"
+        description="Learn how StoryBloom guides families from free discovery into a clear parent space and a child-friendly reading path."
       />
 
       <section className="hero-panel growth-hero growth-hero-how">
         <div className="hero-copy">
           <p className="eyebrow">How it works</p>
-          <h1>From guest discovery to a living family reading system</h1>
+          <h1>From a free first story to a full family reading rhythm</h1>
           <p>
-            The public funnel is simple on purpose: try the classics, explore a guest game, create an account, then
-            move into chooser, parent, and reader spaces built for their different jobs.
+            StoryBloom keeps the first steps simple: explore a classic, try a game, create an account, then move into
+            family, parent, and reader spaces built for their different jobs.
           </p>
           <div className="hero-actions">
-            <Link to="/games/guest" className="primary-button">
+            <StoryBloomActionButton to="/games/guest" shape="star">
               Try guest games
-            </Link>
-            <Link to="/register" className="ghost-button">
+            </StoryBloomActionButton>
+            <StoryBloomActionButton to="/register" variant="ghost" shape="sun">
               Start free
-            </Link>
+            </StoryBloomActionButton>
           </div>
         </div>
         <div className="growth-quote-card">
           <p className="eyebrow">Platform shape</p>
-          <h3>Guest discovery leads into a family account, then splits cleanly into parent and reader experiences.</h3>
+          <h3>Free discovery leads into a family account, then opens clear parent and reader experiences.</h3>
         </div>
       </section>
 
@@ -37,23 +36,23 @@ export function HowItWorksPage() {
         <div className="growth-timeline">
           <article className="growth-step">
             <p className="eyebrow">1. Discover</p>
-            <h3>Browse classics or try a guest game</h3>
-            <p>Guests can sample the platform with bounded access and clear conversion prompts.</p>
+            <h3>Browse classics or try a free game</h3>
+            <p>Families can sample StoryBloom with bounded access and a clear, low-pressure first step.</p>
           </article>
           <article className="growth-step">
             <p className="eyebrow">2. Set up</p>
             <h3>Create an account and use the chooser</h3>
-            <p>The chooser becomes the family’s clean entry point after login.</p>
+            <p>The chooser becomes the family's simple entry point after login.</p>
           </article>
           <article className="growth-step">
             <p className="eyebrow">3. Parent view</p>
             <h3>Manage readers, analytics, and goals</h3>
-            <p>Parents get visibility and control without cluttering the child-facing flow.</p>
+            <p>Parents get visibility and guidance without crowding the child-facing flow.</p>
           </article>
           <article className="growth-step">
             <p className="eyebrow">4. Reader view</p>
             <h3>Read, practice, play, and keep going</h3>
-            <p>Children get a calmer route structure centered on books, words, games, and goals.</p>
+            <p>Children get a welcoming route centered on books, words, games, and goals.</p>
           </article>
         </div>
       </section>

@@ -1003,6 +1003,76 @@ export interface ContinuityResponse {
   conflicts: string[];
 }
 
+export interface BlogPostSummary {
+  post_id: number;
+  slug: string;
+  title: string;
+  summary: string;
+  cover_eyebrow: string | null;
+  author_name: string;
+  published_at: string | null;
+  comment_count: number;
+}
+
+export interface BlogComment {
+  comment_id: number;
+  post_id: number;
+  author_name: string;
+  comment_body: string;
+  moderation_status: string;
+  moderation_notes: string | null;
+  created_at: string | null;
+  moderated_at: string | null;
+}
+
+export interface BlogPostDetail {
+  post_id: number;
+  slug: string;
+  title: string;
+  summary: string;
+  body_text: string;
+  cover_eyebrow: string | null;
+  author_name: string;
+  published_at: string | null;
+  comments: BlogComment[];
+}
+
+export interface BlogCommentSubmissionResponse {
+  status: string;
+  comment_id: number;
+}
+
+export interface ContactSubmissionResponse {
+  status: string;
+  submission_id: number;
+  delivery_status: string;
+}
+
+export interface ModerationComment {
+  comment_id: number;
+  post_id: number;
+  post_title: string;
+  post_slug: string;
+  author_name: string;
+  author_email: string;
+  comment_body: string;
+  moderation_status: string;
+  moderation_notes: string | null;
+  created_at: string | null;
+  moderated_at: string | null;
+}
+
+export interface ContactSubmissionRecord {
+  submission_id: number;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  delivery_status: string;
+  created_at: string | null;
+  delivered_at: string | null;
+}
+
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, "") ?? "";
 
 function buildUrl(path: string): string {
@@ -1834,4 +1904,65 @@ export function launchGuestGamePreview(
       body: JSON.stringify(payload),
     },
   );
+}
+
+export function getBlogPosts(): Promise<BlogPostSummary[]> {
+  return request<BlogPostSummary[]>("/blog/posts");
+}
+
+export function getBlogPost(slug: string): Promise<BlogPostDetail> {
+  return request<BlogPostDetail>(`/blog/posts/${slug}`);
+}
+
+export function submitBlogComment(
+  postId: number,
+  payload: { author_name: string; author_email: string; comment_body: string },
+): Promise<BlogCommentSubmissionResponse> {
+  return request<BlogCommentSubmissionResponse>(
+    `/blog/posts/${postId}/comments`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    },
+  );
+}
+
+export function submitContactForm(payload: {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}): Promise<ContactSubmissionResponse> {
+  return request<ContactSubmissionResponse>(
+    "/contact",
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    },
+  );
+}
+
+export function getModerationComments(token: string, moderationStatus?: string | null): Promise<ModerationComment[]> {
+  const suffix = moderationStatus ? `?moderation_status=${encodeURIComponent(moderationStatus)}` : "";
+  return request<ModerationComment[]>(`/parent/content/comments${suffix}`, {}, token);
+}
+
+export function moderateComment(
+  commentId: number,
+  payload: { moderation_status: "approved" | "rejected"; moderation_notes?: string | null },
+  token: string,
+): Promise<{ status: string; comment_id: number }> {
+  return request<{ status: string; comment_id: number }>(
+    `/parent/content/comments/${commentId}`,
+    {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    },
+    token,
+  );
+}
+
+export function getContactSubmissions(token: string, deliveryStatus?: string | null): Promise<ContactSubmissionRecord[]> {
+  const suffix = deliveryStatus ? `?delivery_status=${encodeURIComponent(deliveryStatus)}` : "";
+  return request<ContactSubmissionRecord[]>(`/parent/content/contact-submissions${suffix}`, {}, token);
 }

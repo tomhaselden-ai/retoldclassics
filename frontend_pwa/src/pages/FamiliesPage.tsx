@@ -1,35 +1,34 @@
-import { Link } from "react-router-dom";
-
 import { PageSeo } from "../components/PageSeo";
+import { StoryBloomActionButton } from "../components/StoryBloomActionButton";
 
 export function FamiliesPage() {
   return (
     <div className="page-grid">
       <PageSeo
-        title="For Families | Persistent Story Universe"
-        description="See how Persistent Story Universe supports parents, readers, classics discovery, and personalized story growth in one calm reading platform."
+        title="For Families | StoryBloom"
+        description="See how StoryBloom supports parents and readers with clear family tools, child-friendly reading spaces, and steady reading growth."
       />
 
       <section className="hero-panel growth-hero growth-hero-families">
         <div className="hero-copy">
           <p className="eyebrow">For families</p>
-          <h1>A reading platform built for both the grown-up and the young reader</h1>
+          <h1>A family reading platform that respects both the grown-up and the young reader</h1>
           <p>
-            Parents need visibility. Children need delight and simplicity. Persistent Story Universe is designed so both
-            sides can succeed without fighting the interface.
+            Parents need confidence. Children need warmth and clarity. StoryBloom is designed so both can feel at home
+            without competing for the same screen.
           </p>
           <div className="hero-actions">
-            <Link to="/register" className="primary-button">
+            <StoryBloomActionButton to="/register" shape="sun">
               Create free account
-            </Link>
-            <Link to="/classics" className="ghost-button">
+            </StoryBloomActionButton>
+            <StoryBloomActionButton to="/classics" variant="ghost" shape="diamond">
               Browse classics
-            </Link>
+            </StoryBloomActionButton>
           </div>
         </div>
         <div className="growth-quote-card">
-          <p className="eyebrow">What this means in practice</p>
-          <h3>Calm child UX, clear parent visibility, and a real reading journey that can keep growing.</h3>
+          <p className="eyebrow">What this means day to day</p>
+          <h3>A welcoming reader space, clear parent visibility, and reading routines that can keep growing.</h3>
         </div>
       </section>
 
@@ -37,21 +36,21 @@ export function FamiliesPage() {
         <div className="section-heading">
           <div>
             <p className="eyebrow">Parent confidence</p>
-            <h2>What parents can actually see and control</h2>
+            <h2>What parents can actually see and guide</h2>
           </div>
         </div>
         <div className="growth-grid">
           <article className="panel inset-panel">
             <h3>Reader goals</h3>
-            <p>Set practical reading, vocabulary, and game goals without turning the platform into homework software.</p>
+            <p>Set practical goals for reading, words, and play without making reading time feel like homework.</p>
           </article>
           <article className="panel inset-panel">
             <h3>Analytics that make sense</h3>
-            <p>See stories read, words mastered, strengths, and focus areas in a parent-legible format.</p>
+            <p>See stories read, words practiced, strengths, and support areas in a parent-friendly format.</p>
           </article>
           <article className="panel inset-panel">
             <h3>Protected parent layer</h3>
-            <p>Parent routes stay distinct, with a PIN-gated layer designed to keep child navigation simple.</p>
+            <p>Parent tools stay separate, with a PIN-gated layer that helps keep the child experience simple.</p>
           </article>
         </div>
       </section>
@@ -66,15 +65,15 @@ export function FamiliesPage() {
         <div className="growth-grid">
           <article className="panel inset-panel">
             <h3>Continue reading quickly</h3>
-            <p>A child-first home keeps the next book, the next word, and the next game easy to reach.</p>
+            <p>A child-first home keeps the next book, the next word, and the next game close at hand.</p>
           </article>
           <article className="panel inset-panel">
             <h3>Immersive reading</h3>
-            <p>Classics and generated stories support audio, highlighting, and guided reading interactions.</p>
+            <p>Classics and generated stories support narration, highlighting, and guided reading moments.</p>
           </article>
           <article className="panel inset-panel">
-            <h3>A platform that grows</h3>
-            <p>Readers can move from guest classics to personalized stories, worlds, and guided goals.</p>
+            <h3>Room to grow</h3>
+            <p>Readers can move from free classics into personalized stories, favorite worlds, and guided goals.</p>
           </article>
         </div>
       </section>

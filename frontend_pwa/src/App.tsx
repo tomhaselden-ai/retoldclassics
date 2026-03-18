@@ -2,11 +2,15 @@ import { NavLink, Route, Routes } from "react-router-dom";
 
 import { ProtectedRoute } from "./routes/ProtectedRoute";
 import { ParentProtectedRoute } from "./routes/ParentProtectedRoute";
+import { SiteFooter } from "./components/SiteFooter";
 import { useAuth } from "./services/auth";
 import { ClassicReaderPage } from "./pages/ClassicReaderPage";
 import { ClassicStoryDetailPage } from "./pages/ClassicStoryDetailPage";
 import { ClassicsShelfPage } from "./pages/ClassicsShelfPage";
+import { BlogIndexPage } from "./pages/BlogIndexPage";
+import { BlogPostPage } from "./pages/BlogPostPage";
 import { ChooserPage } from "./pages/ChooserPage";
+import { ContactPage } from "./pages/ContactPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { GeneratedStoryReaderPage } from "./pages/GeneratedStoryReaderPage";
 import { GameShelfPage } from "./pages/GameShelfPage";
@@ -19,6 +23,7 @@ import { FamiliesPage } from "./pages/FamiliesPage";
 import { ParentAnalyticsPage } from "./pages/ParentAnalyticsPage";
 import { ParentAreaPage } from "./pages/ParentAreaPage";
 import { ParentCharacterCanonPage } from "./pages/ParentCharacterCanonPage";
+import { ParentContentPage } from "./pages/ParentContentPage";
 import { ParentGoalsPage } from "./pages/ParentGoalsPage";
 import { ParentPinPage } from "./pages/ParentPinPage";
 import { ParentReaderPage } from "./pages/ParentReaderPage";
@@ -38,20 +43,22 @@ function App() {
     <div className="app-shell">
       <header className="topbar">
         <NavLink to="/" className="brand">
-          <span className="brand-mark">PSU</span>
+          <span className="brand-mark">SB</span>
           <span>
-            <strong>Persistent Story Universe</strong>
-            <small>Futuristic reading worlds for curious kids</small>
+            <strong>StoryBloom</strong>
+            <small>Retold Classics Studios</small>
           </span>
         </NavLink>
 
         <nav className="nav-links">
           <NavLink to="/classics">Classics</NavLink>
-          <NavLink to="/games/guest">Guest games</NavLink>
-          <NavLink to="/for-families">For families</NavLink>
+          <NavLink to="/blog">Blog</NavLink>
+          <NavLink to="/games/guest">Free games</NavLink>
+          <NavLink to="/for-families">Families</NavLink>
+          <NavLink to="/contact">Contact</NavLink>
           <NavLink to="/how-it-works">How it works</NavLink>
-          {account ? <NavLink to="/chooser">Family</NavLink> : <NavLink to="/login">Login</NavLink>}
-          {!account ? <NavLink to="/register">Create account</NavLink> : null}
+          {account ? <NavLink to="/chooser">Family space</NavLink> : <NavLink to="/login">Login</NavLink>}
+          {!account ? <NavLink to="/register">Start free</NavLink> : null}
           {account ? (
             <button type="button" className="ghost-button" onClick={logout}>
               Sign out
@@ -68,8 +75,11 @@ function App() {
           <Route path="/reset-password" element={<PasswordResetRequestPage />} />
           <Route path="/reset-password/confirm" element={<PasswordResetConfirmPage />} />
           <Route path="/classics" element={<ClassicsShelfPage />} />
+          <Route path="/blog" element={<BlogIndexPage />} />
+          <Route path="/blog/:slug" element={<BlogPostPage />} />
           <Route path="/classics/:storyId" element={<ClassicStoryDetailPage />} />
           <Route path="/classics/:storyId/read" element={<ClassicReaderPage />} />
+          <Route path="/contact" element={<ContactPage />} />
           <Route path="/games/guest" element={<GuestGamesPage />} />
           <Route path="/for-families" element={<FamiliesPage />} />
           <Route path="/how-it-works" element={<HowItWorksPage />} />
@@ -110,6 +120,14 @@ function App() {
             element={
               <ParentProtectedRoute>
                 <ParentGoalsPage />
+              </ParentProtectedRoute>
+            }
+          />
+          <Route
+            path="/parent/content"
+            element={
+              <ParentProtectedRoute>
+                <ParentContentPage />
               </ParentProtectedRoute>
             }
           />
@@ -251,6 +269,7 @@ function App() {
           />
         </Routes>
       </main>
+      <SiteFooter />
     </div>
   );
 }

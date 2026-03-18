@@ -37,7 +37,7 @@ def send_password_reset_email(email: str, reset_token: str) -> None:
     message = EmailMessage()
     message["From"] = SMTP_FROM_EMAIL
     message["To"] = email
-    message["Subject"] = "Reset your Persistent Story Universe password"
+    message["Subject"] = "Reset your StoryBloom password"
     message.set_content(
         "\n".join(
             [

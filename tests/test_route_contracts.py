@@ -19,6 +19,19 @@ from backend.api.character_canon_routes import (
     publish_character_canon_route,
     save_character_canon_route,
 )
+from backend.api.blog_routes import (
+    BlogCommentCreateRequest,
+    create_blog_comment_route,
+    get_blog_post_route,
+    list_blog_posts_route,
+)
+from backend.api.contact_routes import ContactSubmissionRequest, create_contact_submission_route
+from backend.api.content_routes import (
+    CommentModerationRequest,
+    list_blog_comments_for_moderation_route,
+    list_contact_submissions_route,
+    moderate_blog_comment_route,
+)
 from backend.api.guest_routes import (
     GuestGameLaunchRequest,
     GuestSessionStartRequest,
@@ -551,6 +564,102 @@ class RouteContractTests(unittest.TestCase):
                 }
             ],
         )
+
+    def test_blog_public_routes_and_comment_submission_use_expected_scope(self) -> None:
+        request = SimpleNamespace(client=SimpleNamespace(host="127.0.0.1"))
+
+        with patch("backend.api.blog_routes.list_published_blog_posts", return_value=[{"post_id": 1}]) as list_mocked:
+            result = list_blog_posts_route(db=self.db)
+        self.assertEqual(result, [{"post_id": 1}])
+        list_mocked.assert_called_once_with(self.db)
+
+        with patch("backend.api.blog_routes.get_published_blog_post", return_value={"slug": "hello"}) as detail_mocked:
+            result = get_blog_post_route(slug="hello", db=self.db)
+        self.assertEqual(result, {"slug": "hello"})
+        detail_mocked.assert_called_once_with(self.db, "hello")
+
+        payload = BlogCommentCreateRequest(
+            author_name="A Parent",
+            author_email="parent@example.com",
+            comment_body="This article was thoughtful and helpful for our family.",
+        )
+        with patch("backend.api.blog_routes.submit_blog_comment", return_value={"status": "pending_moderation"}) as comment_mocked:
+            result = create_blog_comment_route(
+                post_id=5,
+                payload=payload,
+                request=request,
+                _=None,
+                db=self.db,
+            )
+        self.assertEqual(result, {"status": "pending_moderation"})
+        comment_mocked.assert_called_once_with(
+            self.db,
+            post_id=5,
+            author_name="A Parent",
+            author_email="parent@example.com",
+            comment_body="This article was thoughtful and helpful for our family.",
+            client_ip="127.0.0.1",
+        )
+
+    def test_contact_route_uses_client_ip(self) -> None:
+        request = SimpleNamespace(client=SimpleNamespace(host="127.0.0.1"))
+        payload = ContactSubmissionRequest(
+            name="Jordan",
+            email="jordan@example.com",
+            subject="School partnership",
+            message="We would love to learn more about using StoryBloom with our students.",
+        )
+
+        with patch("backend.api.contact_routes.create_contact_submission", return_value={"status": "submitted"}) as mocked:
+            result = create_contact_submission_route(payload=payload, request=request, _=None, db=self.db)
+
+        self.assertEqual(result, {"status": "submitted"})
+        mocked.assert_called_once_with(
+            self.db,
+            name="Jordan",
+            email="jordan@example.com",
+            subject="School partnership",
+            message="We would love to learn more about using StoryBloom with our students.",
+            client_ip="127.0.0.1",
+        )
+
+    def test_content_moderation_routes_use_moderator_identity(self) -> None:
+        moderator = SimpleNamespace(account_id=42, email="info@retoldclassics.com")
+
+        with patch("backend.api.content_routes.list_blog_comments_for_moderation", return_value=[{"comment_id": 9}]) as comments_mocked:
+            result = list_blog_comments_for_moderation_route(
+                moderation_status="pending",
+                current_account=moderator,
+                db=self.db,
+            )
+        self.assertEqual(result, [{"comment_id": 9}])
+        comments_mocked.assert_called_once_with(self.db, moderation_status="pending")
+
+        payload = CommentModerationRequest(moderation_status="approved", moderation_notes="Looks good")
+        with patch("backend.api.content_routes.moderate_blog_comment", return_value={"status": "approved"}) as moderate_mocked:
+            result = moderate_blog_comment_route(
+                comment_id=9,
+                payload=payload,
+                current_account=moderator,
+                db=self.db,
+            )
+        self.assertEqual(result, {"status": "approved"})
+        moderate_mocked.assert_called_once_with(
+            self.db,
+            comment_id=9,
+            moderation_status="approved",
+            moderation_notes="Looks good",
+            moderated_by_email="info@retoldclassics.com",
+        )
+
+        with patch("backend.api.content_routes.list_contact_submissions", return_value=[{"submission_id": 3}]) as contact_mocked:
+            result = list_contact_submissions_route(
+                delivery_status="delivered",
+                current_account=moderator,
+                db=self.db,
+            )
+        self.assertEqual(result, [{"submission_id": 3}])
+        contact_mocked.assert_called_once_with(self.db, delivery_status="delivered")
 
 
 if __name__ == "__main__":
