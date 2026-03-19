@@ -50,22 +50,22 @@ export function ReaderPanel({
         ) : null}
       </div>
       <div className="reader-panel-actions">
-        <Link className="primary-link" to={`/reader/${reader.reader_id}`}>
+        <Link className="btn btn--secondary btn-tone-sky primary-link" to={`/reader/${reader.reader_id}`}>
           Open reader home
         </Link>
-        <Link className="ghost-button" to={`/reader/${reader.reader_id}/books`}>
+        <Link className="btn btn--secondary btn-tone-sky btn-size-compact ghost-button" to={`/reader/${reader.reader_id}/books`}>
           Books
         </Link>
-        <Link className="ghost-button" to={`/reader/${reader.reader_id}/games`}>
+        <Link className="btn btn--secondary btn-tone-sky btn-size-compact ghost-button" to={`/reader/${reader.reader_id}/games`}>
           Game shelf
         </Link>
-        <Link className="ghost-button" to={`/reader/${reader.reader_id}/words`}>
+        <Link className="btn btn--secondary btn-tone-sky btn-size-compact ghost-button" to={`/reader/${reader.reader_id}/words`}>
           Vocabulary shelf
         </Link>
-        <button type="button" className="ghost-button" onClick={() => onEdit(reader)}>
+        <button type="button" className="btn btn--admin btn-tone-plum btn-size-compact ghost-button" onClick={() => onEdit(reader)}>
           Edit
         </button>
-        <button type="button" className="ghost-button" onClick={() => onDelete(reader)} disabled={deleting}>
+        <button type="button" className="btn btn--danger btn-tone-danger btn-size-compact ghost-button" onClick={() => onDelete(reader)} disabled={deleting}>
           {deleting ? "Removing..." : "Delete"}
         </button>
       </div>

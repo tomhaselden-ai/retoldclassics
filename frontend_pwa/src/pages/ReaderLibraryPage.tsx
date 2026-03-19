@@ -112,17 +112,17 @@ export function ReaderLibraryPage() {
               <p>{library.story_count} books are ready across this reader's universes.</p>
             </div>
             <div className="library-action-row">
-              <Link to={`/reader/${library.reader_id}`} className="ghost-button">
-                Reader home
+              <Link to={`/reader/${library.reader_id}`} className="btn btn--secondary btn-tone-neutral ghost-button">
+                Reader Home
               </Link>
-              <Link to={`/reader/${library.reader_id}/games`} className="ghost-button">
-                Open game shelf
+              <Link to={`/reader/${library.reader_id}/games`} className="btn btn--secondary btn-tone-sky ghost-button">
+                Open Game Shelf
               </Link>
-              <Link to={`/reader/${library.reader_id}/words`} className="ghost-button">
-                Open vocabulary shelf
+              <Link to={`/reader/${library.reader_id}/words`} className="btn btn--secondary btn-tone-sky ghost-button">
+                Open Vocabulary Shelf
               </Link>
-              <Link to="/classics" className="text-link">
-                Visit classics shelf
+              <Link to="/classics" className="btn btn--secondary btn-tone-plum ghost-button">
+                Browse Classics
               </Link>
             </div>
           </div>
@@ -151,12 +151,12 @@ export function ReaderLibraryPage() {
                       <div className="library-action-row">
                         <span className="chip">{shelfStories.length} books</span>
                         {shelfStories.length > 0 ? (
-                          <Link className="primary-button" to={buildReadTo(shelfStories[0].story_id, playlist, 0)}>
+                          <Link className="btn btn--primary btn-tone-gold primary-button" to={buildReadTo(shelfStories[0].story_id, playlist, 0)}>
                             Play all
                           </Link>
                         ) : null}
                         {typeof readerWorld.world_id === "number" ? (
-                          <Link className="ghost-button" to={`/reader/${library.reader_id}/worlds/${readerWorld.world_id}`}>
+                          <Link className="btn btn--secondary btn-tone-sky ghost-button" to={`/reader/${library.reader_id}/worlds/${readerWorld.world_id}`}>
                             Info
                           </Link>
                         ) : null}

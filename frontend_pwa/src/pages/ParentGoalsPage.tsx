@@ -156,13 +156,13 @@ export function ParentGoalsPage() {
             </p>
           </div>
           <div className="library-action-row">
-            <Link to="/parent" className="ghost-button">
+            <Link to="/parent" className="btn btn--secondary btn-tone-neutral ghost-button">
               Parent area
             </Link>
-            <Link to="/parent/analytics" className="primary-button">
+            <Link to="/parent/analytics" className="btn btn--admin btn-tone-plum primary-button">
               Analytics
             </Link>
-            <Link to="/chooser" className="ghost-button">
+            <Link to="/chooser" className="btn btn--secondary btn-tone-neutral ghost-button">
               Family chooser
             </Link>
           </div>
@@ -220,12 +220,12 @@ export function ParentGoalsPage() {
                     </p>
                   </div>
                   <div className="reader-panel-actions">
-                    <Link className="ghost-button" to={`/parent/readers/${reader.reader_id}`}>
+                    <Link className="btn btn--secondary btn-tone-sky ghost-button" to={`/parent/readers/${reader.reader_id}`}>
                       Reader overview
                     </Link>
                     <button
                       type="button"
-                      className="primary-button"
+                      className="btn btn--create btn-tone-mint primary-button"
                       onClick={() => {
                         setCreatingReaderId((current) => (current === reader.reader_id ? null : reader.reader_id));
                         setEditingGoalId(null);
@@ -270,10 +270,10 @@ export function ParentGoalsPage() {
                       />
                     </label>
                     <div className="reader-form-actions">
-                      <button type="button" className="primary-button" onClick={() => handleCreateGoal(reader.reader_id)}>
+                      <button type="button" className="btn btn--admin btn-tone-mint primary-button" onClick={() => handleCreateGoal(reader.reader_id)}>
                         Save goal
                       </button>
-                      <button type="button" className="ghost-button" onClick={() => setCreatingReaderId(null)}>
+                      <button type="button" className="btn btn--secondary btn-tone-neutral ghost-button" onClick={() => setCreatingReaderId(null)}>
                         Cancel
                       </button>
                     </div>
@@ -341,20 +341,20 @@ export function ParentGoalsPage() {
                                 />
                               </label>
                               <div className="reader-form-actions">
-                                <button type="button" className="primary-button" onClick={() => handleUpdateGoal(goal.goal_id)}>
+                                <button type="button" className="btn btn--admin btn-tone-mint primary-button" onClick={() => handleUpdateGoal(goal.goal_id)}>
                                   Save changes
                                 </button>
-                                <button type="button" className="ghost-button" onClick={() => setEditingGoalId(null)}>
+                                <button type="button" className="btn btn--secondary btn-tone-neutral ghost-button" onClick={() => setEditingGoalId(null)}>
                                   Cancel
                                 </button>
                               </div>
                             </div>
                           ) : (
                             <div className="reader-panel-actions">
-                              <button type="button" className="ghost-button" onClick={() => startEditingGoal(goal)}>
+                              <button type="button" className="btn btn--admin btn-tone-neutral ghost-button" onClick={() => startEditingGoal(goal)}>
                                 Edit
                               </button>
-                              <button type="button" className="ghost-button" onClick={() => handleToggleGoal(goal)}>
+                              <button type="button" className="btn btn--admin btn-tone-plum ghost-button" onClick={() => handleToggleGoal(goal)}>
                                 {goal.is_active ? "Pause" : "Reactivate"}
                               </button>
                             </div>

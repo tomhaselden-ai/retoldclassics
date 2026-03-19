@@ -209,10 +209,10 @@ export function ParentCharacterCanonPage() {
             </p>
           </div>
           <div className="library-action-row">
-            <Link to={`/parent/readers/${readerId}`} className="ghost-button">
+            <Link to={`/parent/readers/${readerId}`} className="btn btn--secondary btn-tone-neutral ghost-button">
               Reader overview
             </Link>
-            <Link to={`/reader/${readerId}/worlds/${worldId}`} className="ghost-button">
+            <Link to={`/reader/${readerId}/worlds/${worldId}`} className="btn btn--secondary btn-tone-sky ghost-button">
               Universe info
             </Link>
           </div>
@@ -277,7 +277,7 @@ export function ParentCharacterCanonPage() {
                   <div className="library-action-row">
                     <button
                       type="button"
-                      className="ghost-button"
+                      className="btn btn--admin btn-tone-plum ghost-button"
                       disabled={working !== null}
                       onClick={() => handleEnhance("narrative")}
                     >
@@ -285,7 +285,7 @@ export function ParentCharacterCanonPage() {
                     </button>
                     <button
                       type="button"
-                      className="ghost-button"
+                      className="btn btn--admin btn-tone-plum ghost-button"
                       disabled={working !== null}
                       onClick={() => handleEnhance("visual")}
                     >
@@ -293,7 +293,7 @@ export function ParentCharacterCanonPage() {
                     </button>
                     <button
                       type="button"
-                      className="primary-button"
+                      className="btn btn--admin btn-tone-plum primary-button"
                       disabled={working !== null}
                       onClick={() => handleEnhance("full")}
                     >
@@ -421,10 +421,10 @@ export function ParentCharacterCanonPage() {
                       <span>Lock canon after review</span>
                     </label>
                     <div className="library-action-row">
-                      <button type="button" className="ghost-button" disabled={working !== null} onClick={() => handleSave(false)}>
+                      <button type="button" className="btn btn--admin btn-tone-neutral ghost-button" disabled={working !== null} onClick={() => handleSave(false)}>
                         {working === "save" ? "Saving..." : "Save draft canon"}
                       </button>
-                      <button type="button" className="primary-button" disabled={working !== null} onClick={() => handleSave(true)}>
+                      <button type="button" className="btn btn--admin btn-tone-plum primary-button" disabled={working !== null} onClick={() => handleSave(true)}>
                         {working === "publish" ? "Publishing..." : "Publish canon"}
                       </button>
                     </div>

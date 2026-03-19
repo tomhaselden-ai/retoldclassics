@@ -306,8 +306,8 @@ export function LibraryStoryPage() {
                 Reader: <strong>{detail.reader_name ?? "Reader"}</strong>
               </p>
             </div>
-            <Link to={`/reader/${detail.reader_id}/books`} className="text-link">
-              Back to bookshelf
+            <Link to={`/reader/${detail.reader_id}/books`} className="btn btn--secondary btn-tone-neutral ghost-button">
+              Back to books
             </Link>
           </div>
 
@@ -369,7 +369,7 @@ export function LibraryStoryPage() {
           <div className="library-action-row">
             <Link
               to={`/reader/${detail.reader_id}/books/${detail.story.story_id}/read?autoplay=1&focus=now-reading`}
-              className="primary-button"
+              className="btn btn--primary btn-tone-gold primary-button"
             >
               Read
             </Link>
@@ -378,7 +378,7 @@ export function LibraryStoryPage() {
             ) : (
               <button
                 type="button"
-                className="ghost-button"
+                className="btn btn--create btn-tone-mint ghost-button"
                 onClick={handleIllustrate}
                 disabled={illustrating || isActiveMediaJob(illustrationJob)}
               >
@@ -390,18 +390,18 @@ export function LibraryStoryPage() {
             ) : (
               <button
                 type="button"
-                className="ghost-button"
+                className="btn btn--create btn-tone-mint ghost-button"
                 onClick={handleNarrate}
                 disabled={narrating || isActiveMediaJob(narrationJob)}
               >
                 {narrating || isActiveMediaJob(narrationJob) ? "Narration queued..." : "Add narration"}
               </button>
             )}
-            <button type="button" className="primary-button" onClick={handlePublish} disabled={publishing}>
-              {publishing ? "Publishing..." : detail.story.published ? "Republish book file" : "Publish book file"}
+            <button type="button" className="btn btn--admin btn-tone-plum primary-button" onClick={handlePublish} disabled={publishing}>
+              {publishing ? "Publishing..." : detail.story.published ? "Republish" : "Publish"}
             </button>
             {detail.story.epub_url ? (
-              <a className="ghost-button" href={detail.story.epub_url} target="_blank" rel="noreferrer">
+              <a className="btn btn--secondary btn-tone-sky ghost-button" href={detail.story.epub_url} target="_blank" rel="noreferrer">
                 Open book file
               </a>
             ) : null}
@@ -443,7 +443,7 @@ export function LibraryStoryPage() {
                   <h2>Story memory</h2>
                   <p>Load the stored memory events behind this book.</p>
                 </div>
-                <button type="button" className="ghost-button" onClick={handleLoadStoryMemory} disabled={loadingMemory}>
+                <button type="button" className="btn btn--admin btn-tone-neutral ghost-button" onClick={handleLoadStoryMemory} disabled={loadingMemory}>
                   {loadingMemory ? "Loading memory..." : "Load story memory"}
                 </button>
               </div>
@@ -480,7 +480,7 @@ export function LibraryStoryPage() {
                   <h2>Story safety report</h2>
                   <p>Inspect this book against the current account safety policy.</p>
                 </div>
-                <button type="button" className="ghost-button" onClick={handleLoadStorySafety} disabled={loadingSafety}>
+                <button type="button" className="btn btn--admin btn-tone-neutral ghost-button" onClick={handleLoadStorySafety} disabled={loadingSafety}>
                   {loadingSafety ? "Loading safety..." : "Load safety report"}
                 </button>
               </div>
@@ -536,7 +536,7 @@ export function LibraryStoryPage() {
                     placeholder="Paste text to check against the current story security policy."
                   />
                 </label>
-                <button type="submit" className="primary-button" disabled={checkingTextSafety || !textSafetyInput.trim()}>
+                <button type="submit" className="btn btn--admin btn-tone-neutral primary-button" disabled={checkingTextSafety || !textSafetyInput.trim()}>
                   {checkingTextSafety ? "Checking safety..." : "Run text safety check"}
                 </button>
               </form>
@@ -569,7 +569,7 @@ export function LibraryStoryPage() {
                 </label>
                 <button
                   type="submit"
-                  className="primary-button"
+                  className="btn btn--admin btn-tone-neutral primary-button"
                   disabled={checkingContinuity || !continuitySummary.trim() || !detail.story.world_id}
                 >
                   {checkingContinuity ? "Checking continuity..." : "Run story continuity check"}

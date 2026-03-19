@@ -1087,14 +1087,14 @@ export function GameShelfPage() {
           <p>Simple word play tied to reading practice, with clear steps and gentle feedback built for mobile use.</p>
         </div>
         <div className="library-action-row">
-          <Link to={`/reader/${library.reader_id}/words`} className="ghost-button">
+          <Link to={`/reader/${library.reader_id}/words`} className="btn btn--secondary btn-tone-sky ghost-button">
             Open words
           </Link>
-          <Link to={`/reader/${library.reader_id}/books`} className="ghost-button">
+          <Link to={`/reader/${library.reader_id}/books`} className="btn btn--secondary btn-tone-sky ghost-button">
             Open books
           </Link>
-          <Link to={`/reader/${library.reader_id}`} className="text-link">
-            Reader home
+          <Link to={`/reader/${library.reader_id}`} className="btn btn--secondary btn-tone-sky ghost-button">
+            Reader Home
           </Link>
         </div>
       </div>
@@ -1128,7 +1128,7 @@ export function GameShelfPage() {
             <div className="library-action-row">
               <button
                 type="button"
-                className="primary-button"
+                className="btn btn--create btn-tone-mint primary-button"
                 onClick={() => void handleStartSession(option.gameType)}
                 disabled={startingSession}
               >
@@ -1196,7 +1196,7 @@ export function GameShelfPage() {
             </div>
             <div className="library-action-row">
               {!sessionComplete ? (
-                <button type="button" className="ghost-button" onClick={() => clearActiveSession("Practice session closed without saving.")}>
+                <button type="button" className="btn btn--danger btn-tone-danger ghost-button" onClick={() => clearActiveSession("Practice session closed without saving.")}>
                   Leave session
                 </button>
               ) : null}
@@ -1247,7 +1247,7 @@ export function GameShelfPage() {
               </div>
 
               <div className="library-action-row">
-                <button type="button" className="ghost-button" onClick={handleSkipCurrentRound} disabled={!!roundOutcome}>
+                <button type="button" className="btn btn--secondary btn-tone-neutral ghost-button" onClick={handleSkipCurrentRound} disabled={!!roundOutcome}>
                   Skip this word
                 </button>
               </div>
@@ -1287,13 +1287,13 @@ export function GameShelfPage() {
               <div className="library-action-row">
                 <button
                   type="button"
-                  className="primary-button"
+                  className="btn btn--create btn-tone-mint primary-button"
                   onClick={handleGuessSubmit}
                   disabled={!!roundOutcome || normalizeWord(guessInput).length === 0}
                 >
                   Check answer
                 </button>
-                <button type="button" className="ghost-button" onClick={handleSkipCurrentRound} disabled={!!roundOutcome}>
+                <button type="button" className="btn btn--secondary btn-tone-neutral ghost-button" onClick={handleSkipCurrentRound} disabled={!!roundOutcome}>
                   Skip this word
                 </button>
               </div>
@@ -1394,19 +1394,19 @@ export function GameShelfPage() {
               <div className="library-action-row">
                 <button
                   type="button"
-                  className="primary-button"
+                  className="btn btn--create btn-tone-mint primary-button"
                   onClick={handleScrambleSubmit}
                   disabled={!!roundOutcome || scrambleAnswer.length === 0}
                 >
                   Check answer
                 </button>
-                <button type="button" className="ghost-button" onClick={handleScrambleBackspace} disabled={!!roundOutcome || scrambleSelection.length === 0}>
+                <button type="button" className="btn btn--control btn-tone-neutral ghost-button" onClick={handleScrambleBackspace} disabled={!!roundOutcome || scrambleSelection.length === 0}>
                   Backspace
                 </button>
-                <button type="button" className="ghost-button" onClick={handleScrambleClear} disabled={!!roundOutcome || scrambleSelection.length === 0}>
+                <button type="button" className="btn btn--control btn-tone-neutral ghost-button" onClick={handleScrambleClear} disabled={!!roundOutcome || scrambleSelection.length === 0}>
                   Clear
                 </button>
-                <button type="button" className="ghost-button" onClick={handleSkipCurrentRound} disabled={!!roundOutcome}>
+                <button type="button" className="btn btn--secondary btn-tone-neutral ghost-button" onClick={handleSkipCurrentRound} disabled={!!roundOutcome}>
                   Skip this word
                 </button>
               </div>
@@ -1476,13 +1476,13 @@ export function GameShelfPage() {
               <div className="library-action-row">
                 <button
                   type="button"
-                  className="primary-button"
+                  className="btn btn--create btn-tone-mint primary-button"
                   onClick={handleCrosswordSubmit}
                   disabled={!!roundOutcome || normalizeWord(crosswordInput).length === 0}
                 >
                   Check answer
                 </button>
-                <button type="button" className="ghost-button" onClick={handleSkipCurrentRound} disabled={!!roundOutcome}>
+                <button type="button" className="btn btn--secondary btn-tone-neutral ghost-button" onClick={handleSkipCurrentRound} disabled={!!roundOutcome}>
                   Skip this clue
                 </button>
               </div>
@@ -1546,20 +1546,20 @@ export function GameShelfPage() {
 
               <div className="library-action-row">
                 {!flashCardFlipped ? (
-                  <button type="button" className="primary-button" onClick={() => setFlashCardFlipped(true)} disabled={!!roundOutcome}>
+                  <button type="button" className="btn btn--secondary btn-tone-sky primary-button" onClick={() => setFlashCardFlipped(true)} disabled={!!roundOutcome}>
                     Show meaning
                   </button>
                 ) : (
                   <>
-                    <button type="button" className="primary-button" onClick={() => handleFlashCardDecision(true)} disabled={!!roundOutcome}>
+                    <button type="button" className="btn btn--create btn-tone-mint primary-button" onClick={() => handleFlashCardDecision(true)} disabled={!!roundOutcome}>
                       I know it
                     </button>
-                    <button type="button" className="ghost-button" onClick={() => handleFlashCardDecision(false)} disabled={!!roundOutcome}>
+                    <button type="button" className="btn btn--secondary btn-tone-neutral ghost-button" onClick={() => handleFlashCardDecision(false)} disabled={!!roundOutcome}>
                       Practice again
                     </button>
                   </>
                 )}
-                <button type="button" className="ghost-button" onClick={handleSkipCurrentRound} disabled={!!roundOutcome}>
+                <button type="button" className="btn btn--secondary btn-tone-neutral ghost-button" onClick={handleSkipCurrentRound} disabled={!!roundOutcome}>
                   Skip this card
                 </button>
               </div>
@@ -1570,7 +1570,7 @@ export function GameShelfPage() {
             <div className={roundOutcome.correct ? "status-card game-outcome-card success" : "status-card game-outcome-card"}>
               <h3>{roundOutcome.correct ? "Correct answer" : roundOutcome.skipped ? "Skipped for now" : "Let's learn from this one"}</h3>
               <p>{roundOutcome.message}</p>
-              <button type="button" className="primary-button" onClick={handleContinue}>
+              <button type="button" className="btn btn--primary btn-tone-gold primary-button" onClick={handleContinue}>
                 {currentRoundIndex >= totalRounds - 1 ? "Open session summary" : "Next word"}
               </button>
             </div>
@@ -1591,12 +1591,12 @@ export function GameShelfPage() {
                 <p>Save this session so it feeds analytics, goals, and future practice.</p>
               </article>
               <div className="library-action-row">
-                <button type="button" className="primary-button" onClick={handleSaveSession} disabled={savingSession}>
+                <button type="button" className="btn btn--create btn-tone-mint primary-button" onClick={handleSaveSession} disabled={savingSession}>
                   {savingSession ? "Saving session..." : "Save session"}
                 </button>
                 <button
                   type="button"
-                  className="ghost-button"
+                  className="btn btn--danger btn-tone-danger ghost-button"
                   onClick={() => clearActiveSession("Practice session closed without saving.")}
                   disabled={savingSession}
                 >

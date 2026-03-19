@@ -48,10 +48,10 @@ export function ChooserPage() {
           <p>Start from the parent area or open a reader home in one tap. Parent tools stay protected behind a separate PIN.</p>
         </div>
         <div className="library-action-row">
-          <Link to="/classics" className="ghost-button">
-            Browse classics
+          <Link to="/classics" className="btn btn--secondary btn-tone-sky ghost-button">
+            Browse Classics
           </Link>
-          <Link to="/parent/pin" className="text-link">
+          <Link to="/parent/pin" className="btn btn--secondary btn-tone-plum ghost-button">
             Parent PIN
           </Link>
         </div>
@@ -73,11 +73,11 @@ export function ChooserPage() {
                 : "Set a parent PIN before entering the parent area so children do not wander into account controls."}
             </p>
             <div className="library-action-row">
-              <Link to={parentActionTo} className="primary-button">
+              <Link to={parentActionTo} className="btn btn--admin btn-tone-plum primary-button">
                 {parentActionLabel}
               </Link>
               {showSecondaryParentAction ? (
-                <Link to="/parent/pin" className="ghost-button">
+                <Link to="/parent/pin" className="btn btn--secondary btn-tone-neutral ghost-button">
                   {secondaryParentActionLabel}
                 </Link>
               ) : null}
@@ -92,11 +92,11 @@ export function ChooserPage() {
                 Age {reader.age ?? "?"} - {reader.reading_level ?? "Emerging reader"}
               </p>
               <div className="library-action-row">
-                <Link to={`/reader/${reader.reader_id}`} className="primary-button">
-                  Open reader home
+                <Link to={`/reader/${reader.reader_id}`} className="btn btn--secondary btn-tone-sky primary-button">
+                  Open Reader Home
                 </Link>
-                <Link to={`/reader/${reader.reader_id}/books`} className="ghost-button">
-                  Open books
+                <Link to={`/reader/${reader.reader_id}/books`} className="btn btn--secondary btn-tone-sky ghost-button">
+                  Open Books
                 </Link>
               </div>
             </article>
@@ -108,7 +108,7 @@ export function ChooserPage() {
               <h2>Create your first reader</h2>
               <p>The parent area is where reader creation and family setup live right now.</p>
               <div className="library-action-row">
-                <Link to={parentActionTo} className="primary-button">
+                <Link to={parentActionTo} className="btn btn--admin btn-tone-plum primary-button">
                   {parentActionLabel}
                 </Link>
               </div>

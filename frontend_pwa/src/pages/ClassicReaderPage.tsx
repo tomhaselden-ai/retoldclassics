@@ -177,14 +177,14 @@ export function ClassicReaderPage() {
             <h2>Save your place with a free account</h2>
             <p>Guest reading is intentionally limited. Signing up unlocks your full family shelf and reader worlds.</p>
             <div className="hero-actions">
-              <Link to="/register" className="primary-button">
-                Create free account
+              <Link to="/register" className="btn btn--create btn-tone-mint primary-button">
+                Create Account
               </Link>
-              <Link to="/login" className="ghost-button">
-                Sign in
+              <Link to="/login" className="btn btn--secondary btn-tone-sky ghost-button">
+                Sign In
               </Link>
-              <Link to="/classics" className="text-link">
-                Back to classics
+              <Link to="/classics" className="btn btn--secondary btn-tone-plum ghost-button">
+                Browse Classics
               </Link>
             </div>
           </section>
@@ -209,8 +209,8 @@ export function ClassicReaderPage() {
               {story.has_narration_text ? "Narration notes available" : "Text-first reading"}
             </p>
           </div>
-          <Link to={`/classics/${story.story_id}`} className="text-link">
-            Back to story detail
+          <Link to={`/classics/${story.story_id}`} className="btn btn--secondary btn-tone-sky ghost-button">
+            Story Info
           </Link>
         </div>
       </section>
@@ -224,14 +224,14 @@ export function ClassicReaderPage() {
             {guestLimits.game_launches_remaining} guest game launches remaining.
           </p>
           <div className="hero-actions">
-            <Link to="/register" className="primary-button">
-              Create free account
+            <Link to="/register" className="btn btn--create btn-tone-mint primary-button">
+              Create Account
             </Link>
-            <Link to="/games/guest" className="ghost-button">
-              Try guest games
+            <Link to="/games/guest" className="btn btn--secondary btn-tone-plum ghost-button">
+              Try Guest Games
             </Link>
-            <Link to="/login" className="text-link">
-              Sign in
+            <Link to="/login" className="btn btn--secondary btn-tone-sky ghost-button">
+              Sign In
             </Link>
           </div>
         </section>
@@ -249,8 +249,8 @@ export function ClassicReaderPage() {
           </p>
           {nextStoryPath ? (
             <div className="hero-actions">
-              <Link to={nextStoryPath} className="ghost-button">
-                Next story
+              <Link to={nextStoryPath} className="btn btn--primary btn-tone-gold primary-button">
+                Next Story
               </Link>
             </div>
           ) : (

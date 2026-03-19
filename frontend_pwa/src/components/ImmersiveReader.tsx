@@ -376,7 +376,7 @@ export function ImmersiveReader({
             <li key={unit.unit_id}>
               <button
                 type="button"
-                className={index === activeIndexFromAudio ? "unit-button active" : "unit-button"}
+                className={index === activeIndexFromAudio ? "unit-button btn btn--control btn-tone-sky active" : "unit-button btn btn--control btn-tone-neutral"}
                 onClick={() => jumpToUnit(index)}
               >
                 <strong>{unit.unit_type === "title" ? "Story Title" : unit.scene_title ?? `Part ${Math.max(1, unit.unit_order - 1)}`}</strong>
@@ -397,7 +397,7 @@ export function ImmersiveReader({
           <div className="reader-controls">
             <button
               type="button"
-              className="ghost-button"
+              className="btn btn--control btn-tone-neutral ghost-button"
               onClick={() => jumpToUnit(Math.max(0, activeIndexFromAudio - 1))}
               disabled={activeIndexFromAudio === 0}
             >
@@ -405,7 +405,7 @@ export function ImmersiveReader({
             </button>
             <button
               type="button"
-              className="primary-button"
+              className="btn btn--control btn-tone-sky primary-button"
               onClick={() => jumpToUnit(Math.min(story.units.length - 1, activeIndexFromAudio + 1))}
               disabled={activeIndexFromAudio === story.units.length - 1}
             >
@@ -431,10 +431,10 @@ export function ImmersiveReader({
           <section className="panel reader-media-panel">
             <audio ref={audioRef} src={resolvedAudioUrl} preload="metadata" />
             <div className="reader-media-row">
-              <button type="button" className="primary-button" onClick={() => void togglePlayback()}>
+              <button type="button" className="btn btn--control btn-tone-gold primary-button" onClick={() => void togglePlayback()}>
                 {isPlaying ? "Pause" : "Play"}
               </button>
-              <button type="button" className="ghost-button" onClick={() => void playFromBeginning()}>
+              <button type="button" className="btn btn--control btn-tone-neutral ghost-button" onClick={() => void playFromBeginning()}>
                 Play from beginning
               </button>
               <label className="reader-range">

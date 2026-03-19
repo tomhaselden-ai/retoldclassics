@@ -38,7 +38,7 @@ export function PasswordResetRequestPage() {
           <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
         </label>
 
-        <button type="submit" className="primary-button" disabled={submitting}>
+        <button type="submit" className="btn btn--admin btn-tone-mint primary-button" disabled={submitting}>
           {submitting ? "Requesting reset..." : "Send reset link"}
         </button>
 
@@ -50,12 +50,11 @@ export function PasswordResetRequestPage() {
           </div>
         ) : null}
 
-        <p>
-          Already have a token?{" "}
-          <Link to="/reset-password/confirm" className="text-link">
-            Set a new password
+        <div className="library-action-row">
+          <Link to="/reset-password/confirm" className="btn btn--secondary btn-tone-plum ghost-button">
+            Set a New Password
           </Link>
-        </p>
+        </div>
       </form>
     </section>
   );

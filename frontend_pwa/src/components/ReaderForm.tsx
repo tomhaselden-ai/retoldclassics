@@ -133,11 +133,11 @@ export function ReaderForm({ initialReader, onCancel, onSubmit, submitLabel, tit
       ) : null}
 
       <div className="reader-form-actions">
-        <button type="submit" className="primary-button" disabled={submitting}>
+        <button type="submit" className="btn btn--admin btn-tone-mint primary-button" disabled={submitting}>
           {submitting ? "Saving..." : submitLabel}
         </button>
         {onCancel ? (
-          <button type="button" className="ghost-button" onClick={onCancel} disabled={submitting}>
+          <button type="button" className="btn btn--secondary btn-tone-neutral ghost-button" onClick={onCancel} disabled={submitting}>
             Cancel
           </button>
         ) : null}

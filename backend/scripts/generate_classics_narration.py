@@ -15,6 +15,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--sort", choices=["author", "source_story_id"], default="source_story_id")
     parser.add_argument("--force", action="store_true")
+    parser.add_argument("--continue-on-error", action="store_true")
     parser.add_argument("--voice", default=DEFAULT_VOICE)
     return parser.parse_args()
 
@@ -39,13 +40,17 @@ def main() -> None:
             sort_order=args.sort,
             force=args.force,
             voice=args.voice,
+            continue_on_error=args.continue_on_error,
             progress_callback=log_story_progress,
         )
         logging.info("processed: %s", summary.processed)
         logging.info("generated: %s", summary.generated)
         logging.info("skipped: %s", summary.skipped)
+        logging.info("failed: %s", summary.failed)
         logging.info("narration generated: %s", summary.narration_generated)
         logging.info("illustrations generated: %s", summary.illustrations_generated)
+        if summary.failed:
+            raise SystemExit(1)
     finally:
         db.close()
 

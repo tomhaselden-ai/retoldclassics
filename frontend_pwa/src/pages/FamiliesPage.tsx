@@ -18,11 +18,11 @@ export function FamiliesPage() {
             without competing for the same screen.
           </p>
           <div className="hero-actions">
-            <StoryBloomActionButton to="/register" shape="sun">
-              Create free account
+            <StoryBloomActionButton to="/register" family="create" shape="sun" tone="mint" icon="✨">
+              Create Account
             </StoryBloomActionButton>
-            <StoryBloomActionButton to="/classics" variant="ghost" shape="diamond">
-              Browse classics
+            <StoryBloomActionButton to="/classics" family="secondary" shape="diamond" tone="sky" icon="🧭">
+              Browse Classics
             </StoryBloomActionButton>
           </div>
         </div>

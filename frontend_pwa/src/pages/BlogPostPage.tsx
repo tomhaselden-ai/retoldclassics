@@ -94,10 +94,10 @@ export function BlogPostPage() {
           <span>{post.comments.length} approved comments</span>
         </div>
         <div className="library-action-row">
-          <Link to="/blog" className="ghost-button">
+          <Link to="/blog" className="btn btn--secondary btn-tone-neutral ghost-button">
             Back to blog
           </Link>
-          <StoryBloomActionButton to="/contact" variant="ghost" shape="diamond">
+          <StoryBloomActionButton to="/contact" family="secondary" shape="diamond" tone="sky">
             Contact us
           </StoryBloomActionButton>
         </div>
@@ -158,7 +158,7 @@ export function BlogPostPage() {
             />
           </label>
           <div className="library-action-row">
-            <StoryBloomActionButton type="submit" shape="heart" disabled={submitting}>
+            <StoryBloomActionButton type="submit" family="admin" shape="heart" tone="mint" disabled={submitting}>
               {submitting ? "Sending..." : "Send for review"}
             </StoryBloomActionButton>
           </div>

@@ -88,7 +88,7 @@ export function ContactPage() {
           </label>
         </div>
         <div className="library-action-row">
-          <StoryBloomActionButton type="submit" shape="sun" disabled={submitting}>
+          <StoryBloomActionButton type="submit" family="create" shape="sun" tone="mint" icon="✉" disabled={submitting}>
             {submitting ? "Sending..." : "Send message"}
           </StoryBloomActionButton>
         </div>

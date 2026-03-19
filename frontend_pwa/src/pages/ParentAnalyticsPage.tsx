@@ -69,13 +69,13 @@ export function ParentAnalyticsPage() {
             <p>Keep family totals, reader focus areas, and goal progress together in one clear parent view.</p>
           </div>
           <div className="library-action-row">
-            <Link to="/parent" className="primary-button">
+            <Link to="/parent" className="btn btn--secondary btn-tone-neutral primary-button">
               Parent area
             </Link>
-            <Link to="/parent/goals" className="ghost-button">
+            <Link to="/parent/goals" className="btn btn--admin btn-tone-plum ghost-button">
               Manage goals
             </Link>
-            <Link to="/chooser" className="ghost-button">
+            <Link to="/chooser" className="btn btn--secondary btn-tone-neutral ghost-button">
               Family chooser
             </Link>
           </div>
@@ -212,10 +212,10 @@ export function ParentAnalyticsPage() {
                   )}
                 </div>
                 <div className="reader-panel-actions">
-                  <Link className="primary-link" to={`/parent/readers/${reader.reader_id}`}>
+                  <Link className="btn btn--admin btn-tone-plum primary-link" to={`/parent/readers/${reader.reader_id}`}>
                     Open reader overview
                   </Link>
-                  <Link className="ghost-button" to="/parent/goals">
+                  <Link className="btn btn--admin btn-tone-plum ghost-button" to="/parent/goals">
                     View goals
                   </Link>
                 </div>

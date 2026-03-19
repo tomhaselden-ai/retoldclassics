@@ -247,14 +247,14 @@ export function GuestGamesPage() {
             </p>
           </div>
           <div className="hero-actions">
-            <StoryBloomActionButton to="/classics" variant="ghost" shape="moon">
-              Browse classics
+            <StoryBloomActionButton to="/classics" family="secondary" shape="moon" tone="sky" icon="🧭">
+              Browse Classics
             </StoryBloomActionButton>
-            <StoryBloomActionButton to={account ? "/chooser" : "/register"} shape="sun">
-              {account ? "Open family chooser" : "Create free account"}
+            <StoryBloomActionButton to={account ? "/chooser" : "/register"} family="create" shape="sun" tone="mint" icon={account ? "🏠" : "✨"}>
+              {account ? "Open Family Space" : "Create Account"}
             </StoryBloomActionButton>
-            <Link to="/for-families" className="text-link">
-              Why families use it
+            <Link to="/for-families" className="btn btn--secondary btn-tone-plum ghost-button">
+              Why Families Use It
             </Link>
           </div>
         </div>
@@ -301,7 +301,11 @@ export function GuestGamesPage() {
             <button
               key={story.story_id}
               type="button"
-              className={selectedStoryId === story.story_id ? "filter-chip active" : "filter-chip"}
+              className={
+                selectedStoryId === story.story_id
+                  ? "filter-chip btn btn--chip btn-tone-sky active"
+                  : "filter-chip btn btn--chip btn-tone-neutral"
+              }
               onClick={() => setSelectedStoryId(story.story_id)}
             >
               {story.title ?? "Untitled classic"}
@@ -332,14 +336,17 @@ export function GuestGamesPage() {
         <div className="hero-actions">
           <StoryBloomActionButton
             type="button"
+            family="create"
             shape="star"
+            tone="mint"
+            icon="🎮"
             onClick={handleLaunchPreview}
             disabled={launching || !selectedStoryId}
           >
-            {launching ? "Preparing preview..." : "Start Build the Word"}
+            {launching ? "Preparing preview..." : "Start Session"}
           </StoryBloomActionButton>
           {preview ? (
-            <button type="button" className="ghost-button" onClick={handleResetPreview}>
+            <button type="button" className="btn btn--secondary btn-tone-neutral ghost-button" onClick={handleResetPreview}>
               Choose another story
             </button>
           ) : null}
@@ -414,7 +421,7 @@ export function GuestGamesPage() {
                 <div className={roundSolved ? "status-card game-outcome-card success" : "status-card game-outcome-card"}>
                   <h3>{roundSolved ? "Nice work" : "Let's learn from this one"}</h3>
                   <p>{roundSolved ? `You built "${currentRound.target_word}".` : `The word was "${currentRound.target_word}".`}</p>
-                  <button type="button" className="primary-button" onClick={handleContinue}>
+                  <button type="button" className="btn btn--primary btn-tone-gold primary-button" onClick={handleContinue}>
                     {currentRoundIndex >= payload.rounds.length - 1 ? "See preview summary" : "Next word"}
                   </button>
                 </div>
@@ -433,10 +440,10 @@ export function GuestGamesPage() {
                 <p>Create a free account to open the full child game hub and save progress into goals and analytics.</p>
               </article>
               <div className="library-action-row">
-                <Link to={account ? "/chooser" : "/register"} className="primary-button">
-                  {account ? "Open family chooser" : "Create free account"}
+                <Link to={account ? "/chooser" : "/register"} className="btn btn--create btn-tone-mint primary-button">
+                  {account ? "Open Family Space" : "Create Account"}
                 </Link>
-                <button type="button" className="ghost-button" onClick={handleResetPreview}>
+                <button type="button" className="btn btn--secondary btn-tone-neutral ghost-button" onClick={handleResetPreview}>
                   Try another classic
                 </button>
               </div>

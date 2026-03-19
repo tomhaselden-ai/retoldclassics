@@ -177,11 +177,11 @@ export function ParentPinPage() {
           </p>
         </div>
         <div className="hero-actions">
-          <Link to="/chooser" className="ghost-button">
+          <Link to="/chooser" className="btn btn--secondary btn-tone-neutral ghost-button">
             Back to chooser
           </Link>
           {verified ? (
-            <Link to={returnPath} className="primary-button">
+            <Link to={returnPath} className="btn btn--admin btn-tone-plum primary-button">
               Continue to parent area
             </Link>
           ) : null}
@@ -234,7 +234,7 @@ export function ParentPinPage() {
                 />
               </label>
 
-              <button type="submit" className="primary-button" disabled={submitting}>
+              <button type="submit" className="btn btn--admin btn-tone-mint primary-button" disabled={submitting}>
                 {submitting ? "Saving PIN..." : "Save parent PIN"}
               </button>
             </form>
@@ -243,10 +243,10 @@ export function ParentPinPage() {
               <h3>Parent area unlocked</h3>
               <p>You can continue into the parent area now, or lock it again from this page.</p>
               <div className="hero-actions">
-                <Link to={returnPath} className="primary-button">
+                <Link to={returnPath} className="btn btn--admin btn-tone-plum primary-button">
                   Continue
                 </Link>
-                <button type="button" className="ghost-button" onClick={() => void handleLockParentArea()} disabled={submitting}>
+                <button type="button" className="btn btn--admin btn-tone-neutral ghost-button" onClick={() => void handleLockParentArea()} disabled={submitting}>
                   {submitting ? "Locking..." : "Lock parent area"}
                 </button>
               </div>
@@ -264,7 +264,7 @@ export function ParentPinPage() {
                 />
               </label>
 
-              <button type="submit" className="primary-button" disabled={submitting}>
+              <button type="submit" className="btn btn--admin btn-tone-plum primary-button" disabled={submitting}>
                 {submitting ? "Unlocking..." : "Unlock parent area"}
               </button>
             </form>

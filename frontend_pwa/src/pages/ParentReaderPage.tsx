@@ -98,13 +98,13 @@ export function ParentReaderPage() {
             </p>
           </div>
           <div className="library-action-row">
-            <Link to="/parent" className="ghost-button">
+            <Link to="/parent" className="btn btn--secondary btn-tone-neutral ghost-button">
               Parent area
             </Link>
-            <Link to={`/reader/${reader.reader_id}`} className="ghost-button">
+            <Link to={`/reader/${reader.reader_id}`} className="btn btn--secondary btn-tone-sky ghost-button">
               Reader home
             </Link>
-            <Link to={`/reader/${reader.reader_id}/books`} className="primary-button">
+            <Link to={`/reader/${reader.reader_id}/books`} className="btn btn--secondary btn-tone-sky primary-button">
               Open books
             </Link>
           </div>
@@ -149,10 +149,10 @@ export function ParentReaderPage() {
             <p>Use this space for profile maintenance, then launch into books, words, games, and universes as needed.</p>
           </div>
           <div className="library-action-row">
-            <button type="button" className="ghost-button" onClick={() => setEditing((value) => !value)}>
+            <button type="button" className="btn btn--admin btn-tone-neutral ghost-button" onClick={() => setEditing((value) => !value)}>
               {editing ? "Close edit form" : "Edit reader"}
             </button>
-            <button type="button" className="ghost-button" onClick={handleDeleteReader} disabled={deleting}>
+            <button type="button" className="btn btn--danger btn-tone-danger ghost-button" onClick={handleDeleteReader} disabled={deleting}>
               {deleting ? "Removing..." : "Delete reader"}
             </button>
           </div>
@@ -200,7 +200,7 @@ export function ParentReaderPage() {
               reader bookshelf.
             </p>
           </div>
-          <Link to={`/reader/${reader.reader_id}/books`} className="ghost-button">
+          <Link to={`/reader/${reader.reader_id}/books`} className="btn btn--secondary btn-tone-sky ghost-button">
             Open full bookshelf
           </Link>
         </div>
@@ -213,10 +213,10 @@ export function ParentReaderPage() {
                 <h3>{story.title ?? "Untitled story"}</h3>
                 <p>{story.custom_world_name || story.world_name || "Ungrouped world shelf"}</p>
                 <div className="library-action-row">
-                  <Link className="primary-button" to={`/reader/${reader.reader_id}/books/${story.story_id}`}>
+                  <Link className="btn btn--secondary btn-tone-sky ghost-button" to={`/reader/${reader.reader_id}/books/${story.story_id}`}>
                     Story info
                   </Link>
-                  <Link className="ghost-button" to={`/reader/${reader.reader_id}/books/${story.story_id}/read`}>
+                  <Link className="btn btn--primary btn-tone-gold primary-button" to={`/reader/${reader.reader_id}/books/${story.story_id}/read`}>
                     Read
                   </Link>
                 </div>
@@ -251,15 +251,15 @@ export function ParentReaderPage() {
                 <h3>{world.custom_name || world.name || "Unnamed universe shelf"}</h3>
                 <p>{world.description ?? "No world description available yet."}</p>
                 <div className="library-action-row">
-                  <Link className="ghost-button" to={`/reader/${reader.reader_id}/books`}>
+                  <Link className="btn btn--secondary btn-tone-sky ghost-button" to={`/reader/${reader.reader_id}/books`}>
                     Open bookshelf
                   </Link>
                   {typeof world.world_id === "number" ? (
                     <>
-                      <Link className="ghost-button" to={`/reader/${reader.reader_id}/worlds/${world.world_id}`}>
+                      <Link className="btn btn--secondary btn-tone-sky ghost-button" to={`/reader/${reader.reader_id}/worlds/${world.world_id}`}>
                         Universe info
                       </Link>
-                      <Link className="ghost-button" to={`/parent/readers/${reader.reader_id}/worlds/${world.world_id}/canon`}>
+                      <Link className="btn btn--admin btn-tone-plum ghost-button" to={`/parent/readers/${reader.reader_id}/worlds/${world.world_id}/canon`}>
                         Character canon
                       </Link>
                     </>

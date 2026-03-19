@@ -109,24 +109,32 @@ export function HomePage() {
             </div>
           ) : null}
           <div className="hero-actions">
-            <StoryBloomActionButton to="/classics" shape="sun">
+            <StoryBloomActionButton to="/classics" family="primary" shape="sun" tone="gold" icon="📖">
               Read free classics
             </StoryBloomActionButton>
-            <StoryBloomActionButton to={account ? "/chooser" : "/register"} variant="ghost" shape="star">
+            <StoryBloomActionButton
+              to={account ? "/chooser" : "/register"}
+              family="primary"
+              shape="star"
+              tone="gold"
+              icon={account ? "🏠" : "✨"}
+            >
               {account ? "Open family space" : "Start free"}
             </StoryBloomActionButton>
-            <StoryBloomActionButton to="/games/guest" variant="ghost" shape="diamond">
+            <StoryBloomActionButton to="/games/guest" family="secondary" shape="diamond" tone="sky" icon="🎮">
               Try a game
             </StoryBloomActionButton>
-            <Link to="/how-it-works" className="text-link">
+            <Link to="/how-it-works" className="btn btn--secondary btn-tone-plum ghost-button">
               See how it works
             </Link>
           </div>
         </div>
         <div className="hero-visual">
-          <div className="planet-ring ring-one" />
-          <div className="planet-ring ring-two" />
-          <div className="planet-core">Bloom</div>
+          <img
+            src="/retold-classics-logo.png"
+            alt="Retold Classics Studios"
+            className="hero-brand-logo"
+          />
         </div>
       </section>
 
@@ -180,7 +188,7 @@ export function HomePage() {
             <p className="eyebrow">On the shared shelf</p>
             <h2>Timeless favorites are ready whenever your family is</h2>
           </div>
-          <Link to="/classics" className="text-link">
+          <Link to="/classics" className="btn btn--secondary btn-tone-sky ghost-button">
             See all stories
           </Link>
         </div>
@@ -210,8 +218,8 @@ export function HomePage() {
             <h3>Explore classics</h3>
             <p>Open a familiar story and step straight into StoryBloom's read-aloud experience.</p>
             <div className="library-action-row">
-              <StoryBloomActionButton to="/classics" shape="moon">
-                Browse classics
+              <StoryBloomActionButton to="/classics" family="secondary" shape="moon" tone="sky" icon="🧭">
+                Browse Classics
               </StoryBloomActionButton>
             </div>
           </article>
@@ -219,7 +227,7 @@ export function HomePage() {
             <h3>Try a story game</h3>
             <p>Build confidence with a quick word activity grounded in a classic story.</p>
             <div className="library-action-row">
-              <StoryBloomActionButton to="/games/guest" shape="diamond">
+              <StoryBloomActionButton to="/games/guest" family="secondary" shape="diamond" tone="sky" icon="🎮">
                 Open free games
               </StoryBloomActionButton>
             </div>
@@ -228,11 +236,11 @@ export function HomePage() {
             <h3>Start free</h3>
             <p>Create an account to unlock the chooser, parent tools, reader spaces, and saved progress.</p>
             <div className="library-action-row">
-              <StoryBloomActionButton to="/register" shape="heart">
-                Create account
+              <StoryBloomActionButton to="/register" family="create" shape="heart" tone="mint" icon="✨">
+                Create Account
               </StoryBloomActionButton>
-              <Link to="/for-families" className="ghost-button">
-                For families
+              <Link to="/for-families" className="btn btn--secondary btn-tone-plum ghost-button">
+                For Families
               </Link>
             </div>
           </article>

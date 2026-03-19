@@ -102,7 +102,9 @@ export function ParentContentPage() {
                 <div className="library-action-row">
                   <StoryBloomActionButton
                     type="button"
+                    family="admin"
                     shape="sun"
+                    tone="mint"
                     onClick={() => handleModerate(comment.comment_id, "approved")}
                     disabled={savingCommentId === comment.comment_id}
                   >
@@ -110,7 +112,8 @@ export function ParentContentPage() {
                   </StoryBloomActionButton>
                   <StoryBloomActionButton
                     type="button"
-                    variant="ghost"
+                    family="danger"
+                    tone="danger"
                     shape="diamond"
                     onClick={() => handleModerate(comment.comment_id, "rejected")}
                     disabled={savingCommentId === comment.comment_id}

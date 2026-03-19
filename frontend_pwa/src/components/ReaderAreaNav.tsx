@@ -9,19 +9,19 @@ export function ReaderAreaNav({ readerId }: ReaderAreaNavProps) {
 
   return (
     <nav className="reader-area-nav" aria-label="Reader area">
-      <NavLink end to={base} className="reader-area-link">
+      <NavLink end to={base} className={({ isActive }) => ["reader-area-link", "btn", "btn--nav", "btn-tone-neutral", "btn-size-compact", isActive ? "active" : ""].filter(Boolean).join(" ")}>
         Home
       </NavLink>
-      <NavLink to={`${base}/books`} className="reader-area-link">
+      <NavLink to={`${base}/books`} className={({ isActive }) => ["reader-area-link", "btn", "btn--nav", "btn-tone-neutral", "btn-size-compact", isActive ? "active" : ""].filter(Boolean).join(" ")}>
         Books
       </NavLink>
-      <NavLink to={`${base}/words`} className="reader-area-link">
+      <NavLink to={`${base}/words`} className={({ isActive }) => ["reader-area-link", "btn", "btn--nav", "btn-tone-neutral", "btn-size-compact", isActive ? "active" : ""].filter(Boolean).join(" ")}>
         Words
       </NavLink>
-      <NavLink to={`${base}/games`} className="reader-area-link">
+      <NavLink to={`${base}/games`} className={({ isActive }) => ["reader-area-link", "btn", "btn--nav", "btn-tone-neutral", "btn-size-compact", isActive ? "active" : ""].filter(Boolean).join(" ")}>
         Play
       </NavLink>
-      <NavLink to={`${base}/goals`} className="reader-area-link">
+      <NavLink to={`${base}/goals`} className={({ isActive }) => ["reader-area-link", "btn", "btn--nav", "btn-tone-neutral", "btn-size-compact", isActive ? "active" : ""].filter(Boolean).join(" ")}>
         Goals
       </NavLink>
     </nav>

@@ -192,17 +192,17 @@ export function ClassicsShelfPage() {
               </p>
             )}
             <div className="hero-actions">
-              <Link to="/games/guest" className="ghost-button">
+              <Link to="/games/guest" className="btn btn--secondary btn-tone-sky ghost-button">
                 Try a guest game
               </Link>
-              <StoryBloomActionButton to="/register" shape="sun">
-                Create free account
+              <StoryBloomActionButton to="/register" family="create" shape="sun" tone="mint" icon="✨">
+                Create Account
               </StoryBloomActionButton>
-              <Link to="/login" className="text-link">
-                Sign in
+              <Link to="/login" className="btn btn--secondary btn-tone-sky ghost-button">
+                Sign In
               </Link>
-              <Link to="/for-families" className="text-link">
-                For families
+              <Link to="/for-families" className="btn btn--secondary btn-tone-plum ghost-button">
+                For Families
               </Link>
             </div>
           </div>
@@ -212,7 +212,7 @@ export function ClassicsShelfPage() {
             <button
               key={value}
               type="button"
-              className={author === value ? "filter-chip active" : "filter-chip"}
+              className={author === value ? "filter-chip btn btn--chip btn-tone-sky active" : "filter-chip btn btn--chip btn-tone-neutral"}
               onClick={() => setAuthor((current) => (current === value ? "" : value))}
             >
               {value}
@@ -226,7 +226,7 @@ export function ClassicsShelfPage() {
             placeholder="Try: bedtime stories about kindness"
             onChange={(event) => setQueryDraft(event.target.value)}
           />
-          <StoryBloomActionButton type="submit" shape="diamond">
+          <StoryBloomActionButton type="submit" family="secondary" shape="diamond" tone="sky" icon="🧭">
             Find stories
           </StoryBloomActionButton>
         </form>
@@ -235,7 +235,7 @@ export function ClassicsShelfPage() {
             <button
               key={example}
               type="button"
-              className="filter-chip"
+              className="filter-chip btn btn--chip btn-tone-neutral"
               onClick={() => {
                 setQueryDraft(example);
                 setQuery(example);
@@ -273,16 +273,16 @@ export function ClassicsShelfPage() {
                 <span className="chip">{totalCount} stories</span>
                 {guestPlaylistStoryIds.length > 0 ? (
                   playAllPath ? (
-                    <StoryBloomActionButton to={playAllPath} shape="moon">
+                    <StoryBloomActionButton to={playAllPath} family="primary" shape="moon" tone="gold" icon="📚">
                       Play all
                     </StoryBloomActionButton>
                   ) : (
-                    <StoryBloomActionButton type="button" shape="moon" disabled>
+                    <StoryBloomActionButton type="button" family="primary" shape="moon" tone="gold" icon="📚" disabled>
                       Play all
                     </StoryBloomActionButton>
                   )
                 ) : (
-                  <StoryBloomActionButton type="button" shape="moon" disabled>
+                  <StoryBloomActionButton type="button" family="primary" shape="moon" tone="gold" icon="📚" disabled>
                     Play all
                   </StoryBloomActionButton>
                 )}

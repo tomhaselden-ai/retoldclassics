@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, Callable
@@ -16,12 +17,14 @@ from backend.classics.classics_repository import (
     update_classical_story_narration,
 )
 from backend.classics.classics_serializer import ALLOWED_AUTHORS, build_base_read_units, parse_json_like
+from backend.classics.classics_serializer import expand_author_filters
 from backend.narration.polly_client import DEFAULT_VOICE, PollyNarrationClient
 from backend.narration.speechmark_parser import parse_speech_marks
 from backend.visuals.openai_image_client import OpenAIImageClient
 
 
 DEFAULT_AUDIO_PADDING_MS = 900
+POLLY_CLASSICS_CHUNK_CHAR_LIMIT = 2200
 
 
 @dataclass
@@ -29,6 +32,7 @@ class ClassicsNarrationSummary:
     processed: int = 0
     generated: int = 0
     skipped: int = 0
+    failed: int = 0
     narration_generated: int = 0
     illustrations_generated: int = 0
 
@@ -94,6 +98,35 @@ def _build_story_text(units: list[dict[str, Any]]) -> tuple[str, list[dict[str, 
             cursor += 2
 
     return "".join(compiled_parts), boundaries
+
+
+def _chunk_story_units_for_polly(
+    units: list[dict[str, Any]],
+    max_chars: int = POLLY_CLASSICS_CHUNK_CHAR_LIMIT,
+) -> list[list[dict[str, Any]]]:
+    chunks: list[list[dict[str, Any]]] = []
+    current_chunk: list[dict[str, Any]] = []
+    current_length = 0
+
+    for unit in units:
+        text = str(unit.get("text") or "").strip()
+        if not text:
+            continue
+
+        unit_length = len(text) + (2 if current_chunk else 0)
+        if current_chunk and current_length + unit_length > max_chars:
+            chunks.append(current_chunk)
+            current_chunk = []
+            current_length = 0
+            unit_length = len(text)
+
+        current_chunk.append(unit)
+        current_length += unit_length
+
+    if current_chunk:
+        chunks.append(current_chunk)
+
+    return chunks
 
 
 def _map_speech_marks_to_units(
@@ -178,6 +211,38 @@ def _map_speech_marks_to_units(
             unit["audio_end_ms"] = (next_start - 1) if isinstance(next_start, int) else last_time + DEFAULT_AUDIO_PADDING_MS
 
     return ordered_units
+
+
+def _offset_unit_audio_timings(units: list[dict[str, Any]], offset_ms: int) -> list[dict[str, Any]]:
+    if offset_ms <= 0:
+        return units
+
+    adjusted: list[dict[str, Any]] = []
+    for unit in units:
+        updated = dict(unit)
+        start_ms = updated.get("audio_start_ms")
+        end_ms = updated.get("audio_end_ms")
+        if isinstance(start_ms, int):
+            updated["audio_start_ms"] = start_ms + offset_ms
+        if isinstance(end_ms, int):
+            updated["audio_end_ms"] = end_ms + offset_ms
+
+        speech_marks = updated.get("speech_marks")
+        if isinstance(speech_marks, list):
+            updated_marks: list[dict[str, Any]] = []
+            for mark in speech_marks:
+                if not isinstance(mark, dict):
+                    continue
+                updated_mark = dict(mark)
+                mark_time = updated_mark.get("time")
+                if isinstance(mark_time, int):
+                    updated_mark["time"] = mark_time + offset_ms
+                updated_marks.append(updated_mark)
+            updated["speech_marks"] = updated_marks
+
+        adjusted.append(updated)
+
+    return adjusted
 
 
 def _extract_prompt_text(value: Any) -> str | None:
@@ -310,27 +375,62 @@ def generate_story_narration_payload(
             detail="Classic story has no readable units for narration",
         )
 
-    full_text, boundaries = _build_story_text(units)
-    synthesis = polly_client.synthesize_storytelling_narration(
-        full_text,
-        style_mode="classic_read_aloud",
-        pronunciation_overrides=None,
-        requires_speech_marks=True,
-        preferred_voice_id=voice,
-    )
-    speech_marks = parse_speech_marks(synthesis.speech_marks_raw)
-    unit_payload = _map_speech_marks_to_units(speech_marks, boundaries)
-    audio_url = audio_storage.save_story_audio(story.story_id, synthesis.audio_bytes)
+    chunks = _chunk_story_units_for_polly(units)
+    if not chunks:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Classic story has no readable units for narration",
+        )
+
+    combined_audio_parts: list[bytes] = []
+    combined_units: list[dict[str, Any]] = []
+    cumulative_audio_ms = 0
+    synthesis_metadata: Any | None = None
+
+    for chunk_units in chunks:
+        full_text, boundaries = _build_story_text(chunk_units)
+        synthesis = polly_client.synthesize_storytelling_narration(
+            full_text,
+            style_mode="classic_read_aloud",
+            pronunciation_overrides=None,
+            requires_speech_marks=True,
+            preferred_voice_id=voice,
+        )
+        if synthesis_metadata is None:
+            synthesis_metadata = synthesis
+
+        speech_marks = parse_speech_marks(synthesis.speech_marks_raw)
+        unit_payload = _map_speech_marks_to_units(speech_marks, boundaries)
+        combined_units.extend(_offset_unit_audio_timings(unit_payload, cumulative_audio_ms))
+        combined_audio_parts.append(synthesis.audio_bytes)
+
+        chunk_end_ms = max(
+            (
+                unit["audio_end_ms"]
+                for unit in unit_payload
+                if isinstance(unit.get("audio_end_ms"), int)
+            ),
+            default=0,
+        )
+        cumulative_audio_ms += chunk_end_ms
+
+    if synthesis_metadata is None:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Amazon Polly audio generation failed",
+        )
+
+    audio_url = audio_storage.save_story_audio(story.story_id, b"".join(combined_audio_parts))
 
     return {
         "mode": "polly",
-        "voice": synthesis.voice_plan.voice_id,
-        "engine": synthesis.voice_plan.engine,
-        "sample_rate": synthesis.voice_plan.sample_rate,
-        "output_format": synthesis.voice_plan.output_format,
+        "voice": synthesis_metadata.voice_plan.voice_id,
+        "engine": synthesis_metadata.voice_plan.engine,
+        "sample_rate": synthesis_metadata.voice_plan.sample_rate,
+        "output_format": synthesis_metadata.voice_plan.output_format,
         "audio_url": audio_url,
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "units": unit_payload,
+        "units": combined_units,
     }
 
 
@@ -342,12 +442,13 @@ def generate_classics_narration(
     sort_order: str = "author",
     force: bool = False,
     voice: str = DEFAULT_VOICE,
+    continue_on_error: bool = False,
     progress_callback: Callable[[ClassicalStoryRecord, str], None] | None = None,
 ) -> ClassicsNarrationSummary:
     if author is not None and author not in ALLOWED_AUTHORS:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unsupported classics author")
 
-    authors = [author] if author else list(ALLOWED_AUTHORS)
+    authors = expand_author_filters([author] if author else list(ALLOWED_AUTHORS))
     audio_storage = ClassicsAudioStorage()
     image_storage = ClassicsImageStorage()
     polly_client = PollyNarrationClient()
@@ -362,8 +463,8 @@ def generate_classics_narration(
         sort_order=sort_order,
     )
 
-    try:
-        for story in stories:
+    for story in stories:
+        try:
             summary.processed += 1
             story_updated = False
 
@@ -399,14 +500,32 @@ def generate_classics_narration(
                 summary.skipped += 1
                 if progress_callback is not None:
                     progress_callback(story, "skipped")
+        except HTTPException as exc:
+            db.rollback()
+            summary.failed += 1
+            logging.exception(
+                "Classics narration failed for story %s (%s)",
+                story.story_id,
+                story.title or "Untitled story",
+            )
+            if progress_callback is not None:
+                progress_callback(story, "failed")
+            if not continue_on_error:
+                raise
+        except Exception as exc:
+            db.rollback()
+            summary.failed += 1
+            logging.exception(
+                "Classics narration failed for story %s (%s)",
+                story.story_id,
+                story.title or "Untitled story",
+            )
+            if progress_callback is not None:
+                progress_callback(story, "failed")
+            if not continue_on_error:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="Classics narration generation failed",
+                ) from exc
 
-        return summary
-    except HTTPException:
-        db.rollback()
-        raise
-    except Exception as exc:
-        db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Classics narration generation failed",
-        ) from exc
+    return summary

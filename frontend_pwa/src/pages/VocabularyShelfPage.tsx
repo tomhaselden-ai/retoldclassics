@@ -112,21 +112,21 @@ export function VocabularyShelfPage() {
             <div className="library-action-row">
               {readerId ? (
                 <>
-                  <Link to={`/reader/${readerId}/books`} className="ghost-button">
+                  <Link to={`/reader/${readerId}/books`} className="btn btn--secondary btn-tone-neutral ghost-button">
                     Back to books
                   </Link>
-                  <Link to={`/reader/${readerId}/games`} className="ghost-button">
+                  <Link to={`/reader/${readerId}/games`} className="btn btn--secondary btn-tone-sky ghost-button">
                     Open game shelf
                   </Link>
                 </>
               ) : null}
               {readerId ? (
-                <Link to={`/reader/${readerId}`} className="text-link">
-                  Reader home
+                <Link to={`/reader/${readerId}`} className="btn btn--secondary btn-tone-sky ghost-button">
+                  Reader Home
                 </Link>
               ) : (
-                <Link to="/chooser" className="text-link">
-                  Family chooser
+                <Link to="/chooser" className="btn btn--secondary btn-tone-plum ghost-button">
+                  Family Chooser
                 </Link>
               )}
             </div>
@@ -191,7 +191,11 @@ export function VocabularyShelfPage() {
                         <button
                           key={option.value}
                           type="button"
-                          className={option.value === (item.mastery_level ?? 0) ? "filter-chip active" : "filter-chip"}
+                          className={
+                            option.value === (item.mastery_level ?? 0)
+                              ? "filter-chip btn btn--chip btn-tone-mint active"
+                              : "filter-chip btn btn--chip btn-tone-neutral"
+                          }
                           onClick={() => handleUpdateProgress(item.word_id, option.value)}
                           disabled={savingWordId === item.word_id}
                         >
@@ -240,7 +244,11 @@ export function VocabularyShelfPage() {
                         <button
                           key={option.value}
                           type="button"
-                          className={option.value === (item.mastery_level ?? 0) ? "filter-chip active" : "filter-chip"}
+                          className={
+                            option.value === (item.mastery_level ?? 0)
+                              ? "filter-chip btn btn--chip btn-tone-mint active"
+                              : "filter-chip btn btn--chip btn-tone-neutral"
+                          }
                           onClick={() => handleUpdateProgress(item.word_id, option.value)}
                           disabled={savingWordId === item.word_id}
                         >

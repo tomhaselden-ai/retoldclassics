@@ -16,4 +16,5 @@ if exist ".\venv\Scripts\activate.bat" (
     exit /b 1
 )
 
-python -m backend.scripts.generate_classics_narration --limit 100  %*
+python -m backend.scripts.generate_classics_narration --continue-on-error %*
+pause

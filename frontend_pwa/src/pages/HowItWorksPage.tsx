@@ -18,10 +18,10 @@ export function HowItWorksPage() {
             family, parent, and reader spaces built for their different jobs.
           </p>
           <div className="hero-actions">
-            <StoryBloomActionButton to="/games/guest" shape="star">
+            <StoryBloomActionButton to="/games/guest" family="secondary" shape="diamond" tone="sky" icon="🎮">
               Try guest games
             </StoryBloomActionButton>
-            <StoryBloomActionButton to="/register" variant="ghost" shape="sun">
+            <StoryBloomActionButton to="/register" family="primary" shape="star" tone="gold" icon="✨">
               Start free
             </StoryBloomActionButton>
           </div>

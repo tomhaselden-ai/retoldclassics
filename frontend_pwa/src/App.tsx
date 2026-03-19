@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Navigate, NavLink, Route, Routes, useLocation, useParams } from "react-router-dom";
 
 import { ProtectedRoute } from "./routes/ProtectedRoute";
@@ -72,6 +73,32 @@ function LegacyReaderVocabularyRedirect() {
   return <Navigate replace to={`/reader/${readerId}/words${location.search}`} />;
 }
 
+function HeaderNavLink({
+  to,
+  className,
+  icon,
+  children,
+}: {
+  to: string;
+  className?: string;
+  icon?: ReactNode;
+  children: string;
+}) {
+  return (
+    <NavLink
+      to={to}
+      className={({ isActive }) =>
+        ["btn", "btn--secondary", "btn-size-compact", "app-header-button", isActive ? "active" : "", className]
+          .filter(Boolean)
+          .join(" ")
+      }
+    >
+      {icon ? <span className="app-header-button-icon" aria-hidden="true">{icon}</span> : null}
+      <span className="app-header-button-label">{children}</span>
+    </NavLink>
+  );
+}
+
 function App() {
   const { account, logout } = useAuth();
 
@@ -79,7 +106,7 @@ function App() {
     <div className="app-shell">
       <header className="topbar">
         <NavLink to="/" className="brand">
-          <span className="brand-mark">SB</span>
+          <img src="/retold-classics-logo.png" alt="Retold Classics Studios" className="brand-logo" />
           <span>
             <strong>StoryBloom</strong>
             <small>Retold Classics Studios</small>
@@ -87,17 +114,46 @@ function App() {
         </NavLink>
 
         <nav className="nav-links">
-          <NavLink to="/classics">Classics</NavLink>
-          <NavLink to="/blog">Blog</NavLink>
-          <NavLink to="/games/guest">Free games</NavLink>
-          <NavLink to="/for-families">Families</NavLink>
-          <NavLink to="/contact">Contact</NavLink>
-          <NavLink to="/how-it-works">How it works</NavLink>
-          {account ? <NavLink to="/chooser">Family space</NavLink> : <NavLink to="/login">Login</NavLink>}
-          {!account ? <NavLink to="/register">Start free</NavLink> : null}
+          <HeaderNavLink to="/classics" className="btn-tone-sky" icon="🧭">
+            Classics
+          </HeaderNavLink>
+          <HeaderNavLink to="/blog" className="btn-tone-plum" icon="📝">
+            Blog
+          </HeaderNavLink>
+          <HeaderNavLink to="/games/guest" className="btn-tone-mint" icon="🎮">
+            Free Games
+          </HeaderNavLink>
+          <HeaderNavLink to="/for-families" className="btn-tone-coral" icon="❤️">
+            Families
+          </HeaderNavLink>
+          <HeaderNavLink to="/contact" className="btn-tone-sky" icon="✉">
+            Contact
+          </HeaderNavLink>
+          <HeaderNavLink to="/how-it-works" className="btn-tone-plum" icon="🪄">
+            How It Works
+          </HeaderNavLink>
           {account ? (
-            <button type="button" className="ghost-button" onClick={logout}>
-              Sign out
+            <HeaderNavLink to="/chooser" className="btn-tone-sky" icon="🏠">
+              Family Space
+            </HeaderNavLink>
+          ) : (
+            <HeaderNavLink to="/login" className="btn-tone-sky" icon="🔑">
+              Sign In
+            </HeaderNavLink>
+          )}
+          {!account ? (
+            <HeaderNavLink to="/register" className="btn-tone-gold" icon="✨">
+              Start Free
+            </HeaderNavLink>
+          ) : null}
+          {account ? (
+            <button
+              type="button"
+              className="btn btn--secondary btn-tone-neutral btn-size-compact app-header-button"
+              onClick={logout}
+            >
+              <span className="app-header-button-icon" aria-hidden="true">↩</span>
+              <span className="app-header-button-label">Sign Out</span>
             </button>
           ) : null}
         </nav>

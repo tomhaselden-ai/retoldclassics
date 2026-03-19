@@ -79,8 +79,8 @@ export function ReaderGoalsPage() {
             <p>These are the goals your family has set for reading, words, and practice. Pick one and keep going.</p>
           </div>
           <div className="library-action-row">
-            <Link to={`/reader/${summary.reader.reader_id}`} className="ghost-button">
-              Reader home
+            <Link to={`/reader/${summary.reader.reader_id}`} className="btn btn--secondary btn-tone-neutral ghost-button">
+              Reader Home
             </Link>
           </div>
         </div>
@@ -133,7 +133,7 @@ export function ReaderGoalsPage() {
                   <span>{goal.progress.status}</span>
                 </div>
                 <div className="library-action-row">
-                  <Link to={goalLink(summary.reader.reader_id, goal)} className="primary-button">
+                  <Link to={goalLink(summary.reader.reader_id, goal)} className="btn btn--primary btn-tone-gold primary-button">
                     {goalButtonLabel(goal)}
                   </Link>
                 </div>

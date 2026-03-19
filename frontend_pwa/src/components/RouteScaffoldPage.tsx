@@ -16,12 +16,12 @@ interface RouteScaffoldPageProps {
 
 function actionClassName(variant: RouteScaffoldAction["variant"]): string {
   if (variant === "primary") {
-    return "primary-button";
+    return "btn btn--primary btn-tone-gold primary-button";
   }
   if (variant === "text") {
-    return "text-link";
+    return "btn btn--secondary btn-tone-plum ghost-button";
   }
-  return "ghost-button";
+  return "btn btn--secondary btn-tone-sky ghost-button";
 }
 
 export function RouteScaffoldPage({

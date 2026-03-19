@@ -147,7 +147,7 @@ export function ClassicStoryDetailPage() {
             {story.age_range ? <span>{story.age_range}</span> : null}
             {story.reading_level ? <span>{story.reading_level}</span> : null}
           </div>
-          <Link to={`/classics/${story.story_id}/read?autostart=1&focus=now-reading`} className="primary-button">
+          <Link to={`/classics/${story.story_id}/read?autostart=1&focus=now-reading`} className="btn btn--primary btn-tone-gold primary-button">
             Read
           </Link>
         </div>

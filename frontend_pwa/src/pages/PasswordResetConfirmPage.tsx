@@ -104,8 +104,8 @@ export function PasswordResetConfirmPage() {
 
         <p className="helper-text">Use 8 to 72 characters for the best compatibility with the current auth system.</p>
 
-        <button type="submit" className="primary-button" disabled={submitting}>
-          {submitting ? "Updating password..." : "Update password"}
+        <button type="submit" className="btn btn--admin btn-tone-mint primary-button" disabled={submitting}>
+          {submitting ? "Updating Password..." : "Update Password"}
         </button>
 
         {error ? <ErrorState title="Password reset failed" message={error} /> : null}
@@ -116,12 +116,11 @@ export function PasswordResetConfirmPage() {
           </div>
         ) : null}
 
-        <p>
-          Back to{" "}
-          <Link to="/login" className="text-link">
-            sign in
+        <div className="library-action-row">
+          <Link to="/login" className="btn btn--secondary btn-tone-sky ghost-button">
+            Sign In
           </Link>
-        </p>
+        </div>
       </form>
     </section>
   );

@@ -45,11 +45,11 @@ export function BlogIndexPage() {
             confidence, and family learning at home.
           </p>
           <div className="hero-actions">
-            <StoryBloomActionButton to="/contact" shape="sun">
+            <StoryBloomActionButton to="/contact" family="secondary" shape="sun" tone="sky" icon="✉">
               Contact us
             </StoryBloomActionButton>
-            <StoryBloomActionButton to="/classics" variant="ghost" shape="diamond">
-              Browse classics
+            <StoryBloomActionButton to="/classics" family="secondary" shape="diamond" tone="sky" icon="🧭">
+              Browse Classics
             </StoryBloomActionButton>
           </div>
         </div>
@@ -75,7 +75,7 @@ export function BlogIndexPage() {
                 <span>{post.comment_count} approved comments</span>
               </div>
               <div className="library-action-row">
-                <StoryBloomActionButton to={`/blog/${post.slug}`} shape="moon">
+                <StoryBloomActionButton to={`/blog/${post.slug}`} family="secondary" shape="moon" tone="plum" icon="📝">
                   Read article
                 </StoryBloomActionButton>
               </div>

@@ -76,11 +76,11 @@ export function ReaderHomePage() {
             </p>
           </div>
           <div className="library-action-row">
-            <Link to="/chooser" className="ghost-button">
+            <Link to="/chooser" className="btn btn--secondary btn-tone-neutral ghost-button">
               Family chooser
             </Link>
-            <Link to="/classics" className="ghost-button">
-              Browse classics
+            <Link to="/classics" className="btn btn--secondary btn-tone-sky ghost-button">
+              Browse Classics
             </Link>
           </div>
         </div>
@@ -99,16 +99,16 @@ export function ReaderHomePage() {
             <div className="library-action-row">
               {summary.continue_reading ? (
                 <>
-                  <Link className="primary-button" to={`/reader/${summary.reader.reader_id}/books/${summary.continue_reading.story_id}/read`}>
-                    Continue story
+                  <Link className="btn btn--primary btn-tone-gold primary-button" to={`/reader/${summary.reader.reader_id}/books/${summary.continue_reading.story_id}/read`}>
+                    Continue Story
                   </Link>
-                  <Link className="ghost-button" to={`/reader/${summary.reader.reader_id}/books/${summary.continue_reading.story_id}`}>
-                    Story details
+                  <Link className="btn btn--secondary btn-tone-sky ghost-button" to={`/reader/${summary.reader.reader_id}/books/${summary.continue_reading.story_id}`}>
+                    Story Info
                   </Link>
                 </>
               ) : (
-                <Link className="primary-button" to={`/reader/${summary.reader.reader_id}/books`}>
-                  Open books
+                <Link className="btn btn--secondary btn-tone-sky primary-button" to={`/reader/${summary.reader.reader_id}/books`}>
+                  Open Books
                 </Link>
               )}
             </div>
@@ -131,8 +131,8 @@ export function ReaderHomePage() {
             <h3>{summary.library_summary.story_count}</h3>
             <p>{summary.library_summary.world_count} universe shelves waiting for adventures.</p>
             <div className="library-action-row">
-              <Link to={`/reader/${summary.reader.reader_id}/books`} className="primary-button">
-                My books
+              <Link to={`/reader/${summary.reader.reader_id}/books`} className="btn btn--secondary btn-tone-sky primary-button">
+                Open Books
               </Link>
             </div>
           </article>
@@ -146,8 +146,8 @@ export function ReaderHomePage() {
                 : "New practice words will appear as reading grows."}
             </p>
             <div className="library-action-row">
-              <Link to={`/reader/${summary.reader.reader_id}/words`} className="primary-button">
-                My words
+              <Link to={`/reader/${summary.reader.reader_id}/words`} className="btn btn--secondary btn-tone-sky primary-button">
+                Open Words
               </Link>
             </div>
           </article>
@@ -161,8 +161,8 @@ export function ReaderHomePage() {
                 : "Start with a quick game to practice story and word skills."}
             </p>
             <div className="library-action-row">
-              <Link to={`/reader/${summary.reader.reader_id}/games`} className="primary-button">
-                Play games
+              <Link to={`/reader/${summary.reader.reader_id}/games`} className="btn btn--create btn-tone-mint primary-button">
+                Play Games
               </Link>
             </div>
           </article>
@@ -172,8 +172,8 @@ export function ReaderHomePage() {
             <h3>Keep going</h3>
             <p>{summary.reader_path.goal_message}</p>
             <div className="library-action-row">
-              <Link to={`/reader/${summary.reader.reader_id}/goals`} className="primary-button">
-                View goals
+              <Link to={`/reader/${summary.reader.reader_id}/goals`} className="btn btn--secondary btn-tone-sky primary-button">
+                View Goals
               </Link>
             </div>
           </article>

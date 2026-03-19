@@ -110,13 +110,13 @@ export function ParentAreaPage() {
             </p>
           </div>
           <div className="library-action-row">
-            <Link to="/chooser" className="ghost-button">
+            <Link to="/chooser" className="btn btn--secondary btn-tone-neutral ghost-button">
               Family chooser
             </Link>
-            <Link to="/dashboard" className="ghost-button">
+            <Link to="/dashboard" className="btn btn--secondary btn-tone-neutral ghost-button">
               Account dashboard
             </Link>
-            <Link to="/parent/analytics" className="primary-button">
+            <Link to="/parent/analytics" className="btn btn--admin btn-tone-plum primary-button">
               Family analytics
             </Link>
           </div>
@@ -183,7 +183,7 @@ export function ParentAreaPage() {
             <h3>Account dashboard</h3>
             <p>Account settings, classics controls, and longer-form management still live under the account dashboard.</p>
             <div className="library-action-row">
-              <Link to="/dashboard" className="ghost-button">
+              <Link to="/dashboard" className="btn btn--secondary btn-tone-sky ghost-button">
                 Open account dashboard
               </Link>
             </div>
@@ -194,7 +194,7 @@ export function ParentAreaPage() {
               <h3>Content moderation</h3>
               <p>Review pending blog comments and recent contact submissions for StoryBloom.</p>
               <div className="library-action-row">
-                <Link to="/parent/content" className="ghost-button">
+                <Link to="/parent/content" className="btn btn--admin btn-tone-plum ghost-button">
                   Open content moderation
                 </Link>
               </div>
@@ -212,7 +212,7 @@ export function ParentAreaPage() {
           </div>
           <button
             type="button"
-            className="primary-button"
+            className="btn btn--create btn-tone-mint primary-button"
             onClick={() => {
               setShowCreateForm((value) => !value);
               setEditingReader(null);
@@ -263,22 +263,22 @@ export function ParentAreaPage() {
                       {readerSummary.trait_focus.length > 0 ? <p>Traits: {readerSummary.trait_focus.join(", ")}</p> : null}
                     </div>
                     <div className="reader-panel-actions">
-                      <Link className="primary-link" to={`/parent/readers/${readerSummary.reader_id}`}>
+                      <Link className="btn btn--admin btn-tone-plum primary-link" to={`/parent/readers/${readerSummary.reader_id}`}>
                         Manage reader
                       </Link>
-                      <Link className="ghost-button" to={`/reader/${readerSummary.reader_id}/books`}>
+                      <Link className="btn btn--secondary btn-tone-sky ghost-button" to={`/reader/${readerSummary.reader_id}/books`}>
                         Books
                       </Link>
-                      <Link className="ghost-button" to={`/reader/${readerSummary.reader_id}/games`}>
+                      <Link className="btn btn--secondary btn-tone-sky ghost-button" to={`/reader/${readerSummary.reader_id}/games`}>
                         Games
                       </Link>
-                      <Link className="ghost-button" to={`/reader/${readerSummary.reader_id}`}>
+                      <Link className="btn btn--secondary btn-tone-sky ghost-button" to={`/reader/${readerSummary.reader_id}`}>
                         Reader home
                       </Link>
                       {fullReader ? (
                         <button
                           type="button"
-                          className="ghost-button"
+                          className="btn btn--admin btn-tone-neutral ghost-button"
                           onClick={() => {
                             setEditingReader(fullReader);
                             setShowCreateForm(false);
@@ -291,7 +291,7 @@ export function ParentAreaPage() {
                       {fullReader ? (
                         <button
                           type="button"
-                          className="ghost-button"
+                          className="btn btn--danger btn-tone-danger ghost-button"
                           onClick={() => handleDeleteReader(fullReader)}
                           disabled={deletingReaderId === readerSummary.reader_id}
                         >

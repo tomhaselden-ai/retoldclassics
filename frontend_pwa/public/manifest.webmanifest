@@ -1,17 +1,23 @@
 {
-  "name": "Persistent Story Universe",
-  "short_name": "Story Universe",
+  "name": "StoryBloom",
+  "short_name": "StoryBloom",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#091222",
   "theme_color": "#1df2c9",
-  "description": "A futuristic storyworld for children with classics, adventures, and immersive reading.",
+  "description": "A warm reading space for classics, custom adventures, and immersive story play.",
   "icons": [
     {
-      "src": "/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/iconlogo.png",
+      "sizes": "32x32",
+      "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "/iconlogo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

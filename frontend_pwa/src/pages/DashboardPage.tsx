@@ -221,20 +221,20 @@ export function DashboardPage() {
             </p>
           </div>
           <div className="dashboard-action-strip">
-            <Link to="/chooser" className="ghost-button">
+            <Link to="/chooser" className="btn btn--secondary btn-tone-neutral ghost-button">
               Family chooser
             </Link>
-            <Link to="/classics" className="ghost-button">
+            <Link to="/classics" className="btn btn--secondary btn-tone-sky ghost-button">
               Open classics
             </Link>
             {readers[0] ? (
-              <Link to={`/reader/${readers[0].reader_id}`} className="primary-link">
+              <Link to={`/reader/${readers[0].reader_id}`} className="btn btn--secondary btn-tone-sky primary-link">
                 Open first reader
               </Link>
             ) : (
               <button
                 type="button"
-                className="primary-button"
+                className="btn btn--create btn-tone-mint primary-button"
                 onClick={() => {
                   setShowCreateForm(true);
                   setEditingReader(null);
@@ -301,7 +301,7 @@ export function DashboardPage() {
                   <button
                     key={author}
                     type="button"
-                    className={selected ? "filter-chip active" : "filter-chip"}
+                    className={selected ? "filter-chip btn btn--chip btn-tone-sky active" : "filter-chip btn btn--chip btn-tone-neutral"}
                     onClick={() =>
                       setAllowedAuthors((current) =>
                         current.includes(author) ? current.filter((value) => value !== author) : [...current, author],
@@ -315,7 +315,7 @@ export function DashboardPage() {
             </div>
           </div>
 
-          <button type="submit" className="primary-button" disabled={savingSettings || allowedAuthors.length === 0}>
+          <button type="submit" className="btn btn--admin btn-tone-mint primary-button" disabled={savingSettings || allowedAuthors.length === 0}>
             {savingSettings ? "Saving settings..." : "Save account settings"}
           </button>
         </form>
@@ -332,7 +332,7 @@ export function DashboardPage() {
           </div>
           <button
             type="button"
-            className="primary-button"
+            className="btn btn--create btn-tone-mint primary-button"
             onClick={() => {
               setShowCreateForm((value) => !value);
               setEditingReader(null);

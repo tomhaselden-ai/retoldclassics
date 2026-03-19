@@ -51,24 +51,20 @@ export function LoginPage() {
           />
         </label>
 
-        <button type="submit" className="primary-button" disabled={submitting}>
-          {submitting ? "Opening StoryBloom..." : "Sign in"}
+        <button type="submit" className="btn btn--secondary btn-tone-sky primary-button" disabled={submitting}>
+          {submitting ? "Signing In..." : "Sign In"}
         </button>
 
         {error ? <ErrorState title="Sign-in failed" message={error} /> : null}
 
-        <p>
-          Need an account?{" "}
-          <Link to="/register" className="text-link">
-            Create one
+        <div className="library-action-row">
+          <Link to="/register" className="btn btn--create btn-tone-mint ghost-button">
+            Create Account
           </Link>
-        </p>
-        <p>
-          Need a password reset?{" "}
-          <Link to="/reset-password" className="text-link">
-            Reset password
+          <Link to="/reset-password" className="btn btn--secondary btn-tone-plum ghost-button">
+            Reset Password
           </Link>
-        </p>
+        </div>
       </form>
     </section>
   );

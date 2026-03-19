@@ -48,11 +48,11 @@ export function StoryCard({
         {resolvedMeta.length > 0 ? <div className="meta-row">{resolvedMeta.map((value) => <span key={value}>{value}</span>)}</div> : null}
         <p>{item.preview_text}</p>
         <div className="story-card-actions">
-          <Link to={resolvedInfoTo} className={readTo ? "ghost-button" : "primary-link"}>
+          <Link to={resolvedInfoTo} className={readTo ? "btn btn--secondary btn-tone-sky btn-size-compact ghost-button" : "btn btn--secondary btn-tone-sky primary-link"}>
             {infoLabel}
           </Link>
           {readTo ? (
-            <Link to={readTo} className="primary-link">
+            <Link to={readTo} className="btn btn--primary btn-tone-gold btn-size-compact primary-link">
               Read
             </Link>
           ) : null}

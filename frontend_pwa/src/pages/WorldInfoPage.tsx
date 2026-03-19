@@ -321,10 +321,10 @@ export function WorldInfoPage() {
           <p>{details.world.description ?? "No world description is available yet."}</p>
         </div>
         <div className="library-action-row">
-          <Link to={`/reader/${readerId}/books`} className="ghost-button">
+          <Link to={`/reader/${readerId}/books`} className="btn btn--secondary btn-tone-neutral ghost-button">
             Back to books
           </Link>
-          <Link to={`/reader/${readerId}/games`} className="ghost-button">
+          <Link to={`/reader/${readerId}/games`} className="btn btn--secondary btn-tone-sky ghost-button">
             Open game shelf
           </Link>
         </div>
@@ -398,7 +398,7 @@ export function WorldInfoPage() {
                 placeholder="Describe the place"
               />
             </label>
-            <button type="submit" className="primary-button" disabled={savingLocation || !locationName.trim()}>
+            <button type="submit" className="btn btn--create btn-tone-mint primary-button" disabled={savingLocation || !locationName.trim()}>
               {savingLocation ? "Adding location..." : "Add location"}
             </button>
           </form>
@@ -445,7 +445,7 @@ export function WorldInfoPage() {
             </label>
             <button
               type="submit"
-              className="primary-button"
+              className="btn btn--create btn-tone-mint primary-button"
               disabled={savingCharacter || !characterName.trim() || !characterSpecies.trim() || splitTraits(characterTraits).length === 0}
             >
               {savingCharacter ? "Adding character..." : "Add character"}
@@ -512,7 +512,7 @@ export function WorldInfoPage() {
             </label>
             <button
               type="submit"
-              className="primary-button"
+              className="btn btn--create btn-tone-mint primary-button"
               disabled={
                 savingRelationship ||
                 relationshipCharacterA === "" ||
@@ -535,7 +535,7 @@ export function WorldInfoPage() {
               <h2>World history</h2>
               <p>Inspect stored events associated with this world.</p>
             </div>
-            <button type="button" className="ghost-button" onClick={handleLoadWorldHistory} disabled={loadingWorldHistory}>
+            <button type="button" className="btn btn--admin btn-tone-neutral ghost-button" onClick={handleLoadWorldHistory} disabled={loadingWorldHistory}>
               {loadingWorldHistory ? "Loading history..." : "Load world history"}
             </button>
           </div>
@@ -583,7 +583,7 @@ export function WorldInfoPage() {
                 placeholder="Describe a planned story or world change to check for conflicts."
               />
             </label>
-            <button type="submit" className="primary-button" disabled={checkingWorldContinuity || !worldContinuitySummary.trim()}>
+            <button type="submit" className="btn btn--admin btn-tone-neutral primary-button" disabled={checkingWorldContinuity || !worldContinuitySummary.trim()}>
               {checkingWorldContinuity ? "Checking continuity..." : "Run world continuity check"}
             </button>
           </form>
@@ -649,7 +649,7 @@ export function WorldInfoPage() {
                   <div className="library-action-row">
                     <button
                       type="button"
-                      className="ghost-button"
+                      className="btn btn--admin btn-tone-neutral ghost-button"
                       onClick={() => handleLoadCharacterHistory(character.character_id)}
                       disabled={loadingCharacterHistoryId === character.character_id}
                     >
@@ -691,7 +691,7 @@ export function WorldInfoPage() {
                     </label>
                     <button
                       type="submit"
-                      className="primary-button"
+                      className="btn btn--admin btn-tone-neutral primary-button"
                       disabled={
                         checkingCharacterContinuityId === character.character_id ||
                         !(characterContinuitySummary[character.character_id] ?? "").trim()

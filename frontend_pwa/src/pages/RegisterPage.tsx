@@ -86,8 +86,8 @@ export function RegisterPage() {
 
         <p className="helper-text">Use 8 to 72 characters for the best compatibility with the current auth system.</p>
 
-        <button type="submit" className="primary-button" disabled={submitting}>
-          {submitting ? "Creating account..." : "Create account"}
+        <button type="submit" className="btn btn--create btn-tone-mint primary-button" disabled={submitting}>
+          {submitting ? "Creating Account..." : "Create Account"}
         </button>
 
         {error ? <ErrorState title="Account creation failed" message={error} /> : null}
@@ -98,12 +98,11 @@ export function RegisterPage() {
           </div>
         ) : null}
 
-        <p>
-          Already have an account?{" "}
-          <Link to="/login" className="text-link">
-            Sign in
+        <div className="library-action-row">
+          <Link to="/login" className="btn btn--secondary btn-tone-sky ghost-button">
+            Sign In
           </Link>
-        </p>
+        </div>
       </form>
     </section>
   );

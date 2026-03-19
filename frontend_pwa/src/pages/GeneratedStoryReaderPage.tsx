@@ -622,7 +622,7 @@ export function GeneratedStoryReaderPage() {
             ) : (
               <button
                 type="button"
-                className="ghost-button"
+                className="btn btn--create btn-tone-mint ghost-button"
                 onClick={handleIllustrate}
                 disabled={illustrating || isActiveMediaJob(illustrationJob)}
               >
@@ -632,18 +632,18 @@ export function GeneratedStoryReaderPage() {
             {hasNarration ? <span className="chip">Narration ready</span> : (
               <button
                 type="button"
-                className="ghost-button"
+                className="btn btn--create btn-tone-mint ghost-button"
                 onClick={handleNarrate}
                 disabled={narrating || isActiveMediaJob(narrationJob)}
               >
                 {narrating || isActiveMediaJob(narrationJob) ? "Narration queued..." : "Generate narration"}
               </button>
             )}
-            <Link to={`/reader/${readerId}/books/${story.story_id}`} className="ghost-button">
+            <Link to={`/reader/${readerId}/books/${story.story_id}`} className="btn btn--secondary btn-tone-neutral ghost-button">
               Back to story
             </Link>
             {hasNextStoryInPlaylist ? (
-              <button type="button" className="ghost-button" onClick={() => goToPlaylistStory(playlistIndex + 1, true)}>
+              <button type="button" className="btn btn--primary btn-tone-gold ghost-button" onClick={() => goToPlaylistStory(playlistIndex + 1, true)}>
                 Next book
               </button>
             ) : null}
@@ -654,10 +654,10 @@ export function GeneratedStoryReaderPage() {
           <section className="panel reader-media-panel">
             <audio ref={audioRef} src={sceneAudioUrl} preload="metadata" />
             <div className="reader-media-row">
-              <button type="button" className="primary-button" onClick={() => void togglePlayback()}>
+              <button type="button" className="btn btn--control btn-tone-gold primary-button" onClick={() => void togglePlayback()}>
                 {isPlaying ? "Pause" : "Play"}
               </button>
-              <button type="button" className="ghost-button" onClick={() => void playStoryFromBeginning()}>
+              <button type="button" className="btn btn--control btn-tone-neutral ghost-button" onClick={() => void playStoryFromBeginning()}>
                 Play from story beginning
               </button>
               <label className="reader-range reader-volume">
@@ -684,7 +684,7 @@ export function GeneratedStoryReaderPage() {
             {!hasNarration ? <p>Use Generate narration when you want scene audio and word highlighting.</p> : null}
             {!hasIllustrations ? <p>Use Generate illustration when you want a story image to appear above the reader.</p> : null}
             {hasNextStoryInPlaylist ? (
-              <button type="button" className="primary-button" onClick={() => goToPlaylistStory(playlistIndex + 1, true)}>
+              <button type="button" className="btn btn--primary btn-tone-gold primary-button" onClick={() => goToPlaylistStory(playlistIndex + 1, true)}>
                 Continue to next book
               </button>
             ) : null}
